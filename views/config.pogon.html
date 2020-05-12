@@ -1,0 +1,20 @@
+<html pogon-template="z3template.html">
+    <head>
+        <title>Configuration Page</title>
+    </head>
+
+    <body>
+        <h1>Configuration</h1>
+
+        <form method="post">
+            {{#with _locals}}
+                <label>Title of blog: <input type="text" id="title" name="title" value="{{config.title}}"></label><br />
+                <label>Author: <input type="text" id="author" name="author" value="{{config.author}}"></label><br />
+                <label>Private: <input type="checkbox" id="private" name="private" {{#if config.private}}checked{{/if}}></label> (Uncheck this to make your blog visible to the world!)<br />
+                <br />
+                <label>Show Z3 copyirght in footer: <input type="checkbox" id="z3_cr_in_footer" name="z3_cr_in_footer" {{#if config.z3_cr_in_footer}}checked{{/if}}></label><br />
+                <input type="submit" value="Update">
+            {{/with}}
+        </form>
+    </body>
+</html>

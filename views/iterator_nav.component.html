@@ -1,0 +1,20 @@
+<html>
+    <head></head>
+    <body>
+        <div class="iterator_nav">
+            {{#if previousStartMax}}
+                <a class="iterator_nav_previous" href="?start={{previousStart}}&limit={{limit}}">&#x25c4; {{previousStart}} ... {{previousStartMax}}</a>
+            {{/if}}
+
+            <form class="iterator_nav_limit">
+                <input type="hidden" name="start" value="{{start}}">
+                Items per page: <input type="number" name="limit" value="{{limit}}" min="1" max="200">
+                <input type="submit" value="update">
+            </form>
+
+            {{#if nextStart}}
+                <a class="iterator_nav_next" href="?start={{nextStart}}&limit={{limit}}">{{nextStart}} ... {{nextStartMax}} &#x25ba;</a>
+            {{/if}}
+        </div>
+    </body>
+</html>

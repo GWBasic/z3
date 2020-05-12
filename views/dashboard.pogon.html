@@ -1,0 +1,62 @@
+<html pogon-template="z3template.html">
+
+	<head>
+		<title>Blog dashboard</title>
+	</head>
+
+	<body>
+		<h1>Dashboard: Existing posts and drafts</h1>
+
+        <pogon_component name="iterator_range.component.html"></pogon_component>
+
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Date Published</th>
+                <th>Edit</th>
+                <th>URL</th>
+                <th>Summary</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+            </tr>
+            {{#each posts}}
+                <tr>
+                    <td>
+                        {{#if title}}
+                            {{title}}
+                        {{else}}
+                            {{workingTitle}}
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{#if publishedAt}}
+                            {{staticGroup}}
+                        {{else}}
+                            {{suggestedLocation}}
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{#if publishedAt}}
+                            <z3-date>{{publishedAt}}</z3-date>
+                        {{else}}
+                            Unpublished
+                        {{/if}}
+                    </td>
+                    <td><a href="/edit/{{_id}}">Edit</a></td>
+                    <td>
+                        {{#if url}}
+                            <a href="/{{url}}">/{{url}}</a>
+                        {{/if}}
+                    </td>
+                    <td>{{summary}}</td>
+                    <td><z3-date>{{createdAt}}</z3-date></td>
+                    <td><z3-date>{{updatedAt}}</z3-date></td>
+                </tr>
+            {{/each}}            
+        </table>
+
+        <pogon_component name="iterator_nav.component.html"></pogon_component>
+	</body>
+
+</html>

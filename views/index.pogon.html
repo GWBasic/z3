@@ -1,0 +1,24 @@
+<html>
+
+	<head>
+	</head>
+
+	<body>
+		{{#with _locals}}
+			{{#if isLoggedIn}}
+				<form method="post" action="/edit">
+					<h2>Set page content</h2>
+					<label for="title">Title:</label>&nbsp;
+					<input type="text" id="title" name="title"><br />
+					<input type="hidden" name="suggestedLocation" value="index">
+					<input type="submit" value="Create">
+				</form>
+
+				<hr />
+			{{/if}}
+
+			<z3_recentPosts limit="10"></z3_recentPosts>
+		{{/with}}
+	</body>
+
+</html>

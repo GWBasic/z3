@@ -1,0 +1,23 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+        {{#if noPosts}}
+            There are no posts!
+        {{/if}}
+
+        {{#each posts}}
+            <a href="{{url}}" title="{{title}}">{{title}}</a>
+            <small>(<z3-shortdate>{{publishedAt}}</z3-shortdate>)</small><br />
+            {{summary}}<br />
+            <a href="{{url}}" title="{{title}}">Read more...</a><br />
+            <hr />
+        {{/each}}
+
+        {{#if morePosts}}
+            <a href="/blog?start={{start}}" class="never_visited">More...</a>
+        {{/if}}
+    </body>
+</html>

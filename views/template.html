@@ -1,0 +1,98 @@
+	<html>
+
+		{{#with _locals}}
+			<head>
+				<title>{{config.title}}</title>
+				<meta name="author" content="{{config.author}}">
+				<link rel="stylesheet" href="/stylesheets/style.css">
+				{{#if isLoggedIn}}
+					<link rel="stylesheet" href="/stylesheets/admin_style.css">
+				{{/if}}
+				<script src="/javascripts/z3.js"></script>
+				<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+				<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+				<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+				<link rel="manifest" href="/site.webmanifest">
+			</head>
+
+			<body>
+				<header>
+					<img src="/images/treetop.jpg">
+					<span id="header_label"> <a href="/" class="header_title">{{config.title}}</a><br />
+						{{config.author}}
+					</span>
+					
+					<nav>
+						<a href="/blog">Blog</a>
+						{{#each staticPages.header}}
+							&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
+						{{/each}}
+						{{#if isLoggedIn}}
+							<form method="post" action="/edit">
+								&nbsp;&nbsp;&nbsp; Add,
+								<label for="title">Title:</label>&nbsp;
+								<input type="text" id="title" name="title">
+								<input type="hidden" name="suggestedLocation" value="header">
+								<input type="submit" value="Create">
+							</form>
+
+							<hr />
+
+							<z3-admin_nav>
+								<a href="/dashboard">Dashboard</a>&nbsp;&nbsp;&nbsp;
+								<a href="/config">Config</a>&nbsp;&nbsp;&nbsp;
+								<form method="post" action="/login/logout">
+									<input type="submit" value="Logout">
+								</form>
+
+								<form method="post" action="/edit">
+									&nbsp;&nbsp;&nbsp; Create blog entry,
+									<label for="title">Title:</label>&nbsp;
+									<input type="text" id="title" name="title">
+									<input type="hidden" name="suggestedLocation" value="blog">
+									<input type="submit" value="Create">
+								</form>
+											
+							</z3-admin_nav>
+						{{/if}}
+					</nav>
+
+				</header>
+
+				<br />
+				<div class="row">
+					<main>
+						<pogon_outlet> </pogon_outlet>
+					</main>
+					<z3-recentblogposts>
+						<div>
+							<z3_recentPosts limit="3">								
+							</z3_recentPosts>
+						</div>
+					</z3-recentblogposts>
+				</div>
+				<hr />
+
+				<footer>
+					{{#each staticPages.footer}}
+						&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
+					{{/each}}
+					{{#if isLoggedIn}}
+					<form method="post" action="/edit">
+						&nbsp;&nbsp;&nbsp; Add,
+						<label for="title">Title:</label>&nbsp;
+						<input type="text" id="title" name="title">
+						<input type="hidden" name="suggestedLocation" value="footer">
+						<input type="submit" value="Create">
+					</form>
+					{{/if}}
+					<br />
+					&copy; {{config.author}}<br />
+					{{#if config.z3_cr_in_footer}}
+						<a href="/copyright.html">Z3 &copy; Andrew Rondeau</a>
+					{{/if}}
+				</footer>
+			</body>
+		{{/with}}
+
+	</html>

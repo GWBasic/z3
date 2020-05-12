@@ -1,0 +1,29 @@
+z3-admin_nav > form {
+     display:inline;
+     margin:0px;
+     padding:0px;
+}
+
+/* Navigation bar links don't change color after they are visited */
+z3-admin_nav > a:visited {
+     color: var(--link-color);
+}
+
+/* Post admin bar */
+
+z3-postadminbar {
+     background: var(--main-bg-color);
+     padding: 5px;
+     float: right;
+}
+
+/* Post admin bar links don't change color after they are visited */
+z3-postadminbar > a:visited {
+     color: var(--link-color);
+}
+
+footer > form {
+     display:inline;
+     margin:0px;
+     padding:0px;
+}

@@ -1,0 +1,150 @@
+:root {
+    /* Mostly based on colors from https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+    But, blue was altered slightly to make it more readable */
+    --ansi_green: rgb(0,192,0);
+    --ansi_bright_green: rgb(0,255,0);
+    --ansi_red: rgb(192,0,0);
+    --ansi_bright_red: rgb(255,0,0);
+    --ansi_blue: rgb(75,75,192);
+    --ansi_bright_blue: rgb(75,75,255);
+    --ansi_black: rgb(0,0,0);
+    --ansi_bright_black: rgb(128, 128, 128);
+    --ansi_white: rgb(192, 192, 192);
+    --ansi_bright_white: rgb(255, 255, 255);
+    --ansi_yellow: rgb(192, 192, 0);
+    --ansi_bright_yellow: rgb(255, 255, 0);
+    --ansi_cyan: rgb(0, 192, 192);
+    --ansi_bright_cyan: rgb(0, 255, 255);
+    --ansi_magenta: rgb(192, 0, 192);
+    --ansi_bright_magenta: rgb(255, 0, 255);
+}
+
+ansi-green {
+    color: var(--ansi_green);
+}
+
+ansi-bright-green {
+    color: var(--ansi_bright_green);
+}
+
+ansi-red {
+    color: var(--ansi_red);
+}
+
+ansi-bright-red {
+    color: var(--ansi_bright_red);
+}
+
+ansi-blue {
+    color: var(--ansi_blue);
+}
+
+ansi-bright-blue {
+    color: var(--ansi_bright_blue);    
+}
+
+ansi-black {
+    color: var(--ansi_black);
+}
+
+ansi-bright-black {
+    color: var(--ansi_bright_black);
+}
+
+ansi-white {
+    color: var(--ansi_white);
+}
+
+ansi-bright-white {
+    color: var(--ansi_bright_white);
+}
+
+ansi-yellow {
+    color: var(--ansi_yellow);
+}
+
+ansi-bright-yellow {
+    color: var(--ansi_bright_yellow);
+}
+
+ansi-cyan {
+    color: var(--ansi_cyan);
+}
+
+ansi-bright-cyan {
+    color: var(--ansi_bright_cyan);
+}
+
+ansi-magenta {
+    color: var(--ansi_magenta);
+}
+
+ansi-bright-magenta {
+    color: var(--ansi_bright_magenta);
+}
+
+/* https://int10h.org/oldschool-pc-fonts/fontlist/ */
+/* https://int10h.org/css/int10h.css?ver=101a */
+@font-face {
+    font-family: 'IBMVGA8';
+    src: url(/fonts/ibm_vga8.eot);
+    src: url(/fonts/ibm_vga8.eot?#iefix) format('embedded-opentype'),
+         url(/fonts/ibm_vga8.woff2) format('woff2'),
+         url(/fonts/ibm_vga8.woff) format('woff'),
+         url(/fonts/ibm_vga8.ttf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family:IBMVGA8, monospace;
+	font-size:16px;
+	line-height:16px;
+    margin:0;
+    padding:0;
+	font-weight:normal;
+    text-align: left;
+    padding-left: 40px;
+    padding-right: 40px;
+    max-width: 1075px;
+    margin: auto;
+    margin-top: 25px;
+
+    color: var(--ansi_white);
+    background-color: var(--ansi_black);
+}
+
+nav > form {
+    display:inline;
+    margin:0px;
+    padding:0px;
+}
+
+nav > a:link {
+    color: var(--ansi_green);
+}
+nav > a:visited {
+    color: var(--ansi_green);
+}
+nav > a:hover {
+    color: var(--ansi_black);
+    background-color: var(--ansi_green);
+}
+nav > a:active {
+    color: var(--ansi_black);
+    background-color: var(--ansi_green);
+}
+
+a:link {
+    color: var(--ansi_magenta);
+}
+a:visited {
+    color: var(--ansi_blue);
+}
+a:hover {
+    color: var(--ansi_bright_magenta);
+}
+a:active {
+    color: var(--ansi_bright_magenta);
+}
+

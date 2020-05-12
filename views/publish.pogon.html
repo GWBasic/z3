@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <title>Publishing: {{title}}</title>
+
+        <z3-publishData hidden="true">{
+            "isPublished": {{isPublished}},
+            "title": "{{title}}"
+        }</z3-publishData>
+        <script src="/javascripts/publish.js"></script>
+    </head>
+
+    <body>
+        <pogon_component name="postTopBar.component.html"></pogon_component>
+
+        <h1>Publishing: {{title}}</h1>
+
+        {{#if isPublished}}
+            <form
+                method="post"
+                onsubmit="return confirm('Do you really want to un-publish {{title}}?');"
+                action="/publish/unPublish/{{postId}}">
+
+                Currently published at <a href="/{{url}}">/{{url}}</a><hr />
+
+                <input type="submit" value="Un-Publish">
+            </form>
+        {{/if}}
+
+        <form
+            method="post"
+            onsubmit="checkPublish();"
+            action="/publish/{{postId}}">
+
+            <input type="radio" name="where" value="{{toBlogValue}}" {{#if isBlog}}checked{{/if}}><label for="blog">Publish to blog</label><br />
+            <label for="publishedAt">Published:</label> <input type="text" id="publishedAt" name="publishedAt" value="{{publishedAt}}"/><br />
+            <label for="republishedAt">Updated at:</label> <input type="text" id="republishedAt" name="republishedAt"/> <small>(Last edited: {{republishedAt}}</small><br />
+            <input type="submit" value="Publish">
+            <hr />
+            <h2>Or, publish the page as the index / landing page</h2>
+            <input type="radio" name="where" value="{{toIndexValue}}" {{#if isIndex}}checked{{/if}}><label for="index">Publish as landing page / index</label><br />
+            {{#if willOverwriteIndex}}
+                Warning! Will replace the current index page! <br />
+            {{/if}}
+            <input type="submit" value="Publish">
+            <hr />
+            <h2>Or, publish the page on the header or footer</h2>
+            
+            {{#each staticPages}}
+                <h3>{{staticGroup}}</h3>
+                <input type="radio" name="where" value="{{toBlogValue}}" {{#if checked}}checked{{/if}}><label for="blog">First page</label>
+            
+                {{#each pages}}
+                    <br /><input type="radio" name="where" value="{{toBlogValue}}" {{#if checked}}checked{{/if}}><label for="blog">After "{{title}}"</label>
+                {{/each}}
+
+                <br /><input type="submit" value="Publish">
+
+                <hr />
+
+            {{/each}}
+
+        </form>
+
+        <form
+            method="post"
+            onsubmit="return confirm('Do you really want to un-publish {{title}}?');"
+            action="/publish/unPublish/{{postId}}">
+
+            Hide / un-publish: <input type="submit" value="Un-publish post">
+        </form>
+
+        <form
+            method="post"
+            onsubmit="return confirm('Do you really want to delete {{title}}? (This can not be undone)');"
+            action="/publish/delete/{{postId}}">
+
+            Delete: <input type="submit" value="Delete post">
+        </form>
+    </body>
+</html>

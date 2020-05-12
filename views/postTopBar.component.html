@@ -1,0 +1,21 @@
+<html>
+    <head>
+
+    </head>
+
+    <body>
+        {{#if isLoggedIn}}
+            <z3-postadminbar>
+                <a href="/edit/{{postId}}">Edit...</a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="/publish/{{postId}}">Publish \ Un-publish \ Delete...</a>
+                &nbsp;&nbsp;&nbsp;
+                <a href="/drafts/{{postId}}">Manage Drafts...</a>
+                {{#if publishedAt}}
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="/{{url}}">View: {{title}}</a>
+                {{/if}}
+            </z3-postadminbar>
+        {{/if}}
+        </body>
+</html>

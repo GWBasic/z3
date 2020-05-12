@@ -1,0 +1,29 @@
+<html pogon-template="z3template.html">
+
+	<head>
+		<title>Login to blog</title>
+	</head>
+
+	<body>
+        {{#if isPasswordConfigured}}
+        <h1>Login</h1>
+        <form method="post">
+            <label for="password">Password:</label>&nbsp;
+            <input type="password" id="password" name="password">
+            {{#if wrongPassword}}            
+            <span class="wrongPassword">Wrong Password:</span>&nbsp;
+            {{/if}}
+            <br />
+            <input type="submit" value="Login">
+        </form>
+        {{/if}}
+        <h1>Configure the Password</h1>
+        Entering a password will download password.json. Place this file in the same directory as app.js in order to set the password.
+        <form method="post" action="/login/generatePassword">
+            <label for="password">Password:</label>&nbsp;
+            <input type="password" id="password" name="password"><br />
+            <input type="submit" value="Generate password.json"> (Place the downloaded file in the same directory as app.js)
+        </form>
+	</body>
+
+</html>

@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>Editing: {{title}}</title>
+        <script>
+            const postId = '{{postId}}';
+        </script>
+        <script src="https://cdn.ckeditor.com/ckeditor5/18.0.0/balloon-block/ckeditor.js"></script>
+        <script src='/javascripts/edit.js'></script>
+    </head>
+
+    <body>
+        <pogon_component name="postTopBar.component.html"></pogon_component>
+
+        <h1>Editing...</h1>
+        <br />
+
+        <label>
+            Title: &nbsp;<input id="post_title" id="name" type="text" value="{{title}}" size="100" oninput="onContentChanged()"><br />
+        </label>
+        
+        This is a:<br />
+            <input
+                type="radio"
+                class="suggestedLocationInput"
+                name="suggestedLocation"
+                value="blog"
+                pogon-checked="{{suggestedLocation}}"
+                onchange="onContentChanged()">
+            <label for="blog">Blog entry</label><br />
+            {{#each staticPages}}
+                <input
+                    type="radio"
+                    class="suggestedLocationInput"
+                    name="suggestedLocation"
+                    value="{{this}}"
+                    pogon-checked="{{../suggestedLocation}}"
+                    onchange="onContentChanged()">
+                <label for="blog">{{this}}</label><br />
+            {{/each}}
+            <input
+                type="radio"
+                class="suggestedLocationInput"
+                name="suggestedLocation"
+                value="index"
+                pogon-checked="{{suggestedLocation}}"
+                onchange="onContentChanged()">
+            <label for="blog">Index / Landing page</label><br />
+        
+        <span id="oldVersionPublished"{{#unless draftIsOutdated}} hidden{{/unless}}>WARNING: An older version is published</span>
+
+        <hr >
+
+        <div id="content">{{{content}}}</div>
+
+        <div id="saved">Saved</div>
+        <div id="saving" hidden>Saving...</div>
+        <div id="error" hidden></div>
+    </body>
+</html>

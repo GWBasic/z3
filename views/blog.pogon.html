@@ -1,0 +1,31 @@
+<html>
+
+	<head>
+		<title>{{title}}</title>
+		<meta name="description" content="{{summary}}">
+	</head>
+
+	<body>
+        <pogon_component name="postTopBar.component.html"></pogon_component>
+		<h1>{{title}}</h1>
+		{{#if isBlogPost}}
+			<em>
+				Published: <z3-date>{{publishedAt}}</z3-date>
+				{{#if republishedAt}}
+					<small>(Updated: <z3-date>{{republishedAt}}</z3-date>)</small>
+				{{/if}}
+			</em>
+		{{/if}}
+		<div id="blogcontent">{{{content}}}</div>
+		{{#unless isBlogPost}}
+			<hr />
+			<em>
+				Created: <z3-date>{{publishedAt}}</z3-date>
+				{{#if republishedAt}}
+					<small>(Updated: <z3-date>{{republishedAt}}</z3-date>)</small>
+				{{/if}}
+			</em>
+		{{/unless}}
+	</body>
+
+</html>

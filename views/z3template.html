@@ -1,0 +1,45 @@
+<html>
+    {{#with _locals}}
+        <head>
+            <title>Z3 Admin: {{config.title}}</title>
+            <script src="/javascripts/z3.js"></script>
+            <link rel="stylesheet" href="/stylesheets/z3_admin.css">
+            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+            <link rel="manifest" href="/site.webmanifest">
+        </head>
+
+        <body>
+            <header>
+                <big>
+                    <ansi-blue>Z</ansi-blue><ansi-bright-blue>3 A</ansi-bright-blue><ansi-blue>dmin</ansi-blue> <ansi-bright-black>-</ansi-bright-black><ansi-white>=</ansi-white><ansi-bright-white>&gt;</ansi-bright-white> {{config.title}}
+                </big>
+
+                <pogon_component name="hr.component.html"></pogon_component>
+
+                <nav>
+                    <a href="/dashboard">Dashboard</a>&nbsp;&nbsp;&nbsp;
+                    <a href="/config">Config</a>&nbsp;&nbsp;&nbsp;
+                    <form method="post" action="/login/logout">
+                        <input type="submit" value="Logout">
+                    </form>
+                </nav>
+
+            </header>
+
+            <pogon_component name="hr.component.html"></pogon_component>
+
+            <main>
+                <pogon_outlet> </pogon_outlet>
+            </main>
+
+            <pogon_component name="hr.component.html"></pogon_component>
+
+            <footer>
+                <a href="/copyright.html">Z3 &copy; Andrew Rondeau</a>
+            </footer>
+
+        </body>
+    {{/with}}
+</html>

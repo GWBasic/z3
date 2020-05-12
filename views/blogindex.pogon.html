@@ -1,0 +1,30 @@
+<html>
+
+	<head>
+		<title>Recent blog entries</title>
+	</head>
+
+	<body>
+		<h1>Recent blog entries</h1>
+
+        Blog entries: <pogon_component name="iterator_range.component.html"></pogon_component>
+		<hr />
+
+		<div id="blogentries">{{#each posts}}
+			<div class="recententry">
+				<h2><a href="{{url}}" title="{{title}}">{{title}}</a></h2>
+				<em>Published: <z3-date>{{publishedAt}}</z3-date></em>
+				<div class="recententrycontent">{{summary}}</div>
+				{{#each publishedImages}}
+					<img src="{{../url}}/{{filename}}" style="max-height: 150px;">
+				{{/each}}
+				<div><a href="{{url}}" title="{{title}}">Read More...</a></div>
+			</div>
+		{{/each}}</div>
+
+		<hr />
+        <pogon_component name="iterator_nav.component.html"></pogon_component>
+
+	</body>
+
+</html>

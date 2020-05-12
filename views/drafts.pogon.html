@@ -1,0 +1,57 @@
+<html>
+
+    <head>
+        <title>Drafts: {{workingTitle}}</title>
+    </head>
+
+    <body>
+        <pogon_component name="postTopBar.component.html"></pogon_component>
+        <h1>Drafts: {{workingTitle}}</h1>
+
+        {{#each drafts}}<div>
+            <hr />
+            Updated: <z3-date>{{updated}}</z3-date><br />
+            Title: {{title}}<br />
+            Content: {{content}}<br />
+            <form
+                method="post"
+                onsubmit="return confirm('Do you really want to restore the draft from {{updated}}?');"
+                action="/drafts/restore/{{draftId}}">
+                <input type="submit" value="Restore">
+            </form>
+        </div>{{/each}}
+
+        {{#if url}}
+            <h1>Published Images</h1>
+
+            <hr />
+            {{#each publishedImages}}
+                <a href="{{url}}" target="_blank">
+                    <img src="{{url}}" style="max-height: 150px;"><br />
+                    Filename: {{filename}}
+                </a>
+                <hr />
+            {{/each}}
+
+            <h1>Unpublished Images</h1>
+            These are images from unpublished drafts
+        {{else}}
+            <h1>Images</h1>
+        {{/if}}
+
+        <hr />
+        {{#each unpublishedImages}}
+            <a href="{{url}}" target="_blank">
+                <img src="{{url}}" style="max-height: 150px;"><br />
+                Filename: {{filename}}
+            </a>
+            <form
+                method="post"
+                onsubmit="return confirm('Do you really want to delete image {{filename}}?');"
+                action="/drafts/deleteImage/{{_id}}">
+                <input type="submit" value="Delete image">
+            </form>
+            <hr />
+        {{/each}}
+    </body>
+<html>

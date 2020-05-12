@@ -1,0 +1,11 @@
+{
+     "cookieName": "session",
+     "duration": 2592000000,
+     "activeDuration": 300000,
+     "cookie": {
+          "ephemeral": true,
+          "httpOnly": true,
+          "secure": true
+     },
+     "secret": "BCAKnJgf+5A0+0R6ASNIsoEZ7SYqESyxIjoqechzyXZGDZmz/VMktIegByc5rtovkpVtfFIVDgKgFMM94iaL2bIhmPfJnyBc19AFmO15z9Sr2AFM46IfzYZcsY9r2NFRUKdJf+Itdi8c+DFtNzynhDcalbXacrSI4KgSF1S4/vks91dnki8qBnT+/CQ3MpQmKPCy3dgU8IxMOqel9fsq/qR6NOUBSJTao5XYUv1sZAevxP06KLDGsx4AFvoPlofaN85twKzvb+tbcnZXNL9P0ZwttmFbWnuz9f/1hf3ptOiHUNgN2wZZxH94gjkYyGUINx4YRd8XcKUdO+PYUt0F0A=="
+}
