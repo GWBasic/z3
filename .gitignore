@@ -111,6 +111,7 @@ data/
 testdata
 password.json
 config.json
+testConfig.json
 session.json
 public/images/avatar.png
 
