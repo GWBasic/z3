@@ -1,6 +1,7 @@
 const runtimeOptions = require('../runtimeOptions');
-runtimeOptions.db.location = 'testdata';
 runtimeOptions.configFile = 'testConfig.json';
+runtimeOptions.publicFolder = 'testpublic'
+runtimeOptions.db.location = 'testdata';
 runtimeOptions.authentication.passwordFile = 'testPassword.json';
 runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
@@ -38,6 +39,11 @@ module.exports = {
             await z3.saveConfig();
         } catch (err) {
             console.log(err);
+        }
+
+        try {
+            await fs.unlink(`./${runtimeOptions.publicFolder}/images/avatar.png`);
+        } catch {
         }
     },
 

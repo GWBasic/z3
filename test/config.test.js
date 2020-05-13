@@ -1,10 +1,18 @@
 const testSetup = require('./testSetup');
 
-const assert  = require('chai').assert;
+const chai = require('chai');
+const chaiFiles = require('chai-files');
+const fs = require('fs').promises;
 
 const z3 = require('../z3');
 
 const server = testSetup.server;
+const assert = chai.assert;
+
+chai.use(chaiFiles);
+
+const expect = chai.expect;
+const file = chaiFiles.file;
 
 describe('Config test', () => {
 
@@ -55,5 +63,18 @@ describe('Config test', () => {
         assert.equal(z3.config.author, 'new_author', 'Wrong author');
         assert.equal(z3.config.private, true, 'Wrong private');
         assert.equal(z3.config.z3_cr_in_footer, false, 'Wrong z3_cr_in_footer');
+    });
+
+    it('Upload avatar', async () => {
+        const img1Data = await fs.readFile('test/data/img1.jpg');
+        await testSetup.login();
+
+        const response = await server
+            .put('/config/avatar')
+            .set('Content-type', 'image/png')
+            .send(img1Data)
+            .expect(201);
+
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.png`)).to.equal(file('test/data/img1.jpg'));
     });
 });

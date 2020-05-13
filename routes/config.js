@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const express = require('express');
 const fs = require('fs').promises;
 
+const runtimeOptions = require('../runtimeOptions');
 const SafeRouter = require('../SafeRouter');
 
 const safeRouter = new SafeRouter(express);
@@ -34,7 +35,7 @@ const rawParser = bodyParser.raw({
 safeRouter.put('/avatar', z3.checkIsAuthenticated(), rawParser, async (req, res) => {
     const avatarImage = req.body;
 
-    await fs.writeFile('./public/images/avatar.png', avatarImage);
+    await fs.writeFile(`./${runtimeOptions.publicFolder}/images/avatar.png`, avatarImage);
 
     res.status(201);
     res.end();
