@@ -57,12 +57,13 @@ app.use(async function(req, res, next) {
 		res.locals.staticPages = await db.getAllStaticPages();
 		res.locals.config = z3.config;
 
+		/*
 		// Private mode
 		if (z3.config.private && !req.session.isLoggedIn) {
 			if (req.url != '/login') {
 				res.redirect('/login');
 			}
-		}
+		}*/
 
 		next();
 	} catch (err) {
