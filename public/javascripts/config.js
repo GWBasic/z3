@@ -2,54 +2,78 @@ function runConfig() {
 
     // Based on https://foliotek.github.io/Croppie/demo/demo.js
 
+    const surroundCropAvatarElement = document.getElementById('surroundCropAvatar');
     const cropAvatarElement = document.getElementById('cropAvatar');
+    const uploadAvatarElement = document.getElementById('uploadAvatar');
+    const submitAvatarElement = document.getElementById('submitAvatar');
+    const uploadStatusElement = document.getElementById('uploadStatus');
+    const currentAvatarElement = document.getElementById('currentAvatar');
+
+    const currentAvatarElementSrc = currentAvatarElement.src;
+
     const cropAvatarCroppie = new Croppie(cropAvatarElement, {
         enableExif: true,
         viewport: {
-            width: 200,
-            height: 200,
+            width: 240,
+            height: 240,
             type: 'circle'
         },
         boundary: {
-            width: 300,
+            width: 500,
             height: 300
         }
     });
 
-    const uploadAvatarElement = document.getElementById('uploadAvatar');
-
-    function readFile() {
+    function readImage() {
         if (uploadAvatarElement.files && uploadAvatarElement.files[0]) {
+
             var reader = new FileReader();
            
-            reader.onload = function (e) {
-                //$('.upload-demo').addClass('ready');
-                cropAvatarCroppie.bind({
+            reader.onload = async function (e) {
+                await cropAvatarCroppie.bind({
                     url: e.target.result
-                }).then(function(){
-                   console.log('bind complete');
-                });
-               
+                });               
+
+                surroundCropAvatarElement.style.display = 'block';
             }           
             
             reader.readAsDataURL(uploadAvatarElement.files[0]);
         } else {
-           console.error("Sorry - you're browser doesn't support the FileReader API");
+            alert("Your browser doesn't support the FileReader API");
         }
     }
 
-    uploadAvatarElement.addEventListener("change", readFile);
+    async function uploadAvatar() {
+        uploadStatusElement.textContent = 'Uploading';
 
-    /*$('.upload-result').on('click', function (ev) {
-        $uploadCrop.croppie('result', {
-            type: 'canvas',
-            size: 'viewport'
-        }).then(function (resp) {
-            popupResult({
-                src: resp
+        try {
+            const croppedImageBlob = await cropAvatarCroppie.result({
+                type: 'blob',
+                size: 'viewport',
+                circle: true,
             });
-        });
-    });*/
+
+            const uploadResponse = await fetch('/config/avatar', {
+                method: 'PUT',
+                credentials: 'same-origin',
+                body: croppedImageBlob
+            });
+
+            if (!uploadResponse.ok) {
+                uploadStatusElement.textContent = `Upload error: ${uploadResponse.statusText}`;
+                return;
+            }
+
+            uploadStatusElement.textContent = '';
+            surroundCropAvatarElement.style.display = 'none';
+            currentAvatarElement.src = `${currentAvatarElement.src}?q=${new Date().getTime()}`;
+        } catch (err) {
+            uploadStatusElement.textContent = err;
+        }
+    }
+
+    uploadAvatarElement.addEventListener('change', readImage);
+    submitAvatarElement.addEventListener('click', uploadAvatar);
 }
 
 if (document.readyState === "complete" ||

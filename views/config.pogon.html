@@ -22,13 +22,18 @@
         </form>
 
         <h2>Appearance</h2>
-        Avatar (TODO: cropAvatar should be hidden until an image is uploaded)
-        <div id="cropAvatar"></div>
         <div>
+            Profile picture: <img id="currentAvatar" src="/images/avatar.png"><br />
+            Set profile picture:
             <a>
-                <span>Upload</span>
                 <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" />
             </a>
+        </div>
+        <div id="surroundCropAvatar">
+            <div id="cropAvatar"></div><br />
+            <a>
+                <input type="button" id="submitAvatar" value="Upload" />
+            </a> <span id="uploadStatus"></span>
         </div>
     </body>
 </html>

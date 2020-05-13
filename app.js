@@ -93,7 +93,7 @@ app.use((err, req, res, next) => {
 	if ((err instanceof db.PostNotFoundError) ||
 		(err instanceof db.DraftNotFoundError) ||
 		(err instanceof db.ImageNotFoundError)) {
-			res.status(404);
+		res.status(404);
 		res.render(
 			'error', {
 				status: 404,
@@ -128,9 +128,11 @@ app.use((err, req, res, next) => {
 				if (!res.headersSent) {
 					res.status(res.locals.status);
 					res.send(html);
+				} else {
+					next();
 				}
 
-				next();
+				res.end();
 			}
 		});
 	}

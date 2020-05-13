@@ -17,12 +17,18 @@ exports.checkIsAuthenticated = serviceCall => {
     return async (req, res, next, ...args) => {
         if (req.session) {
             if (req.session.isLoggedIn) {
-                await serviceCall(req, res, next, ...args);
+                if (serviceCall) {
+                    await serviceCall(req, res, next, ...args);
+                } else {
+                    next();
+                }
+
                 return;
             }
         }
 
-        next(createError(401));
+        res.status(401);
+		res.render('401', {});
     };
 };
 
