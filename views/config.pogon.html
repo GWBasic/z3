@@ -9,6 +9,7 @@
     <body>
         <h1>Configuration</h1>
 
+        <h2>Global Settings</h2>
         <form method="post">
             {{#with _locals}}
                 <label>Title of blog: <input type="text" id="title" name="title" value="{{config.title}}"></label><br />
@@ -20,7 +21,14 @@
             {{/with}}
         </form>
 
-        <div id="upload-avatar"></div>
-
+        <h2>Appearance</h2>
+        Avatar (TODO: cropAvatar should be hidden until an image is uploaded)
+        <div id="cropAvatar"></div>
+        <div>
+            <a>
+                <span>Upload</span>
+                <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" />
+            </a>
+        </div>
     </body>
 </html>
