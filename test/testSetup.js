@@ -32,6 +32,8 @@ module.exports = {
 
         z3.config.title = 'title for tests';
         z3.config.author = 'author for tests';
+        z3.config.private = false;
+
         try {
             await z3.saveConfig();
         } catch (err) {

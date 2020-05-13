@@ -38,6 +38,8 @@ describe('Config test', () => {
 
         assert.equal(options.config.title, z3.config.title, 'Wrong title');
         assert.equal(options.config.author, z3.config.author, 'Wrong author');
+        assert.equal(options.config.private, z3.config.private, 'Wrong private');
+        assert.equal(options.config.z3_cr_in_footer, z3.config.z3_cr_in_footer, 'Wrong z3_cr_in_footer');
     });
 
     it('Update config', async () => {
@@ -45,15 +47,13 @@ describe('Config test', () => {
 
         const response = await server
             .post('/config')
-            .send(`title=new_title&author=new_author`)
+            .send('title=new_title&author=new_author&private=checked')
             .expect(302)
             .expect('Location', `/config`);
 
         assert.equal(z3.config.title, 'new_title', 'Wrong title');
         assert.equal(z3.config.author, 'new_author', 'Wrong author');
-    });
-
-    it('z3_cr_in_footer and private', async () => {
-        assert.fail('incomplete');
+        assert.equal(z3.config.private, true, 'Wrong private');
+        assert.equal(z3.config.z3_cr_in_footer, false, 'Wrong z3_cr_in_footer');
     });
 });

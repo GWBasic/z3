@@ -1,5 +1,6 @@
 const testSetup = require('./testSetup');
 const sessionConfig = require('../sessionConfig');
+const z3 = require('../z3');
 
 const assert  = require('chai').assert;
 const fs = require('fs').promises;
@@ -103,6 +104,20 @@ describe('Login and session handling', () => {
     });
 
     it('private mode', async () => {
-        assert.fail('incomplete');
+        z3.config.private = true;
+
+        await server
+            .get('/dashboard')
+            .expect(302)
+            .expect('Location', '/login');
+
+        await server
+            .get('/')
+            .expect(302)
+            .expect('Location', '/login');
+
+        await server
+            .get('/login')
+            .expect(200);
     });
 });
