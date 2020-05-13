@@ -61,6 +61,7 @@ app.use(async function(req, res, next) {
 		if (z3.config.private && !req.session.isLoggedIn) {
 			if (req.url != '/login') {
 				res.redirect('/login');
+				return;
 			}
 		}
 

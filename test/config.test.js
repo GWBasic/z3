@@ -32,6 +32,10 @@ describe('Config test', () => {
         await server
             .post('/config')
             .expect(401);
+
+        await server
+            .put('/config/avatar')
+            .expect(401);
     });
 
     it('Get config', async () => {
