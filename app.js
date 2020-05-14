@@ -19,6 +19,7 @@ const editRouter = require('./routes/edit');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const publishRouter = require('./routes/publish');
+const templateSelectorRouter = require('./routes/template_selector');
 
 const app = express();
 
@@ -78,6 +79,7 @@ app.use('/drafts/', draftsRouter);
 app.use('/edit/', editRouter);
 app.use('/login/', loginRouter);
 app.use('/publish/', publishRouter);
+app.use('/template_selector/', templateSelectorRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

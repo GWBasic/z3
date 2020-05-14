@@ -4,6 +4,11 @@
 			<head>
 				<title>{{config.title}}</title>
 				<meta name="author" content="{{config.author}}">
+				{{#if ../overrideTemplate}}
+					<link rel="stylesheet" href="{{../linkPath}}">
+				{{else}}
+					<link rel="stylesheet" href="/templates/built-in/clover.css">
+				{{/if}}
 				<link rel="stylesheet" href="/stylesheets/style.css">
 				{{#if isLoggedIn}}
 					<link rel="stylesheet" href="/stylesheets/admin_style.css">

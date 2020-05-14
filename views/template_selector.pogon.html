@@ -1,0 +1,20 @@
+<html pogon-template="z3template.html">
+    <head>
+        <title>Select your template</title>
+    </head>
+
+    <body>
+        <h1>Select your template</h1>
+
+        {{#each templates}}
+            {{shortName}}: {{linkPath}} <small>{{fullPath}}</small><br />
+            <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
+            <iframe
+                width="900px",
+                height="450px",
+                src="/template_selector/{{linkPath}}"
+                title="Preview {{shortName}}"></iframe>
+            <br />
+        {{/each}}
+    </body>
+</html>
