@@ -7,6 +7,7 @@
         <h1>Select your template</h1>
 
         {{#each templates}}
+            <br />
             {{shortName}}: {{linkPath}} <small>{{fullPath}}</small><br />
             <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
             <iframe
