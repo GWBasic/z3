@@ -1,10 +1,10 @@
 :root {
     --main-bg-color: rgba(255, 255, 255, 0.9);
-    --title-color: rgb(200,247,156);
+    --title-color: rgb(52,35,36);
     --title-color-active: rgb(255, 255, 255);
-    --link-color: rgb(50,97,6);
-    --link-color-visited: rgb(97,50,6);
-    --link-color-active: rgb(100,147,056);
+    --link-color: rgb(64,57,50);
+    --link-color-visited: rgb(84,37,70);
+    --link-color-active: rgb(114,107,100);
     --background-image: url(/templates/built-in/cement.jpg)
 }
 

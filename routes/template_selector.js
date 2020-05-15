@@ -16,8 +16,8 @@ const dirname = path.dirname(__dirname);
 safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
     const dirname = path.dirname(__dirname);
     const foldersToScan = [
-        path.join(dirname, 'public', 'templates', 'built-in'),
-        path.join(dirname, 'public', 'templates', 'custom')
+        path.join(dirname, 'public', 'templates', 'custom'),
+        path.join(dirname, 'public', 'templates', 'built-in')
     ];
 
     const templates = [];

@@ -1,10 +1,10 @@
 :root {
     --main-bg-color: rgba(255, 255, 255, 0.9);
-    --title-color: rgb(200,247,156);
+    --title-color: rgb(20,10,14);
     --title-color-active: rgb(255, 255, 255);
-    --link-color: rgb(50,97,6);
-    --link-color-visited: rgb(97,50,6);
-    --link-color-active: rgb(100,147,056);
+    --link-color: rgb(51,46,41);
+    --link-color-visited: rgb(41,46,51);
+    --link-color-active: rgb(101,96,91);
     --background-image: url(/templates/built-in/shingles.jpg)
 }
 
