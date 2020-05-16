@@ -15,7 +15,7 @@ const dirname = path.dirname(__dirname);
 
 safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
     const dirname = path.dirname(__dirname);
-    const linkPathPrefix = path.join(dirname, 'public');
+    const linkPathPrefix = path.join(dirname, runtimeOptions.publicFolder);
 
     const templates = [];
 
@@ -37,18 +37,19 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
     }
 
     isBuiltIn = false;
-    await scanFolder(path.join(dirname, 'public', 'templates', 'custom'), templates, linkPathPrefix);
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix);
 
     isBuiltIn = true;
-    await scanFolder(path.join(dirname, 'public', 'templates', 'built-in'), templates, linkPathPrefix);
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
 
     res.render('template_selector', {
-        templates
+        templates,
+        configuredTemplate: z3.config.template
     });
 }));
 
 safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
-    linkPath = req.url;
+    const linkPath = req.url;
     const fullPath = path.join(dirname, 'public', linkPath);
     res.render('template_preview', {
         overrideTemplate: true,
@@ -56,6 +57,14 @@ safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
         fullPath,
         shortName: path.basename(fullPath, '.css')
     });
+}));
+
+safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
+
+    z3.config.template = req.body.template;
+    await z3.saveConfig();
+
+    res.redirect('/config');
 }));
 
 module.exports = safeRouter.router;

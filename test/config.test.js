@@ -14,7 +14,7 @@ chai.use(chaiFiles);
 const expect = chai.expect;
 const file = chaiFiles.file;
 
-describe('Config test', () => {
+describe('Config', () => {
 
     before(() => {});
 

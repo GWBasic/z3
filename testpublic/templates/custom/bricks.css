@@ -1,0 +1,13 @@
+:root {
+    --main-bg-color: rgba(255, 255, 255, 0.9);
+    --title-color: rgb(47,29,27);
+    --title-color-active: rgb(255, 255, 255);
+    --link-color: rgb(26,105,138);
+    --link-color-visited: rgb(152,80,69);
+    --link-color-active: rgb(76,155,188);
+    --background-image: url(/templates/built-in/bricks.jpg)
+}
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+}

@@ -11,6 +11,7 @@ const session = require('client-sessions');
 const db = require('./db');
 const sessionConfig = require('./sessionConfig');
 const recentPosts = require('./recentPosts');
+const runtimeOptions = require('./runtimeOptions');
 const z3 = require('./z3');
 
 const blogRouter = require('./routes/blog');
@@ -45,7 +46,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
 
 app.use(async function(req, res, next) {
 	try {
@@ -64,6 +65,7 @@ app.use(async function(req, res, next) {
 		if (z3.config.private && !req.session.isLoggedIn) {
 			if (req.url != '/login') {
 				res.redirect('/login');
+				res.end();
 				return;
 			}
 		}
@@ -121,14 +123,15 @@ app.use((err, req, res, next) => {
 			console.error(`Unhandled error ${req.method} ${req.originalUrl}: ${err.stack}`);
 		}
 
+		const args = {};
 		// set locals, only providing error in development
-		res.locals.message = err.message;
-		res.locals.error = isDevelopment ? err : {};
-
-		res.locals.status = err.status || 500;
+		args.message = err.message;
+		args.error = isDevelopment ? err : {};
+		args.status = err.status || 500;
 
 		const viewFile = err.status == 401 ? '401' : 'error';
-		res.render(viewFile, res.locals);
+		res.status(args.status);
+		res.render(viewFile, args);
 	}
 });
 

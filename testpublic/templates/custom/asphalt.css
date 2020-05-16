@@ -1,0 +1,13 @@
+:root {
+    --main-bg-color: rgba(255, 255, 255, 0.9);
+    --title-color: rgb(246,232,222);
+    --title-color-active: rgb(255, 255, 255);
+    --link-color: rgb(102,73,50);
+    --link-color-visited: rgb(124,109,88);
+    --link-color-active: rgb(152,123,100);
+    --background-image: url(/templates/built-in/asphalt.jpg)
+}
+
+body {
+    font-family: Helvetica, Arial, sans-serif;
+}

@@ -11,7 +11,7 @@
             {{#each templates}}
                 <br />
                 <label>
-                    <input type="radio" name="template" value="{{shortName}}">
+                    <input type="radio" name="template" value="{{linkPath}}" pogon-checked="{{../configuredTemplate}}">
                     {{shortName}}:
                     {{#if isBuiltIn}}
                         (Built-in)
