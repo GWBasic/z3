@@ -1,3 +1,5 @@
+"use strict";
+
 const publishDataElement = document.getElementsByTagName('z3-publishData')[0];
 const publishData = JSON.parse(publishDataElement.textContent);
 

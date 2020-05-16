@@ -9,7 +9,7 @@ module.exports.loadSession = (sessionConfigFile, defaultSessionConfig) => {
         crypto.randomFillSync(buf);
         sessionToWrite.secret = buf.toString('base64');
     
-        sessionToWriteJSON = JSON.stringify(sessionToWrite, null, 5);
+        const sessionToWriteJSON = JSON.stringify(sessionToWrite, null, 5);
         fsAsync.writeFileSync(sessionConfigFile, sessionToWriteJSON);
     }
     

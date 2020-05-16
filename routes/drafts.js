@@ -28,7 +28,7 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated(async (req, res, next) => {
         unpublishedImages
     };
 
-    for (draftIndex in drafts) {
+    for (var draftIndex in drafts) {
         const draft = drafts[draftIndex];
 
         postModel.drafts.push({

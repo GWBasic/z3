@@ -1,3 +1,5 @@
+require('use-strict');
+
 const runtimeOptions = require('../runtimeOptions');
 runtimeOptions.configFile = 'testConfig.json';
 runtimeOptions.publicFolder = 'testpublic'

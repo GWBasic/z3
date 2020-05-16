@@ -54,7 +54,7 @@ describe('Drafts operations', () => {
             assert.equal(draftsModel.workingTitle, 'title 4', 'Wrong workingTitle');
 
             for (var draftItr = 0; draftItr < 5; draftItr++) {
-                draft = drafts[draftItr];
+                const draft = drafts[draftItr];
                 const returnedDraft = draftsModel.drafts[4 - draftItr];
 
                 assert.equal(returnedDraft.draftId, draft._id, 'Wrong ID');

@@ -1,3 +1,5 @@
+"use strict";
+
 var onContentChanged = () => {};
 
 async function runEditor() {

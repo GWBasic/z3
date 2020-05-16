@@ -91,14 +91,14 @@ describe('Login and session handling', () => {
         testSetup.login();
 
         // Log out
-        result = await server
+        await server
             .post('/login/logout')
             .expect(302)
             .expect('set-cookie', `${sessionConfig.cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`)
             .expect('Location', '/login');
 
         // Trying to access the dashboard after logging out should fail
-        result = await server
+        await server
             .get('/dashboard')
             .expect(401);
     });

@@ -1,3 +1,5 @@
+"use strict";
+
 const queuedCallbacks = [];
 
 async function runZ3() {

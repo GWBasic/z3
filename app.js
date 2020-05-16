@@ -1,3 +1,5 @@
+require('use-strict');
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
@@ -123,21 +125,10 @@ app.use((err, req, res, next) => {
 		res.locals.message = err.message;
 		res.locals.error = isDevelopment ? err : {};
 
-		res.locals.status = err.status || 500; 
-		pogon.renderFile(path.join(__dirname, 'views', 'error.pogon.html'), res.locals, (innerErr, html) => {
-			if (innerErr) {
-				next(innerErr);
-			} else {
-				if (!res.headersSent) {
-					res.status(res.locals.status);
-					res.send(html);
-				} else {
-					next();
-				}
+		res.locals.status = err.status || 500;
 
-				res.end();
-			}
-		});
+		const viewFile = err.status == 401 ? '401' : 'error';
+		res.render(viewFile, res.locals);
 	}
 });
 

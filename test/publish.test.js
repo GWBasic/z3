@@ -62,8 +62,8 @@ describe('Publish operations', () => {
 
     it('View publish page', async () => {
 
-        const publishedAt = new Date(1981, 03, 12);
-        const republishedAt = new Date(1984, 05, 24);
+        const publishedAt = new Date(1981, 3, 12);
+        const republishedAt = new Date(1984, 5, 24);
 
         testSetup.setAutoIncrementDate();
         await testSetup.createStaticPages(21);
@@ -165,8 +165,8 @@ describe('Publish operations', () => {
         await db.appendDraft(post._id, workingTitle, content);
 
         const whereParam = encodeURI(JSON.stringify({}));
-        const publishedAt = new Date(1981, 03, 12);
-        const republishedAt = new Date(1984, 05, 24);
+        const publishedAt = new Date(1981, 3, 12);
+        const republishedAt = new Date(1984, 5, 24);
 
         var response = await server
             .post(`/publish/${post._id}`)
@@ -275,12 +275,12 @@ describe('Publish operations', () => {
             }
         }
 
-        options = testPublishOptions('blog', {blog: true});
-        options = testPublishOptions('index', {index: true});
-        options = testPublishOptions('header', {firstHeader: true}, true);
-        options = testPublishOptions('footer', {firstFooter: true}, true);
+        testPublishOptions('blog', {blog: true});
+        testPublishOptions('index', {index: true});
+        testPublishOptions('header', {firstHeader: true}, true);
+        testPublishOptions('footer', {firstFooter: true}, true);
 
-        options = testPublishOptions('header', {secondHeader: true});
-        options = testPublishOptions('footer', {secondFooter: true});
+        testPublishOptions('header', {secondHeader: true});
+        testPublishOptions('footer', {secondFooter: true});
     })
 });

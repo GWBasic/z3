@@ -1,3 +1,5 @@
+"use strict";
+
 function runConfig() {
 
     // Based on https://foliotek.github.io/Croppie/demo/demo.js
