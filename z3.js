@@ -27,8 +27,7 @@ exports.checkIsAuthenticated = serviceCall => {
             }
         }
 
-        res.status(401);
-        res.render('401', {});
+        next(createError(401));
     };
 };
 

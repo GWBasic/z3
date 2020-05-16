@@ -81,6 +81,7 @@ describe('Index operations', () => {
     it('Published /', async () => {
         const postAndDraft = await db.createPost('this is the index');
         const post = postAndDraft.post;
+        const draft = postAndDraft.drafts[0];
 
         const imageRecord = await db.insertImage(post._id, 'hash', 'filename', 'image/jpeg', Buffer.alloc(20));
 

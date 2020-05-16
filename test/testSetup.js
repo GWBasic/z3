@@ -247,7 +247,7 @@ module.exports = {
     }
 };
 
-assert.throwsAsync = async (fn, cl, message) => {
+assert.throwsAsync = async (cl, fn, message) => {
     try {
         await fn();
         assert.fail(`Exception of type ${cl} not thrown: ${message}`)

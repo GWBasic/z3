@@ -34,7 +34,7 @@ describe('Database', () => {
         ]
 
         for (var functionName of functionNames) {
-            assert.throwsAsync(() => db[functionName](badPostId), db.PostNotFoundError, `Incorrect error thrown for db.${functionName}`)
+            await assert.throwsAsync(db.PostNotFoundError, () => db[functionName](badPostId), `Incorrect error thrown for db.${functionName}`)
         }
     });
 
@@ -313,7 +313,7 @@ describe('Database', () => {
             assert.notEqual(remainingPost._id, post._id, 'Post not deleted');
         }
 
-        assert.throwsAsync(async () => await db.getImage(imageRecord._id), db.ImageNotFoundError, 'Images not deleted');
+        await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage(imageRecord._id), 'Images not deleted');
         assert.isNull(await db.getImageOrNull(imageRecordDuplicateName._id), 'Images not deleted');
     });
 
@@ -439,26 +439,70 @@ describe('Database', () => {
         const draft = postsAndDraft.drafts[0];
 
         // afterId isn't part of static pages
-        assert.throwsAsync(db.UnknownStaticGroupError, async () =>
-            await db.publishPost(page._id, draft._id, draft.title, draft.content, `theurl`, 'summary', 'badstaticgroup', null));
+        await assert.throwsAsync(db.UnknownStaticGroupError, async () =>
+            await db.publishPost(
+                page._id,
+                draft._id,
+                new Date(),
+                null,
+                draft.title,
+                draft.content,
+                `theurl`,
+                'summary',
+                [],
+                'badstaticgroup',
+                null));
 
         // staticGroup not known (0 static pages)
-        assert.throwsAsync(db.UnknownAfterPageIdError, async () =>
-            await db.publishPost(page._id, draft._id, draft.title, draft.content, `theurl`, 'summary', 'badstaticgroup', 'htesy5e5'));
+        await assert.throwsAsync(db.UnknownAfterPageIdError, async () =>
+            await db.publishPost(
+                page._id,
+                draft._id,
+                new Date(),
+                null,
+                draft.title,
+                draft.content,
+                `theurl`,
+                'summary',
+                [], 
+                'header',
+                'htesy5e5'));
 
         // staticGroup not known (many static pages)
         const postsAndDraftToPublish = (await testSetup.createPosts(1))[0];
         const pageToPublish = postsAndDraftToPublish.post;
         const draftToPublish = postsAndDraftToPublish.drafts[0];
 
-        await db.publishPost(pageToPublish._id, draftToPublish._id, draftToPublish.title, draftToPublish.content, `theurl`, 'summary', 'footer', null);
+        await db.publishPost(
+            pageToPublish._id,
+            draftToPublish._id,
+            new Date(),
+            null,
+            draftToPublish.title,
+            draftToPublish.content,
+            `theurl`,
+            'summary',
+            [],
+            'footer',
+            null);
 
-        assert.throwsAsync(db.UnknownAfterPageIdError, async () =>
-            await db.publishPost(page._id, draft._id, draft.title, draft.content, `theurl`, 'summary', 'badstaticgroup', 'htesy5e5'));
+        await assert.throwsAsync(db.UnknownAfterPageIdError, async () =>
+            await db.publishPost(
+                page._id,
+                draft._id,
+                new Date(),
+                null,
+                draft.title,
+                draft.content,
+                `theurl`,
+                'summary',
+                [],
+                'footer',
+                'htesy5e5'));
     });
 
     it('ImageNotFoundError', async () => {
-        assert.throwsAsync(async () => await db.getImage('anid'), db.ImageNotFoundError);
+        await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage('anid'));
         assert.isNull(await db.getImageOrNull('anid'));
     });
 

@@ -193,7 +193,7 @@ describe('Publish operations', () => {
             .expect(302)
             .expect('Location', `/publish/${post._id}`);
 
-        assert.throwsAsync(async () => await db.getPostFromUrl(url), db.PostNotFoundError, 'Post not un-published');
+        await assert.throwsAsync(db.PostNotFoundError, async () => await db.getPostFromUrl(url), 'Post not un-published');
 
         // delete
         response = await server
@@ -201,7 +201,7 @@ describe('Publish operations', () => {
             .expect(302)
             .expect('Location', '/dashboard');
 
-        assert.throwsAsync(async () => await db.getPost(post._id), db.PostNotFoundError, 'Post not deleted');
+        await assert.throwsAsync(db.PostNotFoundError, async () => await db.getPost(post._id), 'Post not deleted');
 
         const imageRecords = await db.getImagesForPost(post._id);
         assert.equal(imageRecords.length, 0, 'Images not deleted');
