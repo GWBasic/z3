@@ -15,21 +15,19 @@ const dirname = path.dirname(__dirname);
 
 safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
     const dirname = path.dirname(__dirname);
-    const foldersToScan = [
-        path.join(dirname, 'public', 'templates', 'custom'),
-        path.join(dirname, 'public', 'templates', 'built-in')
-    ];
-
-    const templates = [];
     const linkPathPrefix = path.join(dirname, 'public');
 
-    for (var folderToScan of foldersToScan) {
-        const files = await fs.readdir(folderToScan);
+    const templates = [];
 
+    var isBuiltIn;
+
+    async function scanFolder(folderToScan, templates, linkPathPrefix) {
+        const files = await fs.readdir(folderToScan);
         for (var file of files) {
             if (path.extname(file) == '.css') {
                 const fullPath = path.join(folderToScan, file);
                 templates.push({
+                    isBuiltIn,
                     fullPath,
                     shortName: path.basename(fullPath, '.css'),
                     linkPath: fullPath.substring(linkPathPrefix.length + 1)
@@ -37,6 +35,12 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
             }
         }
     }
+
+    isBuiltIn = false;
+    await scanFolder(path.join(dirname, 'public', 'templates', 'custom'), templates, linkPathPrefix);
+
+    isBuiltIn = true;
+    await scanFolder(path.join(dirname, 'public', 'templates', 'built-in'), templates, linkPathPrefix);
 
     res.render('template_selector', {
         templates
@@ -55,3 +59,4 @@ safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
 }));
 
 module.exports = safeRouter.router;
+

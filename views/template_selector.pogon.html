@@ -5,17 +5,32 @@
 
     <body>
         <h1>Select your template</h1>
+        <pogon_component name="hr.component.html"></pogon_component>
 
-        {{#each templates}}
-            <br />
-            {{shortName}}: {{linkPath}} <small>{{fullPath}}</small><br />
-            <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
-            <iframe
-                width="900px",
-                height="450px",
-                src="/template_selector/{{linkPath}}"
-                title="Preview {{shortName}}"></iframe>
-            <br />
-        {{/each}}
+        <form method="post" action="/template_selector">
+            {{#each templates}}
+                <br />
+                <label>
+                    <input type="radio" name="template" value="{{shortName}}">
+                    {{shortName}}:
+                    {{#if isBuiltIn}}
+                        (Built-in)
+                    {{else}}
+                        (Custom)
+                    {{/if}}
+                </label>
+                <input type="submit" value="submit">
+                <br />
+                <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
+                <iframe
+                    width="900px",
+                    height="450px",
+                    src="/template_selector/{{linkPath}}"
+                    title="Preview {{shortName}}"></iframe>
+                <br />
+                <br />
+                <pogon_component name="hr.component.html"></pogon_component>
+            {{/each}}
+        </form>
     </body>
 </html>
