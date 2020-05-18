@@ -1,0 +1,41 @@
+#cropAvatar {
+    max-width: 1000;
+    max-height: 850;
+    color: var(ansi_black);
+    background-color: var(--ansi_white);
+}
+
+#surroundCropAvatar,
+#hideSelectTemplate,
+#templateSelector {
+    display: none;
+}
+
+#templateSelector {
+    margin-left: 25px;
+}
+
+/* See https://stackoverflow.com/a/3131624/1711103 */
+.previewWrap { width: 350px; height: 180px; padding: 0; overflow: hidden; }
+.previewFrame {
+    -ms-zoom: 0.25;
+    zoom: 0.25;
+    -moz-transform: scale(0.25);
+    -moz-transform-origin: 0 0;
+    transform: scale(0.25);
+    transform-origin: 0 0;
+    -o-transform: scale(0.25);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.25);
+    -webkit-transform-origin: 0 0;
+}
+
+.previewFrame {
+    width: 400%;
+    height: 400%;
+}
+
+z3-warn,
+z3-unpublish {
+    color: var(--ansi_red);
+}

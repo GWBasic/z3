@@ -41,11 +41,6 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
 
     isBuiltIn = true;
     await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
-
-    res.render('template_selector', {
-        templates,
-        configuredTemplate: z3.config.template
-    });
 }));
 
 safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {

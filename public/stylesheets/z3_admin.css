@@ -147,14 +147,3 @@ a:hover {
 a:active {
     color: var(--ansi_bright_magenta);
 }
-
-#cropAvatar {
-    max-width: 1000;
-    max-height: 850;
-    color: var(ansi_black);
-    background-color: var(--ansi_white);
-}
-
-#surroundCropAvatar {
-    display: none;
-}

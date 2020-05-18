@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const bodyParser = require('body-parser')
 const express = require('express');
 const fs = require('fs').promises;
+const path = require('path');
 const pngToIco = require('png-to-ico');
 const sharp = require('sharp');
 
@@ -13,14 +14,48 @@ const safeRouter = new SafeRouter(express);
 const db = require('../db');
 const z3 = require('../z3');
 
+const dirname = path.dirname(__dirname);
+
 safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
-    res.render('config');
+    const linkPathPrefix = path.join(dirname, runtimeOptions.publicFolder);
+
+    const templates = [];
+
+    var isBuiltIn;
+
+    async function scanFolder(folderToScan, templates, linkPathPrefix) {
+        const files = await fs.readdir(folderToScan);
+        for (var file of files) {
+            if (path.extname(file) == '.css') {
+                const fullPath = path.join(folderToScan, file);
+                templates.push({
+                    isBuiltIn,
+                    fullPath,
+                    shortName: path.basename(fullPath, '.css'),
+                    linkPath: fullPath.substring(linkPathPrefix.length + 1)
+                });
+            }
+        }
+    }
+
+    isBuiltIn = false;
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix);
+
+    isBuiltIn = true;
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
+
+    res.render('config', {
+        templates,
+        configuredTemplate: z3.config.template
+    });
 }));
 
 safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
     z3.config.title = req.body.title;
     z3.config.author = req.body.author;
-    z3.config.private = req.body.private ? true : false;
+    z3.config.template = req.body.template;
+
+    z3.config.private = req.body.publish ? false : true;
     
     z3.config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
 

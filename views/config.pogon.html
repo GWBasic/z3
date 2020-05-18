@@ -1,6 +1,7 @@
 <html pogon-template="z3template.html">
     <head>
         <title>Configuration Page</title>
+        <link rel="stylesheet" href="/stylesheets/config.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
         <script src="/javascripts/config.js"></script>
@@ -9,34 +10,75 @@
     <body>
         <h1>Configuration</h1>
 
-        <h2>Global Settings</h2>
         <form method="post">
             {{#with _locals}}
-                <label>Title of blog: <input type="text" id="title" name="title" value="{{config.title}}"></label><br />
-                <label>Author: <input type="text" id="author" name="author" value="{{config.author}}"></label><br />
-                <label>Private: <input type="checkbox" id="private" name="private" {{#if config.private}}checked{{/if}}></label> (Uncheck this to make your blog visible to the world!)<br />
-                <br />
+                <label>Title: <input type="text" id="title" name="title" value="{{config.title}}"></label>
+                <z3-unpublished>X</z3-unpublished><br />
+                
+                <label>Author: <input type="text" id="author" name="author" value="{{config.author}}"></label>
+                <z3-unpublished>X</z3-unpublished><br />
+
+                <div>
+                    Profile picture: <img id="currentAvatar" src="/images/avatar.png"><br />
+                    Set profile picture:
+                    <a>
+                        <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" /> <z3-unpublished>X</z3-unpublished>
+                    </a>
+                </div>
+                <div id="surroundCropAvatar">
+                    <div id="cropAvatar"></div><br />
+                    <a>
+                        <input type="button" id="submitAvatar" value="Upload" />
+                    </a> <span id="uploadStatus"></span>
+                </div><br />
+                
+                <a id="displaySelectTemplate">Select your template &#x25BA;</a>
+                <a id="hideSelectTemplate">Select your template &#x25BC;</a>
+            {{/with}}
+
+            <div id="templateSelector">
+                {{#each templates}}
+                    <br />
+                    <label>
+                        <input
+                            class="templateRadioButton"
+                            type="radio"
+                            name="template"
+                            value="{{linkPath}}"
+                            pogon-checked="{{../config.template}}">
+                        {{shortName}}:
+                        {{#if isBuiltIn}}
+                            (Built-in)
+                        {{else}}
+                            (Custom)
+                        {{/if}}
+                    </label>
+                    <br />
+                    <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
+                    <div class="previewWrap">
+                    <iframe
+                        class="previewFrame"
+                        src="/template_selector/{{linkPath}}"
+                        title="Preview {{shortName}}"></iframe>
+                    </div>
+                    <br />
+                    <br />
+                    <pogon_component name="hr.component.html"></pogon_component>
+                {{/each}}
+            </div>
+            <br />
+            <br />
+            
+            {{#with _locals}}
+                <label>Publish: <input type="checkbox" id="publish" name="publish" {{#unless config.private}}checked{{/unless}} disabled></label>
+                <z3-unpublished>Before publishing your blog, you must set the title, author, profile picture, and template</z3-unpublished>
+                <z3-unpublish>Warning: Unchecking this will disable your blog!</z3-unpublish><br />
+
+                <pogon_component name="hr.component.html"></pogon_component><br />
+
                 <label>Show Z3 copyirght in footer: <input type="checkbox" id="z3_cr_in_footer" name="z3_cr_in_footer" {{#if config.z3_cr_in_footer}}checked{{/if}}></label><br />
-                <input type="submit" value="Update">
+                <input id="submit" type="submit" value="Update" disabled>
             {{/with}}
         </form>
-
-        <h2>Appearance</h2>
-        <div>
-            Profile picture: <img id="currentAvatar" src="/images/avatar.png"><br />
-            Set profile picture:
-            <a>
-                <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" />
-            </a>
-        </div>
-        <div id="surroundCropAvatar">
-            <div id="cropAvatar"></div><br />
-            <a>
-                <input type="button" id="submitAvatar" value="Upload" />
-            </a> <span id="uploadStatus"></span>
-        </div><br />
-        <div>
-            <a href="template_selector">Select your template</a>
-        </div>
     </body>
 </html>
