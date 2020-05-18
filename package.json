@@ -19,7 +19,9 @@
     "nedb": "^1.8.0",
     "nedb-promises": "^4.0.3",
     "password-hash-and-salt": "^0.1.4",
+    "png-to-ico": "^2.1.0",
     "pogon.html": "git+https://github.com/GWBasic/pogon.html.git",
+    "sharp": "^0.25.3",
     "striptags": "^3.1.1",
     "use-strict": "^1.0.1"
   },

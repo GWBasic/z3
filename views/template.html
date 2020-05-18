@@ -22,7 +22,11 @@
 
 			<body>
 				<header>
-					<img src="/images/avatar.png">
+					<picture>
+						<source srcset="/images/avatar.webp" type="image/webp">
+						<source srcset="/images/avatar.png" type="image/jpeg"> 
+						<img src="/images/avatar.png">
+					</picture>
 					<span id="header_label"> <a href="/" class="header_title">{{config.title}}</a><br />
 						{{config.author}}
 					</span>

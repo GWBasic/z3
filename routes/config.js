@@ -2,6 +2,8 @@ const createError = require('http-errors');
 const bodyParser = require('body-parser')
 const express = require('express');
 const fs = require('fs').promises;
+const pngToIco = require('png-to-ico');
+const sharp = require('sharp');
 
 const runtimeOptions = require('../runtimeOptions');
 const SafeRouter = require('../SafeRouter');
@@ -33,9 +35,36 @@ const rawParser = bodyParser.raw({
 });
 
 safeRouter.put('/avatar', z3.checkIsAuthenticated(), rawParser, async (req, res) => {
-    const avatarImage = req.body;
+    const avatarImageBuffer = req.body;
 
-    await fs.writeFile(`./${runtimeOptions.publicFolder}/images/avatar.png`, avatarImage);
+    // Write the avatar
+    await fs.writeFile(`./${runtimeOptions.publicFolder}/images/avatar.png`, avatarImageBuffer);
+
+    await sharp(avatarImageBuffer)
+        .toFile(`./${runtimeOptions.publicFolder}/images/avatar.webp`);
+
+    await sharp(avatarImageBuffer)
+        .resize({width: 192, height: 192})
+        .toFile(`./${runtimeOptions.publicFolder}/android-chrome-192x192.png`);
+
+    await sharp(avatarImageBuffer)
+        .resize({width: 512, height: 512})
+        .toFile(`./${runtimeOptions.publicFolder}/android-chrome-512x512.png`);
+
+    await sharp(avatarImageBuffer)
+        .resize({width: 180, height: 180})
+        .toFile(`./${runtimeOptions.publicFolder}/apple-touch-icon.png`);
+
+    await sharp(avatarImageBuffer)
+        .resize({width: 16, height: 16})
+        .toFile(`./${runtimeOptions.publicFolder}/favicon-16x16.png`);
+
+    await sharp(avatarImageBuffer)
+        .resize({width: 32, height: 32})
+        .toFile(`./${runtimeOptions.publicFolder}/favicon-32x32.png`);
+
+    const icoBuffer = await pngToIco(avatarImageBuffer);
+    await fs.writeFile(`./${runtimeOptions.publicFolder}/favicon.ico`, icoBuffer);
 
     res.status(201);
     res.end();
