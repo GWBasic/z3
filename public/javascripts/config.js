@@ -15,6 +15,7 @@ function runConfig() {
 
     const cropAvatarCroppie = new Croppie(cropAvatarElement, {
         enableExif: true,
+        mouseWheelZoom: false,
         viewport: {
             width: 512,
             height: 512,
