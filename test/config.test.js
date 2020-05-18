@@ -70,15 +70,22 @@ describe('Config', () => {
     });
 
     it('Upload avatar', async () => {
-        const img1Data = await fs.readFile('test/data/img1.jpg');
+        const img1Data = await fs.readFile('test/data/avatar.png');
         await testSetup.login();
 
-        const response = await server
+        await server
             .put('/config/avatar')
             .set('Content-type', 'image/png')
             .send(img1Data)
             .expect(201);
 
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.png`)).to.equal(file('test/data/img1.jpg'));
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.webp`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/android-chrome-192x192.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/android-chrome-512x512.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/apple-touch-icon.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon-16x16.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon-32x32.png`)).to.exist;
+        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon.ico`)).to.exist;
     });
 });
