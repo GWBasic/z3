@@ -149,8 +149,8 @@ a:active {
 }
 
 #cropAvatar {
-    max-width: 500;
-    max-height: 350;
+    max-width: 1000;
+    max-height: 850;
     color: var(ansi_black);
     background-color: var(--ansi_white);
 }

@@ -16,13 +16,13 @@ function runConfig() {
     const cropAvatarCroppie = new Croppie(cropAvatarElement, {
         enableExif: true,
         viewport: {
-            width: 240,
-            height: 240,
+            width: 512,
+            height: 512,
             type: 'circle'
         },
         boundary: {
-            width: 500,
-            height: 300
+            width: 1000,
+            height: 800
         }
     });
 

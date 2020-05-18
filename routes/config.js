@@ -31,18 +31,22 @@ safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
 
 const rawParser = bodyParser.raw({
     type: 'image/png',
-    limit: '300kb'
+    limit: '1024kb'
 });
 
 safeRouter.put('/avatar', z3.checkIsAuthenticated(), rawParser, async (req, res) => {
     const avatarImageBuffer = req.body;
 
-    // Write the avatar
-    await fs.writeFile(`./${runtimeOptions.publicFolder}/images/avatar.png`, avatarImageBuffer);
-
+    // Write the avatar (240x240)
     await sharp(avatarImageBuffer)
+        .resize({width: 240, height: 240})
         .toFile(`./${runtimeOptions.publicFolder}/images/avatar.webp`);
 
+    await sharp(avatarImageBuffer)
+        .resize({width: 240, height: 240})
+        .toFile(`./${runtimeOptions.publicFolder}/images/avatar.png`);
+
+    // Generate all the favicons
     await sharp(avatarImageBuffer)
         .resize({width: 192, height: 192})
         .toFile(`./${runtimeOptions.publicFolder}/android-chrome-192x192.png`);
