@@ -13,16 +13,18 @@
         <form method="post">
             {{#with _locals}}
                 <label>Title: <input type="text" id="title" name="title" value="{{config.title}}"></label>
-                <z3-unpublished>X</z3-unpublished><br />
+                <z3-unpublished id="titleEmpty">X</z3-unpublished><br />
                 
                 <label>Author: <input type="text" id="author" name="author" value="{{config.author}}"></label>
-                <z3-unpublished>X</z3-unpublished><br />
+                <z3-unpublished id="authorEmpty">X</z3-unpublished><br />
 
                 <div>
-                    Profile picture: <img id="currentAvatar" src="/images/avatar.png"><br />
+                    Profile picture: <br />
+                    <img id="currentAvatar" src="/images/avatar.png" {{#unless ../isAvatarConfigured}}hidden{{/unless}}><br />
                     Set profile picture:
+                    <z3-unpublished id="profilePictureEmpty">X</z3-unpublished>
                     <a>
-                        <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" /> <z3-unpublished>X</z3-unpublished>
+                        <input type="file" id="uploadAvatar" value="Choose a file" accept="image/*" />
                     </a>
                 </div>
                 <div id="surroundCropAvatar">
@@ -34,6 +36,7 @@
                 
                 <a id="displaySelectTemplate">Select your template &#x25BA;</a>
                 <a id="hideSelectTemplate">Select your template &#x25BC;</a>
+                <z3-unpublished id="templateEmpty">X</z3-unpublished>
             {{/with}}
 
             <div id="templateSelector">
@@ -54,11 +57,11 @@
                         {{/if}}
                     </label>
                     <br />
-                    <a href="/template_selector/{{linkPath}}">Full preview of {{shortName}}</a>
+                    <a href="/config/{{linkPath}}" target="_blank">Full preview of {{shortName}}</a>
                     <div class="previewWrap">
                     <iframe
                         class="previewFrame"
-                        src="/template_selector/{{linkPath}}"
+                        src="/config/{{linkPath}}"
                         title="Preview {{shortName}}"></iframe>
                     </div>
                     <br />
@@ -71,13 +74,13 @@
             
             {{#with _locals}}
                 <label>Publish: <input type="checkbox" id="publish" name="publish" {{#unless config.private}}checked{{/unless}} disabled></label>
-                <z3-unpublished>Before publishing your blog, you must set the title, author, profile picture, and template</z3-unpublished>
-                <z3-unpublish>Warning: Unchecking this will disable your blog!</z3-unpublish><br />
+                <z3-unpublished id="publishRequirements">Before publishing your blog, you must set the title, author, profile picture, and template</z3-unpublished>
+                <z3-unpublish id="unpublishWarning">Warning: Unchecking this will disable your blog!</z3-unpublish><br />
 
                 <pogon_component name="hr.component.html"></pogon_component><br />
 
                 <label>Show Z3 copyirght in footer: <input type="checkbox" id="z3_cr_in_footer" name="z3_cr_in_footer" {{#if config.z3_cr_in_footer}}checked{{/if}}></label><br />
-                <input id="submit" type="submit" value="Update" disabled>
+                <input id="submit" type="submit" value="Update">
             {{/with}}
         </form>
     </body>

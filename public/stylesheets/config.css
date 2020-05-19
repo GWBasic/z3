@@ -35,7 +35,7 @@
     height: 400%;
 }
 
-z3-warn,
+z3-unpublished,
 z3-unpublish {
     color: var(--ansi_red);
 }

@@ -228,7 +228,7 @@ function loadConfig() {
             author: '',
             private: true,
             z3_cr_in_footer: true,
-            template: 'templates/built-in/clover.css'
+            template: null
         };
     }
 }

@@ -87,8 +87,7 @@ describe('Login and session handling', () => {
     });
 
     it('logout', async () => {
-
-        testSetup.login();
+        await testSetup.login();
 
         // Log out
         await server

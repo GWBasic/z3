@@ -23,7 +23,7 @@ safeRouter.get('/', async (req, res) => {
 
     res.render(
         'login', {
-            isPasswordConfigured: isPasswordConfigured
+            isPasswordConfigured
         });
 });
 

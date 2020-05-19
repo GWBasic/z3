@@ -8,7 +8,7 @@ runtimeOptions.authentication.passwordFile = 'testPassword.json';
 runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
 const assert  = require('chai').assert;
-const fs = require('fs').promises;
+const fs = require('fs-extra');
 const pogon = require('pogon.html')
 const supertest = require('supertest');
 
@@ -43,10 +43,7 @@ module.exports = {
             console.log(err);
         }
 
-        try {
-            await fs.unlink(`./${runtimeOptions.publicFolder}/images/avatar.png`);
-        } catch {
-        }
+        await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
     },
 
     afterEach: async () => {
@@ -54,6 +51,7 @@ module.exports = {
         await db.clear();
         await module.exports.logout();
         await module.exports.deletePassword();
+        await fs.rmdir(`./${runtimeOptions.publicFolder}`, {recursive: true});
     },
 
     deletePassword: async () => {

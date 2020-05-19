@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const bodyParser = require('body-parser')
 const express = require('express');
 const fs = require('fs').promises;
+const fsConstants = require('fs').constants;
 const path = require('path');
 const pngToIco = require('png-to-ico');
 const sharp = require('sharp');
@@ -44,9 +45,30 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
     isBuiltIn = true;
     await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
 
+    var isAvatarConfigured;
+
+    try {
+        await fs.access(path.join(dirname, runtimeOptions.publicFolder, 'favicon.ico'), fsConstants.R_OK);
+        isAvatarConfigured = true;
+    } catch (ex) {
+        isAvatarConfigured = false;
+    }
+
     res.render('config', {
+        isAvatarConfigured,
         templates,
         configuredTemplate: z3.config.template
+    });
+}));
+
+safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
+    const linkPath = req.url;
+    const fullPath = path.join(dirname, runtimeOptions.publicFolder, linkPath);
+    res.render('template_preview', {
+        overrideTemplate: true,
+        linkPath,
+        fullPath,
+        shortName: path.basename(fullPath, '.css')
     });
 }));
 

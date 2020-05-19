@@ -17,12 +17,14 @@ function runConfig() {
     const previewFrameElements = document.getElementsByClassName('previewFrame');
     const titleElement = document.getElementById('title');
     const authorElement = document.getElementById('author');
-    const z3UnpublishedElements = document.getElementsByTagName('z3-unpublished');
     const publishElement = document.getElementById('publish');
-    const submitElement = document.getElementById('submit');
-    const z3UnpublishElements = document.getElementsByTagName('z3-unpublish');
 
-    const currentAvatarElementSrc = currentAvatarElement.src;
+    const titleEmptyElement = document.getElementById('titleEmpty');
+    const authorEmptyElement = document.getElementById('authorEmpty');
+    const profilePictureEmptyElement = document.getElementById('profilePictureEmpty');
+    const templateEmptyElement = document.getElementById('templateEmpty');
+    const publishRequirementsElement = document.getElementById('publishRequirements');
+    const unpublishWarningElement = document.getElementById('unpublishWarning');
 
     const cropAvatarCroppie = new Croppie(cropAvatarElement, {
         enableExif: true,
@@ -81,6 +83,8 @@ function runConfig() {
             uploadStatusElement.textContent = '';
             surroundCropAvatarElement.style.display = 'none';
             currentAvatarElement.src = `${currentAvatarElement.src}?q=${new Date().getTime()}`;
+            currentAvatarElement.hidden = false;
+            profilePictureEmptyElement.hidden = true;
 
             for (var previewFrameElement of previewFrameElements) {
                 previewFrameElement.contentWindow.location.reload(true);
@@ -108,58 +112,69 @@ function runConfig() {
     displaySelectTemplateElement.addEventListener('click', displaySelectTemplate);
     hideSelectTemplateElement.addEventListener('click', hideSelectTemplate);
 
-    for (var templateRadioButtonElement of templateRadioButtonElements) {
-        templateRadioButtonElement.addEventListener('click', hideSelectTemplate);
-    }
+    const blogWasPublished = publishElement.checked;
+    const isAvatarConfigured = !currentAvatarElement.hidden;
 
     function verifyCanPublish() {
 
         function disablePublish() {
-            for (var z3UnpublishedElement of z3UnpublishedElements) {
-                z3UnpublishedElement.style.display = '';
-            }
-
-            for (var z3UnpublishElement of z3UnpublishElements) {
-                z3UnpublishElement.style.display = 'none';
-            }
+            unpublishWarningElement.hidden = true;
+            publishRequirementsElement.hidden = false;
 
             publishElement.disabled = true;
-            submitElement.disabled = true;
+            publishElement.checked = false;
         }
 
         function enablePublish() {
-            for (var z3UnpublishedElement of z3UnpublishedElements) {
-                z3UnpublishedElement.style.display = 'none';
-            }
-
-            for (var z3UnpublishElement of z3UnpublishElements) {
-                z3UnpublishElement.style.display = '';
-            }
+            unpublishWarningElement.hidden = false;
+            publishRequirementsElement.hidden = true;
 
             publishElement.disabled = false;
-            submitElement.disabled = false;
+            publishElement.checked = blogWasPublished;
         }
 
+        var allowPublish = true;
+
         if (titleElement.value.length < 1) {
-            disablePublish();
-            return;
+            titleEmptyElement.hidden = false;
+            allowPublish = false;
+        } else {
+            titleEmptyElement.hidden = true;
         }
 
         if (authorElement.value.length < 1) {
-            disablePublish();
-            return;
+            authorEmptyElement.hidden = false;
+            allowPublish = false;
+        } else {
+            authorEmptyElement.hidden = true;
         }
 
-        // TODO: Check that an image was uploaded
+        if (!isAvatarConfigured) {
+            profilePictureEmptyElement.hidden = false;
+            allowPublish = false;
+        } else {
+            profilePictureEmptyElement.hidden = true;
+        }
 
+        var templateRadioButtonElementChecked = false;
         for (var templateRadioButtonElement of templateRadioButtonElements) {
             if (templateRadioButtonElement.checked) {
-                enablePublish();
-                return;
+                templateRadioButtonElementChecked = true;
             }
         }
 
-        disablePublish();
+        if (!templateRadioButtonElementChecked) {
+            templateEmptyElement.hidden = false;
+            allowPublish = false;
+        } else {
+            templateEmptyElement.hidden = true;
+        }
+
+        if (allowPublish) {
+            enablePublish();
+        } else {
+            disablePublish();
+        }
     }
 
     titleElement.addEventListener('input', verifyCanPublish);
