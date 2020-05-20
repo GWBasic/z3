@@ -119,4 +119,30 @@ describe('Login and session handling', () => {
             .get('/login')
             .expect(200);
     });
+
+    it('Login with destination', async () => {
+        await server
+            .post('/login')
+            .send(`password=${testSetup.passwordInfo.password}&destination=/newurl`)
+            .expect(302)
+            .expect('Location', '/newurl');
+
+        // Trying to access the dashboard after logging out should succeed
+        await server
+            .get('/dashboard')
+            .expect(200);
+    });
+
+    it('Login with destination, bad password', async () => {
+        await server
+            .post('/login')
+            .send(`password=badpassword&destination=/newurl`)
+            .expect(302)
+            .expect('Location', '/newurl');
+
+        // Trying to access the dashboard after logging out should fail
+        await server
+            .get('/dashboard')
+            .expect(401);
+    });
 });

@@ -18,6 +18,30 @@ describe('z3 module test', () => {
         } catch {}
     });
 
+    it('Check if the password is configured', async () => {
+        await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(testSetup.passwordInfo.hashAndSalt));
+
+        assert.isTrue(await z3.isPasswordConfigured(), "Password is not configured");
+
+        await testSetup.deletePassword();
+
+        assert.isFalse(await z3.isPasswordConfigured(), "Password is not configured");
+    });
+
+    it('Check verifying the password', async () => {
+        await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(testSetup.passwordInfo.hashAndSalt));
+
+        assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.password), "Could not verify the password")
+        assert.isFalse(await z3.checkPassword('badpassword'), "Incorrect password")
+    });
+
+    it('Check generating the password file', async () => {
+
+        const hashAndSaltJSON = await z3.generatePasswordAndHash('password');
+
+        assert.isTrue(hashAndSaltJSON.startsWith('pbkdf2$10000$'), 'Incorrect hash and salt generated');
+    })
+
     it('Check getting start and limit', async () => {
 
         function checkSkipLimit(query, expectedStart, expectedLimit) {

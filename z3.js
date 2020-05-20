@@ -2,7 +2,10 @@ const cheerio = require('cheerio');
 const createError = require('http-errors');
 const fsSync = require('fs');
 const fs = require('fs').promises;
+const fsConstants = require('fs').constants;
 const he = require('he');
+const passwordHashAndSalt = require('password-hash-and-salt');
+const promisify = require('util').promisify;
 const striptags = require('striptags');
 
 const db = require('./db');
@@ -12,6 +15,34 @@ const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 25;
 
 const MAX_SUMMARY_LENGTH = 200;
+
+exports.isPasswordConfigured = async () => {
+    try {
+        await fs.access(runtimeOptions.authentication.passwordFile, fsConstants.R_OK);
+        return true;
+    } catch (ex) {
+        return false;
+    }
+};
+
+exports.generatePasswordAndHash = async password => {
+    const hashAndSalt = await promisify(callback => passwordHashAndSalt(password).hash(callback))();
+    return hashAndSalt;
+};
+
+exports.checkPassword = async password => {
+
+    try {
+        const hashAndSaltData = await fs.readFile(runtimeOptions.authentication.passwordFile);
+        const hashAndSalt = JSON.parse(hashAndSaltData);
+
+        const verified = await promisify(callback => passwordHashAndSalt(password).verifyAgainst(hashAndSalt, callback))();
+        return verified;
+    } catch (err) {
+        console.error(`Can not verify password: ${err}`);
+        return false;
+    }
+};
 
 exports.checkIsAuthenticated = serviceCall => {
     return async (req, res, next, ...args) => {

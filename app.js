@@ -126,6 +126,7 @@ app.use((err, req, res, next) => {
 		args.message = err.message;
 		args.error = isDevelopment ? err : {};
 		args.status = err.status || 500;
+		args.url = req.url;
 
 		const viewFile = err.status == 401 ? '401' : 'error';
 		res.status(args.status);

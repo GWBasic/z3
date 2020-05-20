@@ -5,6 +5,14 @@
 
     <body>
         You need to log in in order to access this page.<br />
-        <a href="/login">Login to: {{_locals.config.title}}</a>
+        <form method="post" action="/login">
+            <label>Password: <input type="password" id="password" name="password"></label>
+            {{#if wrongPassword}}            
+                <span class="wrongPassword">Wrong Password:</span>&nbsp;
+            {{/if}}
+            <input type="hidden" name="destination" value="{{url}}">
+            <br />
+            <input type="submit" value="Login">
+        </form>
     </body>
 </html>
