@@ -77,17 +77,25 @@ describe('Config', () => {
     it('Update config', async () => {
         await testSetup.login();
 
-        const response = await server
+        await server
             .post('/config')
             .send('title=new_title&author=new_author&private=checked&template=the_template')
             .expect(302)
             .expect('Location', `/config`);
 
-        assert.equal(z3.config.title, 'new_title', 'Wrong title');
-        assert.equal(z3.config.author, 'new_author', 'Wrong author');
-        assert.equal(z3.config.private, true, 'Wrong private');
-        assert.equal(z3.config.z3_cr_in_footer, false, 'Wrong z3_cr_in_footer');
-        assert.equal(z3.config.template, 'the_template');
+        function checkConfig(config) {
+            assert.equal(config.title, 'new_title', 'Wrong title');
+            assert.equal(config.author, 'new_author', 'Wrong author');
+            assert.equal(config.private, true, 'Wrong private');
+            assert.equal(config.z3_cr_in_footer, false, 'Wrong z3_cr_in_footer');
+            assert.equal(config.template, 'the_template');
+        }
+
+        checkConfig(z3.config);
+
+        const configFileJSON = await fs.readFile(testSetup.runtimeOptions.configFile);
+        const configFile = JSON.parse(configFileJSON);
+        checkConfig(configFile);
     });
 
     it('Upload avatar', async () => {

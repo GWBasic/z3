@@ -220,7 +220,7 @@ exports.extractImages = async (content, url, postId) => {
 function loadConfig() {
     try {
         const configBuffer = fsSync.readFileSync(runtimeOptions.configFile);
-        module.exports.config = JSON.parse(configBuffer);
+        exports.config = JSON.parse(configBuffer);
     } catch (err) {
         console.log(`Error loading config: ${err}`);
         module.exports.config = {
@@ -235,10 +235,10 @@ function loadConfig() {
 
 loadConfig();
 
-module.exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;
+exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;
 
-module.exports.saveConfig = async () => {
-    const configJSON = JSON.stringify(module.exports.config);
+exports.saveConfig = async () => {
+    const configJSON = JSON.stringify(exports.config);
     await fs.writeFile(runtimeOptions.configFile, configJSON);
 }
 
