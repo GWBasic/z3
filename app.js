@@ -15,6 +15,7 @@ const runtimeOptions = require('./runtimeOptions');
 const z3 = require('./z3');
 
 const blogRouter = require('./routes/blog');
+const changePasswordRouter = require('./routes/changePassword');
 const configRouter = require('./routes/config');
 const dashboardRouter = require('./routes/dashboard');
 const draftsRouter = require('./routes/drafts');
@@ -76,6 +77,7 @@ app.use(async function(req, res, next) {
 });
 
 app.use('/blog/', blogRouter);
+app.use('/changePassword/', changePasswordRouter);
 app.use('/config/', configRouter);
 app.use('/dashboard/', dashboardRouter);
 app.use('/drafts/', draftsRouter);

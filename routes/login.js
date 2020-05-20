@@ -17,7 +17,6 @@ safeRouter.get('/', async (req, res) => {
         });
 });
 
-
 safeRouter.post('/', async (req, res, next) => {
     const password = req.body.password;
     const verified = await z3.checkPassword(password);
