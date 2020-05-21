@@ -284,7 +284,8 @@ function loadConfig() {
             author: '',
             private: true,
             z3_cr_in_footer: true,
-            template: null
+            template: null,
+            overrideTemplate: null
         };
     }
 }

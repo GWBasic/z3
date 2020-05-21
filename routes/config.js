@@ -4,6 +4,7 @@ const express = require('express');
 const fs = require('fs').promises;
 const fsConstants = require('fs').constants;
 const path = require('path');
+const pogon = require('pogon.html');
 const pngToIco = require('png-to-ico');
 const sharp = require('sharp');
 
@@ -80,6 +81,18 @@ safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
     z3.config.private = req.body.publish ? false : true;
     
     z3.config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
+
+    if (req.body.overrideTemplate) {
+        if (req.body.overrideTemplate.length > 0) {
+            z3.config.overrideTemplate = req.body.overrideTemplate;
+        } else {
+            z3.config.overrideTemplate = null;
+        }
+    } else {
+        z3.config.overrideTemplate = null;
+    }
+
+    pogon.defaultTemplate = z3.config.overrideTemplate;
 
     await z3.saveConfig();
 

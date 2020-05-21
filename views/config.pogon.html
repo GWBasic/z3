@@ -81,6 +81,9 @@
                 <pogon_component name="hr.component.html"></pogon_component><br />
 
                 <label>Show Z3 copyirght in footer: <input type="checkbox" id="z3_cr_in_footer" name="z3_cr_in_footer" {{#if config.z3_cr_in_footer}}checked{{/if}}></label><br />
+                <label>Override template: <input type="text" value="{{config.overrideTemplate}}" id="overrideTemplate" name="overrideTemplate"></label>
+                Set this value to completely edit the HTML and CSS provided with z3. To do this, copy the "/views/template.html" file and specify
+                the name of your copy here. (Please don't edit "/views/template.html" or other files in that folder, as it will cause problems with updates.)<br />
                 <input id="submit" type="submit" value="Update">
             {{/with}}
         </form>
