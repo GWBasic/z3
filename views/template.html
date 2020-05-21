@@ -1,108 +1,109 @@
-	<html>
+<!DOCTYPE html>
+<html>
 
-		{{#with _locals}}
-			<head>
-				<title>{{config.title}}</title>
-				<meta name="author" content="{{config.author}}">
-				{{#if ../overrideTemplate}}
-					<link rel="stylesheet" href="{{../linkPath}}">
-				{{else}}
-					<link rel="stylesheet" href="/{{config.template}}">
-				{{/if}}
-				<link rel="stylesheet" href="/stylesheets/style.css">
-				{{#if isLoggedIn}}
-					<link rel="stylesheet" href="/stylesheets/admin_style.css">
-				{{/if}}
-				<script src="/javascripts/z3.js"></script>
-				<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-				<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-				<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-				<link rel="manifest" href="/site.webmanifest">
-			</head>
+	{{#with _locals}}
+		<head>
+			<title>{{config.title}}</title>
+			<meta name="author" content="{{config.author}}">
+			{{#if ../overrideTemplate}}
+				<link rel="stylesheet" href="{{../linkPath}}">
+			{{else}}
+				<link rel="stylesheet" href="/{{config.template}}">
+			{{/if}}
+			<link rel="stylesheet" href="/stylesheets/style.css">
+			{{#if isLoggedIn}}
+				<link rel="stylesheet" href="/stylesheets/admin_style.css">
+			{{/if}}
+			<script src="/javascripts/z3.js"></script>
+			<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+			<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+			<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+			<link rel="manifest" href="/site.webmanifest">
+		</head>
 
-			<body>
-				<header>
-					<picture style="width: 120px; height: 120px">
-						<source srcset="/images/avatar.webp" type="image/webp">
-						<source srcset="/images/avatar.png" type="image/jpeg"> 
-						<img src="/images/avatar.png" width="120px" height="120px">
-					</picture>
-					<span id="header_label"> <a href="/" class="header_title">{{config.title}}</a><br />
-						{{config.author}}
-					</span>
-					
-					<nav>
-						<a href="/blog">Blog</a>
-						{{#each staticPages.header}}
-							&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
-						{{/each}}
-						{{#if isLoggedIn}}
-							<form method="post" action="/edit">
-								&nbsp;&nbsp;&nbsp; Add header page,
-								<label for="title">Title:</label>&nbsp;
-								<input type="text" id="title" name="title">
-								<input type="hidden" name="suggestedLocation" value="header">
-								<input type="submit" value="Create">
-							</form>
-
-							<hr />
-
-							<z3-admin_nav>
-								<a href="/dashboard">Dashboard</a>&nbsp;&nbsp;&nbsp;
-								<a href="/config">Config</a>&nbsp;&nbsp;&nbsp;
-								<form method="post" action="/login/logout">
-									<input type="submit" value="Logout">
-								</form>
-
-								<form method="post" action="/edit">
-									&nbsp;&nbsp;&nbsp; Create blog entry,
-									<label for="title">Title:</label>&nbsp;
-									<input type="text" id="title" name="title">
-									<input type="hidden" name="suggestedLocation" value="blog">
-									<input type="submit" value="Create">
-								</form>
-											
-							</z3-admin_nav>
-						{{/if}}
-					</nav>
-
-				</header>
-
-				<br />
-				<div class="row">
-					<main>
-						<pogon_outlet> </pogon_outlet>
-					</main>
-					<z3-recentblogposts>
-						<div>
-							<z3_recentPosts limit="3">								
-							</z3_recentPosts>
-						</div>
-					</z3-recentblogposts>
-				</div>
-				<hr />
-
-				<footer>
-					{{#each staticPages.footer}}
+		<body>
+			<header>
+				<picture style="width: 120px; height: 120px">
+					<source srcset="/images/avatar.webp" type="image/webp">
+					<source srcset="/images/avatar.png" type="image/jpeg"> 
+					<img src="/images/avatar.png" width="120px" height="120px">
+				</picture>
+				<span id="header_label"> <a href="/" class="header_title">{{config.title}}</a><br />
+					{{config.author}}
+				</span>
+				
+				<nav>
+					<a href="/blog">Blog</a>
+					{{#each staticPages.header}}
 						&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
 					{{/each}}
 					{{#if isLoggedIn}}
-					<form method="post" action="/edit">
-						&nbsp;&nbsp;&nbsp; Add footer page,
-						<label for="title">Title:</label>&nbsp;
-						<input type="text" id="title" name="title">
-						<input type="hidden" name="suggestedLocation" value="footer">
-						<input type="submit" value="Create">
-					</form>
-					{{/if}}
-					<br />
-					&copy; {{config.author}}<br />
-					{{#if config.z3_cr_in_footer}}
-						Powered by the <a href="https://github.com/GWBasic/z3">Z3 Blog Engine</a> &copy; <a href="https://andrewrondeau.com">Andrew Rondeau</a><br />
-						<a href="copyright.html">Z3 Blog Engine license</a>
-					{{/if}}
-				</footer>
-			</body>
-		{{/with}}
+						<form method="post" action="/edit">
+							&nbsp;&nbsp;&nbsp; Add header page,
+							<label for="title">Title:</label>&nbsp;
+							<input type="text" name="title">
+							<input type="hidden" name="suggestedLocation" value="header">
+							<input type="submit" value="Create">
+						</form>
 
-	</html>
+						<hr />
+
+						<z3-admin_nav>
+							<a href="/dashboard">Dashboard</a>&nbsp;&nbsp;&nbsp;
+							<a href="/config">Config</a>&nbsp;&nbsp;&nbsp;
+							<form method="post" action="/login/logout">
+								<input type="submit" value="Logout">
+							</form>
+
+							<form method="post" action="/edit">
+								&nbsp;&nbsp;&nbsp; Create blog entry,
+								<label for="title">Title:</label>&nbsp;
+								<input type="text" name="title">
+								<input type="hidden" name="suggestedLocation" value="blog">
+								<input type="submit" value="Create">
+							</form>
+										
+						</z3-admin_nav>
+					{{/if}}
+				</nav>
+
+			</header>
+
+			<br />
+			<div class="row">
+				<main>
+					<pogon_outlet> </pogon_outlet>
+				</main>
+				<z3-recentblogposts>
+					<div>
+						<z3_recentPosts limit="3">								
+						</z3_recentPosts>
+					</div>
+				</z3-recentblogposts>
+			</div>
+			<hr />
+
+			<footer>
+				{{#each staticPages.footer}}
+					&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
+				{{/each}}
+				{{#if isLoggedIn}}
+				<form method="post" action="/edit">
+					&nbsp;&nbsp;&nbsp; Add footer page,
+					<label for="title">Title:</label>&nbsp;
+					<input type="text" name="title">
+					<input type="hidden" name="suggestedLocation" value="footer">
+					<input type="submit" value="Create">
+				</form>
+				{{/if}}
+				<br />
+				&copy; {{config.author}}<br />
+				{{#if config.z3_cr_in_footer}}
+					Powered by the <a href="https://github.com/GWBasic/z3">Z3 Blog Engine</a> &copy; <a href="https://andrewrondeau.com">Andrew Rondeau</a><br />
+					<a href="copyright.html">Z3 Blog Engine license</a>
+				{{/if}}
+			</footer>
+		</body>
+	{{/with}}
+
+</html>
