@@ -413,7 +413,17 @@ exports.getAllStaticPages = async () => {
     return staticPages;
 };
 
-exports.insertImage = async (postId, hash, filename, mimetype, data) => {
+exports.insertImage = async (
+    postId,
+    hash,
+    filename,
+    mimetype,
+    originalImageBuffer,
+    originalDimensions,
+    normalSizeBuffer,
+    normalDimensions,
+    thumbnailBuffer,
+    thumbnailDimensions) => {
 
     var imageRecord = await imagesDatastore.findOne({
         postId, hash
@@ -425,7 +435,12 @@ exports.insertImage = async (postId, hash, filename, mimetype, data) => {
             hash,
             filename,
             mimetype,
-            data: data.toString('base64')
+            imageData: originalImageBuffer.toString('base64'),
+            originalDimensions,
+            normalSizeImageData: normalSizeBuffer.toString('base64'),
+            normalDimensions,
+            thumbnailImageData: thumbnailBuffer.toString('base64'),
+            thumbnailDimensions
         };
 
         imageRecord = await imagesDatastore.insert(imageRecord);
@@ -442,7 +457,9 @@ exports.insertImage = async (postId, hash, filename, mimetype, data) => {
         imageRecord.mimetype = mimetype;
     }
 
-    imageRecord.data = data;
+    imageRecord.imageData = originalImageBuffer;
+    imageRecord.normalSizeImageData = normalSizeBuffer;
+    imageRecord.thumbnailImageData = thumbnailBuffer;
 
     return imageRecord;
 };
@@ -454,7 +471,9 @@ exports.getImageOrNull = async (imageId) => {
         return null;
     }
 
-    imageRecord.data = Buffer.from(imageRecord.data, 'base64');
+    imageRecord.imageData = Buffer.from(imageRecord.imageData, 'base64');
+    imageRecord.normalSizeImageData = Buffer.from(imageRecord.normalSizeImageData, 'base64');
+    imageRecord.thumbnailImageData = Buffer.from(imageRecord.thumbnailImageData, 'base64');
 
     return imageRecord;
 };
@@ -473,7 +492,7 @@ exports.getImagesForPost = async postId => {
     const imageRecords = await imagesDatastore.find({ postId });
 
     for (var imageRecord of imageRecords) {
-        imageRecord.data = Buffer.from(imageRecord.data, 'base64');
+        imageRecord.imageData = Buffer.from(imageRecord.imageData, 'base64');
     }
 
     return imageRecords;

@@ -16,7 +16,7 @@
 				<em>Published: <z3-date>{{publishedAt}}</z3-date></em>
 				<div class="recententrycontent">{{summary}}</div>
 				{{#each publishedImages}}
-					<img src="{{../url}}/{{filename}}" style="max-height: 150px;">
+					<img src="{{../url}}/{{filename}}?size=thumbnail" style="max-height: 150px;">
 				{{/each}}
 				<div><a href="{{url}}" title="{{title}}">Read More...</a></div>
 			</div>

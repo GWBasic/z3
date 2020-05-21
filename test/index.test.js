@@ -67,11 +67,27 @@ describe('Index operations', () => {
 
         var result = await server
             .get(`/${post.url}/${publishedImage.filename}`)
-            .expect('Content-Type', publishedImage.mimetype)
-            .expect('Content-Length', `${imageRecord.data.length}`)
+            .expect('Content-Type', 'image/jpeg')
+            .expect('Content-Length', `${imageRecord.normalSizeImageData.length}`)
             .expect(200);
 
-        assert.isTrue(imageRecord.data.equals(result.body), 'Wrong contents sent');
+        assert.isTrue(imageRecord.normalSizeImageData.equals(result.body), 'Wrong contents sent');
+
+        var result = await server
+            .get(`/${post.url}/${publishedImage.filename}?size=original`)
+            .expect('Content-Type', publishedImage.mimetype)
+            .expect('Content-Length', `${imageRecord.imageData.length}`)
+            .expect(200);
+
+        assert.isTrue(imageRecord.imageData.equals(result.body), 'Wrong contents sent');
+
+        var result = await server
+            .get(`/${post.url}/${publishedImage.filename}?size=thumbnail`)
+            .expect('Content-Type', publishedImage.mimetype)
+            .expect('Content-Length', `${imageRecord.thumbnailImageData.length}`)
+            .expect(200);
+
+        assert.isTrue(imageRecord.thumbnailImageData.equals(result.body), 'Wrong contents sent');
 
         var result = await server
             .get(`/${post.url}/doesnotexist`)
@@ -83,7 +99,17 @@ describe('Index operations', () => {
         const post = postAndDraft.post;
         const draft = postAndDraft.drafts[0];
 
-        const imageRecord = await db.insertImage(post._id, 'hash', 'filename', 'image/jpeg', Buffer.alloc(20));
+        const imageRecord = await db.insertImage(
+            post._id,
+            'hash',
+            'filename',
+            'image/jpeg',
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(10),
+            {},
+            Buffer.alloc(5),
+            {});
 
         const publishedImage = {
             filename: 'filename',
@@ -122,10 +148,26 @@ describe('Index operations', () => {
     
         var result = await server
             .get(`/${publishedImage.filename}`)
-            .expect('Content-Type', publishedImage.mimetype)
-            .expect('Content-Length', `${imageRecord.data.length}`)
+            .expect('Content-Type', 'image/jpeg')
+            .expect('Content-Length', `${imageRecord.normalSizeImageData.length}`)
             .expect(200);
 
-        assert.isTrue(imageRecord.data.equals(result.body), 'Wrong contents sent');
+        assert.isTrue(imageRecord.normalSizeImageData.equals(result.body), 'Wrong contents sent');
+    
+        var result = await server
+            .get(`/${publishedImage.filename}?size=thumbnail`)
+            .expect('Content-Type', 'image/jpeg')
+            .expect('Content-Length', `${imageRecord.thumbnailImageData.length}`)
+            .expect(200);
+
+        assert.isTrue(imageRecord.thumbnailImageData.equals(result.body), 'Wrong contents sent');
+    
+        var result = await server
+            .get(`/${publishedImage.filename}?size=original`)
+            .expect('Content-Type', imageRecord.mimetype)
+            .expect('Content-Length', `${imageRecord.imageData.length}`)
+            .expect(200);
+
+        assert.isTrue(imageRecord.imageData.equals(result.body), 'Wrong contents sent');
     });
 });

@@ -16,6 +16,18 @@ const DEFAULT_LIMIT = 25;
 
 const MAX_SUMMARY_LENGTH = 200;
 
+const MAX_IMAGE_WIDTH = 725;
+const MAX_IMAGE_WIDTH_HD = MAX_IMAGE_WIDTH * 2;
+
+const MAX_THUMBNAIL_HEIGHT = 150;
+const MAX_THUMBNAIL_HEIGHT_HD = MAX_THUMBNAIL_HEIGHT * 2;
+
+exports.MAX_IMAGE_WIDTH = MAX_IMAGE_WIDTH;
+exports.MAX_IMAGE_WIDTH_HD = MAX_IMAGE_WIDTH_HD;
+
+exports.MAX_THUMBNAIL_HEIGHT = MAX_THUMBNAIL_HEIGHT;
+exports.MAX_THUMBNAIL_HEIGHT_HD = MAX_THUMBNAIL_HEIGHT_HD;
+
 exports.isPasswordConfigured = async () => {
     try {
         await fs.access(runtimeOptions.authentication.passwordFile, fsConstants.R_OK);
@@ -236,6 +248,19 @@ exports.extractImages = async (content, url, postId) => {
                 } else {
                     imageElement.attribs.src = `/${filename}`;
                 }
+
+                if (imageRecord.normalDimensions.width <= MAX_IMAGE_WIDTH) {
+                    imageElement.attribs.width = `${imageRecord.normalDimensions.width}px`;
+                    imageElement.attribs.height = `${imageRecord.normalDimensions.height}px`;
+                } else {
+                    const ratio = imageRecord.normalDimensions.width / imageRecord.normalDimensions.height;
+                    imageElement.attribs.width = `${MAX_IMAGE_WIDTH}px`;
+                    const height = Math.round(MAX_IMAGE_WIDTH / ratio);
+                    imageElement.attribs.height = `${height}px`;
+                }
+
+                const imageElement$ = $(imageElement);
+                imageElement$.wrap(`<a href="${imageElement.attribs.src}?size=original" target="_blank"></a>`);
             }
         }
     };

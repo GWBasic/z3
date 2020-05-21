@@ -39,8 +39,33 @@ describe('Drafts operations', () => {
 
         const img1Data = await fs.readFile('test/data/img1.jpg');
 
-        const imageRecord = await db.insertImage(post._id, 'hteshtehes', 'img1.jpg', 'image/jpeg', img1Data);
-        const imageRecordDuplicateName = await db.insertImage(post._id, 'h4eh65h', 'img1.jpg', 'image/jpeg', img1Data);
+        const imageRecord = await db.insertImage(
+            post._id,
+            'hteshtehes',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {},
+            Buffer.alloc(0),
+            {},
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(5),
+            {});
+        
+        const imageRecordDuplicateName = await db.insertImage(
+            post._id,
+            'h4eh65h',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {},
+            Buffer.alloc(0),
+            {},
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(5),
+            {});
 
         async function verifyDrafts(isPublished) {
             const response = await server
@@ -139,7 +164,19 @@ describe('Drafts operations', () => {
 
     it('Delete an image', async () => {
         const img1Data = await fs.readFile('test/data/img1.jpg');
-        const imageRecord = await db.insertImage('6edhy6ehfdh', 'hteshtehes', 'img1.jpg', 'image/jpeg', img1Data);
+        const imageRecord = await db.insertImage(
+            '6edhy6ehfdh',
+            'hteshtehes',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {},
+            Buffer.alloc(0),
+            {},
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(5),
+            {});
 
         await testSetup.login();
 

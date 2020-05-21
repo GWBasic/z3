@@ -84,7 +84,17 @@ module.exports = {
             if (postItr % skipToPublish == 0) {
                 const post = allPostsInOrder[postItr];
                 const draft = (await db.getPostAndDrafts(post._id)).drafts[0];
-                const imageRecord = await db.insertImage(post._id, 'hash', 'filename', 'image/jpeg', Buffer.alloc(20));
+                const imageRecord = await db.insertImage(
+                    post._id,
+                    'hash',
+                    'filename',
+                    'image/jpeg',
+                    Buffer.alloc(20),
+                    {},
+                    Buffer.alloc(10),
+                    {},
+                    Buffer.alloc(5),
+                    {});
 
                 const publishedImages = [{
                     filename: 'filename',

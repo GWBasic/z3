@@ -33,7 +33,7 @@
 
             <input type="radio" name="where" value="{{toBlogValue}}" {{#if isBlog}}checked{{/if}}><label for="blog">Publish to blog</label><br />
             <label for="publishedAt">Published:</label> <input type="text" id="publishedAt" name="publishedAt" value="{{publishedAt}}"/><br />
-            <label for="republishedAt">Updated at:</label> <input type="text" id="republishedAt" name="republishedAt"/> <small>(Last edited: {{republishedAt}}</small><br />
+            <label for="republishedAt">Updated at:</label> <input type="text" id="republishedAt" name="republishedAt"/>{{#if republishedAt}} <small>(Last edited: {{republishedAt}})</small>{{/if}}<br />
             <input type="submit" value="Publish">
             <hr />
             <h2>Or, publish the page as the index / landing page</h2>

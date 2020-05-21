@@ -1,7 +1,9 @@
 const createError = require('http-errors');
 const express = require('express');
 const hasha = require('hasha');
+const imageSize = require('image-size');;
 const multer  = require('multer')
+const sharp = require('sharp');
 
 const db = require('../db');
 const SafeRouter = require('../SafeRouter');
@@ -90,9 +92,9 @@ safeRouter.get('/image/:postId.:imageId', z3.checkIsAuthenticated(async (req, re
 
     res.writeHead(200, {
         'Content-Type': imageRecord.mimetype,
-        'Content-Length': imageRecord.data.length
+        'Content-Length': imageRecord.imageData.length
       });
-      res.end(imageRecord.data); 
+      res.end(imageRecord.imageData); 
 }));
 
 safeRouter.post('/image/:postId', upload.single('upload'), z3.checkIsAuthenticated(async (req, res) => {
@@ -109,7 +111,47 @@ safeRouter.post('/image/:postId', upload.single('upload'), z3.checkIsAuthenticat
         algorithm: 'sha256'
     });
 
-    const imageRecord = await db.insertImage(post._id, hash, uploadedImage.originalname, uploadedImage.mimetype, uploadedImage.buffer);
+    const originalDimensions = imageSize(uploadedImage.buffer);
+
+    var normalSizeBuffer = uploadedImage.buffer;
+    if (originalDimensions.width > z3.MAX_IMAGE_WIDTH_HD) {
+        normalSizeBuffer = await sharp(uploadedImage.buffer)
+            .resize(z3.MAX_IMAGE_WIDTH_HD)
+            .jpeg()
+            .toBuffer();
+    } else if (uploadedImage.mimetype != 'image/jpeg') {
+        normalSizeBuffer = await sharp(uploadedImage.buffer)
+            .jpeg()
+            .toBuffer();
+    }
+
+    const normalDimensions = imageSize(normalSizeBuffer);
+
+    var thumbnailBuffer = uploadedImage.buffer;
+    if (originalDimensions.height > z3.MAX_THUMBNAIL_HEIGHT_HD) {
+        thumbnailBuffer = await sharp(uploadedImage.buffer)
+            .resize(null, z3.MAX_THUMBNAIL_HEIGHT_HD)
+            .jpeg()
+            .toBuffer();
+    } else if (uploadedImage.mimetype != 'image/jpeg') {
+        thumbnailBuffer = await sharp(uploadedImage.buffer)
+            .jpeg()
+            .toBuffer();
+    }
+    
+    const thumbnailDimensions = imageSize(thumbnailBuffer);
+
+    const imageRecord = await db.insertImage(
+        post._id,
+        hash,
+        uploadedImage.originalname,
+        uploadedImage.mimetype,
+        uploadedImage.buffer,
+        originalDimensions,
+        normalSizeBuffer,
+        normalDimensions,
+        thumbnailBuffer,
+        thumbnailDimensions);
 
     res.status(200);
     res.json({

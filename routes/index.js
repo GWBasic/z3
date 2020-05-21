@@ -28,7 +28,7 @@ async function renderUrl(req, res, next, url) {
 	}
 };
 
-async function renderImage(req, res, next, url, imageFilename) {
+async function renderImage(req, res, next, url, imageFilename, imageSize) {
 	const post = await db.getPostFromUrl(url);
 
 	if (!(post.publishedImages)) {
@@ -42,11 +42,23 @@ async function renderImage(req, res, next, url, imageFilename) {
 
 			const imageRecord = await db.getImage(imageId);
 		
-			res.writeHead(200, {
-				'Content-Type': imageRecord.mimetype,
-				'Content-Length': imageRecord.data.length});
-				res.end(imageRecord.data); 		
-			
+			if (imageSize == 'original') {
+				res.writeHead(200, {
+					'Content-Type': imageRecord.mimetype,
+					'Content-Length': imageRecord.imageData.length});
+					res.end(imageRecord.imageData);
+			} else if (imageSize == 'thumbnail') {
+				res.writeHead(200, {
+					'Content-Type': 'image/jpeg',
+					'Content-Length': imageRecord.thumbnailImageData.length});
+					res.end(imageRecord.thumbnailImageData);
+			} else {
+				res.writeHead(200, {
+					'Content-Type': 'image/jpeg',
+					'Content-Length': imageRecord.normalSizeImageData.length});
+					res.end(imageRecord.normalSizeImageData);
+			}
+
 			return;
 		}
 	}
@@ -61,15 +73,22 @@ safeRouter.get('/', async (req, res, next) => {
 
 safeRouter.get('/:url', async (req, res, next) => {	
 	const url = req.params.url;
-	await renderUrl(req, res, next, url);
+	const imageSize = req.query.size;
+
+	if (imageSize) {
+		const imageFilename = url;
+		await renderImage(req, res, next, '', imageFilename, imageSize);
+	} else {
+		await renderUrl(req, res, next, url);
+	}
 });
 
 safeRouter.get('/:url/:imageFilename', async (req, res, next) => {
-	
 	const url = req.params.url;
 	const imageFilename = req.params.imageFilename;
+	const imageSize = req.query.size;
 
-	await renderImage(req, res, next, url, imageFilename);
+	await renderImage(req, res, next, url, imageFilename, imageSize);
 });
 
 module.exports = safeRouter.router;

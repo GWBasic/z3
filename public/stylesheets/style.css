@@ -94,10 +94,6 @@ a:active {
      color: var(--link-color-active);
 }
 
-#blogcontent img {
-     max-width: 100%;
-}
-
 @media screen and (max-device-width: 700px) {
      #blogcontent {
           font-size: 30px;

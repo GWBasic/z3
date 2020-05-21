@@ -300,8 +300,29 @@ describe('Database', () => {
         
         const img1Data = await fs.readFile('test/data/img1.jpg');
 
-        const imageRecord = await db.insertImage(post._id, 'hteshtehes', 'img1.jpg', 'image/jpeg', img1Data);
-        const imageRecordDuplicateName = await db.insertImage(post._id, 'h4eh65h', 'img1.jpg', 'image/jpeg', img1Data);
+        const imageRecord = await db.insertImage(
+            post._id,
+            'hteshtehes',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {},
+            Buffer.alloc(10),
+            {},
+            Buffer.alloc(10),
+            {});
+
+        const imageRecordDuplicateName = await db.insertImage(
+            post._id,
+            'h4eh65h',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {},
+            Buffer.alloc(10),
+            {},
+            Buffer.alloc(10),
+            {});
         
         await db.deletePost(post._id);
 
@@ -508,7 +529,17 @@ describe('Database', () => {
 
     it('Insert, retrieve, and delete images', async () => {
 
-        const expectedImageRecord = await db.insertImage('postid', 'thehash', 'thefilename', 'themimetype', Buffer.alloc(10, 15));
+        const expectedImageRecord = await db.insertImage(
+            'postid',
+            'thehash',
+            'thefilename',
+            'themimetype',
+            Buffer.alloc(10, 15),
+            {},
+            Buffer.alloc(10),
+            {},
+            Buffer.alloc(10),
+            {});
 
         function verifyImage(actualImageRecord) {
             assert.equal(actualImageRecord._id, expectedImageRecord._id, 'Wrong ID');
@@ -516,7 +547,7 @@ describe('Database', () => {
             assert.equal(actualImageRecord.hash, expectedImageRecord.hash, 'Wrong hash');
             assert.equal(actualImageRecord.filename, expectedImageRecord.filename, 'Wrong filename');
             assert.equal(actualImageRecord.mimetype, expectedImageRecord.mimetype, 'Wrong mimetype');
-            assert.isTrue(expectedImageRecord.data.equals(actualImageRecord.data), 'Wrong data');
+            assert.isTrue(expectedImageRecord.imageData.equals(actualImageRecord.imageData), 'Wrong data');
         }
 
         const actualImageRecord = await db.getImage(expectedImageRecord._id);

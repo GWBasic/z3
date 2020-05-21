@@ -36,7 +36,18 @@ describe('Editor operations', () => {
             .post(`/edit/image/${post._id}`)
             .expect(401);
 
-        var imageRecord = await db.insertImage(post._id, 'gssaadsfa', 'egregerafe', 'greareaa', Buffer.alloc(0));
+        var imageRecord = await db.insertImage(
+            post._id,
+            'gssaadsfa',
+            'egregerafe',
+            'greareaa',
+            {},
+            Buffer.alloc(0),
+            {},
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(5),
+            {});
 
         await server
             .get(`/edit/${post._id}.${imageRecord._id}`)

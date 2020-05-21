@@ -177,9 +177,29 @@ describe('z3 module test', () => {
         const postId = 'gregreeragea';
 
         const img1Data = await fs.readFile('test/data/img1.jpg');
-        const imageRecord = await db.insertImage(postId, 'hteshtehes', 'img1.jpg', 'image/jpeg', img1Data);
+        const imageRecord = await db.insertImage(
+            postId,
+            'hteshtehes',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {height: 10, width: 10},
+            Buffer.alloc(10),
+            {height: 10, width: 10},
+            Buffer.alloc(10),
+            {height: 10, width: 10});
 
-        const imageRecordDuplicateName = await db.insertImage(postId, 'h4eh65h', 'img1.jpg', 'image/jpeg', img1Data);
+        const imageRecordDuplicateName = await db.insertImage(
+            postId,
+            'h4eh65h',
+            'img1.jpg',
+            'image/jpeg',
+            img1Data,
+            {height: 10, width: 10},
+            Buffer.alloc(10),
+            {height: 10, width: 10},
+            Buffer.alloc(10),
+            {height: 10, width: 10});
 
         const originalContent = +`Image to update: <img src="/edit/image/${postId}.${imageRecord._id}">`
             + `Image to update: <img src="/edit/image/${postId}.${imageRecord._id}">`
@@ -190,8 +210,8 @@ describe('z3 module test', () => {
         const { publishedImages, content } = await z3.extractImages(originalContent, url, postId);
 
         const expectedContent = +`Image to update: <img src="${imgUrlPrefix}/img1.jpg">`
-            + `Image to update: <img src="${imgUrlPrefix}/img1.jpg">`
-            + `Image to update: <img src="${imgUrlPrefix}/1_img1.jpg">`
+            + `Image to update: <a href="${imgUrlPrefix}/img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/img1.jpg" width="10px" height="10px"></a>`
+            + `Image to update: <a href="${imgUrlPrefix}/1_img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/1_img1.jpg" width="10px" height="10px"></a>`
             + `Bad imageId: <img src="/edit/image/${postId}.dne">`
             + `Bad postId: <img src="/edit/image/dne.${imageRecord._id}">`;
 

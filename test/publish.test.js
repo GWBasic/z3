@@ -158,7 +158,19 @@ describe('Publish operations', () => {
         await testSetup.login();
         var { post, workingTitle, content } = await testSetup.preparePost();
 
-        const imageRecord = await db.insertImage(post._id, 'hash', 'filename', 'mimetype', Buffer.alloc(13));
+        const imageRecord = await db.insertImage(
+            post._id,
+            'hash',
+            'filename',
+            'mimetype',
+            Buffer.alloc(13),
+            {},
+            Buffer.alloc(0),
+            {},
+            Buffer.alloc(20),
+            {},
+            Buffer.alloc(5),
+            {});
 
         content += `<img src="/edit/image/${post._id}.${imageRecord._id}">`;
 
@@ -185,7 +197,7 @@ describe('Publish operations', () => {
         assert.isDefined(publishedPost.content);
         assert.equal(publishedPost.publishedAt.toString(), publishedAt.toString(), 'Wrong publishedAt');
         assert.equal(publishedPost.republishedAt.toString(), republishedAt.toString(), 'Wrong republishedAt');
-        assert.isTrue(publishedPost.content.endsWith('<img src="/title_for_test/filename">'), 'Image link not updated');
+        assert.isTrue(publishedPost.content.endsWith('<a href="/title_for_test/filename?size=original" target="_blank"><img src="/title_for_test/filename" width="725px" height="NaNpx"></a>'), 'Image link not updated');
 
         // unpublish
         response = await server
