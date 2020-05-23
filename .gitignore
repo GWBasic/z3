@@ -112,6 +112,7 @@ testdata
 password.json
 config.json
 testConfig.json
+testPassword.json
 session.json
 
 # Profile picture
