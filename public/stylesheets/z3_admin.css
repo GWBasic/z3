@@ -147,3 +147,7 @@ a:hover {
 a:active {
     color: var(--ansi_bright_magenta);
 }
+
+z3-instructions {
+    color: var(--ansi_bright_black);
+}

@@ -92,6 +92,9 @@ safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
         z3.config.overrideTemplate = null;
     }
 
+    z3.config.headHtml = req.body.headHtml;
+    z3.config.footerHtml = req.body.footerHtml;
+
     pogon.defaultTemplate = z3.config.overrideTemplate;
 
     await z3.saveConfig();

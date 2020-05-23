@@ -285,7 +285,9 @@ function loadConfig() {
             private: true,
             z3_cr_in_footer: true,
             template: null,
-            overrideTemplate: null
+            overrideTemplate: null,
+            headHtml: '',
+            footerHtml: ''
         };
     }
 }
