@@ -22,7 +22,7 @@
     "nedb-promises": "^4.0.3",
     "password-hash-and-salt": "^0.1.4",
     "png-to-ico": "^2.1.0",
-    "pogon.html": "git+https://github.com/GWBasic/pogon.html.git",
+    "pogon.html": "^1.0.1",
     "sharp": "^0.25.3",
     "striptags": "^3.1.1",
     "use-strict": "^1.0.1"
@@ -30,7 +30,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-files": "^1.4.0",
-    "mocha": "^7.1.2",
+    "mocha": "^7.2.0",
     "supertest": "^4.0.2"
   }
 }
