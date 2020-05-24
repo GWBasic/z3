@@ -7,6 +7,7 @@
         </script>
         <script src="https://cdn.ckeditor.com/ckeditor5/18.0.0/balloon-block/ckeditor.js"></script>
         <script src="/javascripts/edit.js"></script>
+        <link rel="stylesheet" href="/stylesheets/edit.css">
     </head>
 
     <body>
@@ -27,7 +28,7 @@
                 value="blog"
                 pogon-checked="{{suggestedLocation}}"
                 onchange="onContentChanged()">
-            <label for="blog">Blog entry</label><br />
+            <label for="blog">Blog entry</label>
             {{#each staticPages}}
                 <input
                     type="radio"
@@ -36,7 +37,7 @@
                     value="{{this}}"
                     pogon-checked="{{../suggestedLocation}}"
                     onchange="onContentChanged()">
-                <label for="blog">{{this}}</label><br />
+                <label for="blog">{{this}}</label>
             {{/each}}
             <input
                 type="radio"
@@ -45,13 +46,25 @@
                 value="index"
                 pogon-checked="{{suggestedLocation}}"
                 onchange="onContentChanged()">
-            <label for="blog">Index / Landing page</label><br />
+            <label for="blog">Index / Landing page</label>
         
         <span id="oldVersionPublished"{{#unless draftIsOutdated}} hidden{{/unless}}>WARNING: An older version is published</span>
 
         <hr >
 
         <div id="content">{{{content}}}</div>
+        <textarea id="contentHtml" hidden></textarea>
+
+        <form>
+            <label>
+                <input type="radio" name="editorType" value="wysiwyg" id="editorType_wysiwyg" checked>
+                WYSIWYG
+            </label>
+            <label>
+                <input type="radio" name="editorType" value="html" id="editorType_HTML">
+                HTML
+            </label>
+        </form>
 
         <div id="saved">Saved</div>
         <div id="saving" hidden>Saving...</div>

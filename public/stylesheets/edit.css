@@ -1,0 +1,8 @@
+#contentHtml {
+    width: 100%;
+}
+
+#content {
+    float:left;
+    overflow-y: auto;
+}
