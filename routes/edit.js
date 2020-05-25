@@ -6,7 +6,6 @@ const router = require('express-promise-router')();
 const sharp = require('sharp');
 
 const db = require('../db');
-const SafeRouter = require('../SafeRouter');
 const z3 = require('../z3.js');
 
 const storage = multer.memoryStorage()
