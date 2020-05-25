@@ -91,6 +91,7 @@ router.post('/', async (req, res) => {
 
     z3.config.headHtml = req.body.headHtml;
     z3.config.footerHtml = req.body.footerHtml;
+    z3.config.searchUrl = req.body.searchUrl;
 
     pogon.defaultTemplate = z3.config.overrideTemplate;
 

@@ -69,6 +69,13 @@ nav > a:visited {
      color: var(--link-color);
 }
 
+.linkbutton {
+     background: none!important;
+     border: none;
+     padding: 0!important;
+     cursor: pointer;
+}
+
 .row {
      display: flex;
 }

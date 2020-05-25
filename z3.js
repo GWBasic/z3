@@ -280,7 +280,8 @@ function loadConfig() {
             template: null,
             overrideTemplate: null,
             headHtml: '',
-            footerHtml: ''
+            footerHtml: '',
+            searchUrl: ''
         };
     }
 }

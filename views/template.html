@@ -38,6 +38,13 @@
 					{{#each staticPages.header}}
 						&nbsp;&nbsp;&nbsp;<a href="/{{url}}">{{title}}</a>
 					{{/each}}
+
+					&nbsp;&nbsp;&nbsp;
+					<form method="get" action="/search">
+						<label>Search: <input type="text" width="20" name="q"></label>
+						<input class="linkbutton" type="submit" value="&#x1F50D;">
+					</form>
+	
 					{{#if isLoggedIn}}
 						<form method="post" action="/edit">
 							&nbsp;&nbsp;&nbsp; Add header page,

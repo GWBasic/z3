@@ -58,6 +58,7 @@ describe('Config', () => {
         assert.equal(options.config.z3_cr_in_footer, z3.config.z3_cr_in_footer, 'Wrong z3_cr_in_footer');
         assert.equal(options.config.headHtml, z3.config.headHtml, 'Wrong headHtml');
         assert.equal(options.config.footerHtml, z3.config.footerHtml, 'Wrong footerHtml');
+        assert.equal(options.config.searchUrl, z3.config.searchUrl, 'Wrong searchUrl');
         assert.isFalse(options.isAvatarConfigured, 'Wrong isAvatarConfigured');
 
         const templates = result.options.templates;
@@ -81,7 +82,7 @@ describe('Config', () => {
 
         await server
             .post('/config')
-            .send('title=new_title&author=new_author&private=checked&template=the_template&headHtml=hhh&footerHtml=fff')
+            .send('title=new_title&author=new_author&private=checked&template=the_template&headHtml=hhh&footerHtml=fff&searchUrl=sss')
             .expect(302)
             .expect('Location', `/config`);
 
@@ -92,7 +93,8 @@ describe('Config', () => {
             assert.equal(config.z3_cr_in_footer, false, 'Wrong z3_cr_in_footer');
             assert.equal(config.template, 'the_template');
             assert.equal(config.headHtml, 'hhh', 'Wrong headHtml');
-            assert.equal(config.footerHtml, 'fff');
+            assert.equal(config.footerHtml, 'fff', 'Wrong footerHtml');
+            assert.equal(config.searchUrl, 'sss', 'Wrong searchUrl');
         }
 
         checkConfig(z3.config);
