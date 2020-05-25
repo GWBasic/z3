@@ -4,11 +4,13 @@ const z3 = require('../z3');
 
 const fs = require('fs').promises;
 
-router.get('/', z3.checkIsAuthenticated, async (req, res) => {
+router.all('/*', z3.checkIsAuthenticated);
+
+router.get('/', async (req, res) => {
     res.render('changePassword');
 });
 
-router.post('/', z3.checkIsAuthenticated, async(req, res) => {
+router.post('/', async(req, res) => {
     const currentPassword = req.body.currentPassword;
 
     const correctPassword = await z3.checkPassword(currentPassword);

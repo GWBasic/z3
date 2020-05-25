@@ -3,7 +3,9 @@ const router = require('express-promise-router')();
 const db = require('../db');
 const z3 = require('../z3.js');
 
-router.get('/', z3.checkIsAuthenticated, async (req, res) => {
+router.all('/*', z3.checkIsAuthenticated);
+
+router.get('/', async (req, res) => {
 
     const { skip, limit } = z3.calculateSkipLimit(req);
 

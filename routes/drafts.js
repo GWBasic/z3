@@ -3,7 +3,9 @@ const router = require('express-promise-router')();
 const db = require('../db');
 const z3 = require('../z3.js');
 
-router.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
+router.all('/*', z3.checkIsAuthenticated);
+
+router.get('/:postId', async (req, res, next) => {
     	
 	const postId = req.params.postId;
 
@@ -56,7 +58,7 @@ router.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
     res.render('drafts', postModel);
 });
 
-router.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) => {
+router.post('/restore/:draftId', async (req, res) => {
     	
     const draftId = req.params.draftId;
 
@@ -65,7 +67,7 @@ router.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) => {
     res.redirect(`/drafts/${draft.postId}`);
 });
 
-router.post('/deleteImage/:imageId', z3.checkIsAuthenticated, async (req, res) => {
+router.post('/deleteImage/:imageId', async (req, res) => {
     	
     const imageId = req.params.imageId;
 
