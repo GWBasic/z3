@@ -265,7 +265,7 @@ exports.extractImages = async (content, url, postId) => {
         }
     };
 
-    const bodyText = $('body').html();
+    const bodyText = $.html();
 
     return {
         publishedImages,
