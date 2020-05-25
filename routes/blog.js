@@ -1,13 +1,11 @@
-const createError = require('http-errors');
-const express = require('express');
-const SafeRouter = require('../SafeRouter');
+const AsyncRouter = require('../AsyncRouter');
 
-const safeRouter = new SafeRouter(express);
+const router = new AsyncRouter();
 
 const db = require('../db');
 const z3 = require('../z3');
 
-safeRouter.get('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 
     const { skip, limit } = z3.calculateSkipLimit(req);
 
@@ -28,4 +26,4 @@ safeRouter.get('/', async (req, res, next) => {
     });
 });
 
-module.exports = safeRouter.router;
+module.exports = router;
