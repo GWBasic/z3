@@ -1,24 +1,19 @@
-const createError = require('http-errors');
 const bodyParser = require('body-parser')
-const express = require('express');
 const fs = require('fs').promises;
 const fsConstants = require('fs').constants;
 const path = require('path');
 const pogon = require('pogon.html');
 const pngToIco = require('png-to-ico');
+const router = require('express-promise-router')();
 const sharp = require('sharp');
 
 const runtimeOptions = require('../runtimeOptions');
-const SafeRouter = require('../SafeRouter');
 
-const safeRouter = new SafeRouter(express);
-
-const db = require('../db');
 const z3 = require('../z3');
 
 const dirname = path.dirname(__dirname);
 
-safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
+router.get('/', z3.checkIsAuthenticated, async (req, res) => {
     const linkPathPrefix = path.join(dirname, runtimeOptions.publicFolder);
 
     const templates = [];
@@ -62,7 +57,7 @@ safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
     });
 });
 
-safeRouter.get('/*', z3.checkIsAuthenticated, async (req, res) => {
+router.get('/*', z3.checkIsAuthenticated, async (req, res) => {
     const linkPath = req.url;
     const fullPath = path.join(dirname, runtimeOptions.publicFolder, linkPath);
     res.render('template_preview', {
@@ -73,7 +68,7 @@ safeRouter.get('/*', z3.checkIsAuthenticated, async (req, res) => {
     });
 });
 
-safeRouter.post('/', z3.checkIsAuthenticated, async (req, res) => {
+router.post('/', z3.checkIsAuthenticated, async (req, res) => {
     z3.config.title = req.body.title;
     z3.config.author = req.body.author;
     z3.config.template = req.body.template;
@@ -107,7 +102,7 @@ const rawParser = bodyParser.raw({
     limit: '1024kb'
 });
 
-safeRouter.put('/avatar', z3.checkIsAuthenticated, rawParser, async (req, res) => {
+router.put('/avatar', z3.checkIsAuthenticated, rawParser, async (req, res) => {
     const avatarImageBuffer = req.body;
 
     // Write the avatar (240x240)
@@ -148,4 +143,4 @@ safeRouter.put('/avatar', z3.checkIsAuthenticated, rawParser, async (req, res) =
 });
 
 
-module.exports = safeRouter.router;
+module.exports = router;

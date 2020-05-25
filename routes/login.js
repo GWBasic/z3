@@ -1,14 +1,9 @@
 const runtimeOptions = require('../runtimeOptions');
 const sessionConfig = require('../sessionConfig')
+const router = require('express-promise-router')();
 const z3 = require('../z3');
 
-const express = require('express');
-
-const SafeRouter = require('../SafeRouter');
-
-const safeRouter = new SafeRouter(express);
-
-safeRouter.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
     const isPasswordConfigured = await z3.isPasswordConfigured();
 
     res.render(
@@ -17,7 +12,7 @@ safeRouter.get('/', async (req, res) => {
         });
 });
 
-safeRouter.post('/', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const password = req.body.password;
     const verified = await z3.checkPassword(password);
 
@@ -44,12 +39,12 @@ safeRouter.post('/', async (req, res, next) => {
     }
 });
 
-safeRouter.post('/logout', async (req, res) => {
+router.post('/logout', async (req, res) => {
     res.clearCookie(sessionConfig.cookieName);
     res.redirect('/login');
 });
 
-safeRouter.post('/generatePassword', async (req, res) => {
+router.post('/generatePassword', async (req, res) => {
 
     const password = req.body.password;
 
@@ -59,4 +54,4 @@ safeRouter.post('/generatePassword', async (req, res) => {
     res.json(hashAndSalt);
 });
     
-module.exports = safeRouter.router;
+module.exports = router;

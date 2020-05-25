@@ -1,8 +1,8 @@
 const createError = require('http-errors');
-const express = require('express');
 const hasha = require('hasha');
 const imageSize = require('image-size');;
 const multer  = require('multer')
+const router = require('express-promise-router')();
 const sharp = require('sharp');
 
 const db = require('../db');
@@ -17,12 +17,10 @@ const upload = multer({
         files: 1
     }});
 
-const safeRouter = new SafeRouter(express);
-
 // All calls on the edit route must be authenticated
-safeRouter.router.all('/*', z3.checkIsAuthenticated);
+router.all('/*', z3.checkIsAuthenticated);
 
-safeRouter.post('/', async (req, res) => {
+router.post('/', async (req, res) => {
     const title = req.body.title;
     const suggestedLocation = req.body.suggestedLocation;
 
@@ -30,16 +28,18 @@ safeRouter.post('/', async (req, res) => {
     res.redirect(`/edit/${postAndDrafts.post._id}`);
 });
 
-safeRouter.param('postId', async (req, res, next, postId) => {
+router.param('postId', async (req, res, next, postId) => {
 
     const draft = await db.getNewestDraft(postId);
     req.draft = draft;
 
     const post = await db.getPost(postId);
     req.post = post;
+
+    next();
 });
 
-safeRouter.param('imageId', async (req, res, next, imageId) => {
+router.param('imageId', async (req, res, next, imageId) => {
     const imageRecord = await db.getImage(imageId);
 
     if (imageRecord.postId != req.post._id) {
@@ -47,9 +47,11 @@ safeRouter.param('imageId', async (req, res, next, imageId) => {
     }
 
     req.imageRecord = imageRecord;
+
+    next();
 });
 
-safeRouter.get('/:postId', async (req, res) => {
+router.get('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -70,7 +72,7 @@ safeRouter.get('/:postId', async (req, res) => {
         url: post.url});
 });
 
-safeRouter.put('/:postId', async (req, res) => {
+router.put('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -90,7 +92,7 @@ safeRouter.put('/:postId', async (req, res) => {
     res.json(response);
 });
 
-safeRouter.get('/image/:postId.:imageId', async (req, res) => {
+router.get('/image/:postId.:imageId', async (req, res) => {
     const imageRecord = req.imageRecord;
 
     res.writeHead(200, {
@@ -100,7 +102,7 @@ safeRouter.get('/image/:postId.:imageId', async (req, res) => {
       res.end(imageRecord.imageData); 
 });
 
-safeRouter.post('/image/:postId', upload.single('upload'), async (req, res) => {
+router.post('/image/:postId', upload.single('upload'), async (req, res) => {
     // See 
     // - https://www.npmjs.com/package/multer
     // - https://stackoverflow.com/questions/49385792/how-to-do-ckeditor-5-image-uploading/49833278#49833278
@@ -163,5 +165,5 @@ safeRouter.post('/image/:postId', upload.single('upload'), async (req, res) => {
     });
 });
 
-module.exports = safeRouter.router;
+module.exports = router;
 

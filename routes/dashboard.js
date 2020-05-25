@@ -1,12 +1,9 @@
-const express = require('express');
-const SafeRouter = require('../SafeRouter');
-
-const safeRouter = new SafeRouter(express);
+const router = require('express-promise-router')();
 
 const db = require('../db');
 const z3 = require('../z3.js');
 
-safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
+router.get('/', z3.checkIsAuthenticated, async (req, res) => {
 
     const { skip, limit } = z3.calculateSkipLimit(req);
 
@@ -27,5 +24,5 @@ safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
     });
 });
 
-module.exports = safeRouter.router;
+module.exports = router;
 

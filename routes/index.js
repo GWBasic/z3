@@ -1,10 +1,7 @@
-const express = require('express');
+const router = require('express-promise-router')();
 
 const db = require('../db');
 const z3 = require('../z3');
-const SafeRouter = require('../SafeRouter');
-
-const safeRouter = new SafeRouter(express);
 
 async function renderUrl(req, res, next, url) {
 	const post = await db.getPostFromUrlOrNull(url);
@@ -67,11 +64,11 @@ async function renderImage(req, res, next, url, imageFilename, imageSize) {
 }
 
 
-safeRouter.get('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 	await renderUrl(req, res, next, '');
 });
 
-safeRouter.get('/:url', async (req, res, next) => {	
+router.get('/:url', async (req, res, next) => {	
 	const url = req.params.url;
 	const imageSize = req.query.size;
 
@@ -83,7 +80,7 @@ safeRouter.get('/:url', async (req, res, next) => {
 	}
 });
 
-safeRouter.get('/:url/:imageFilename', async (req, res, next) => {
+router.get('/:url/:imageFilename', async (req, res, next) => {
 	const url = req.params.url;
 	const imageFilename = req.params.imageFilename;
 	const imageSize = req.query.size;
@@ -91,4 +88,4 @@ safeRouter.get('/:url/:imageFilename', async (req, res, next) => {
 	await renderImage(req, res, next, url, imageFilename, imageSize);
 });
 
-module.exports = safeRouter.router;
+module.exports = router;

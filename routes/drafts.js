@@ -1,13 +1,9 @@
-const createError = require('http-errors');
-const express = require('express');
+const router = require('express-promise-router')();
 
 const db = require('../db');
-const SafeRouter = require('../SafeRouter');
 const z3 = require('../z3.js');
 
-const safeRouter = new SafeRouter(express);
-
-safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
+router.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
     	
 	const postId = req.params.postId;
 
@@ -60,7 +56,7 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
     res.render('drafts', postModel);
 });
 
-safeRouter.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) => {
+router.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) => {
     	
     const draftId = req.params.draftId;
 
@@ -69,7 +65,7 @@ safeRouter.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) =
     res.redirect(`/drafts/${draft.postId}`);
 });
 
-safeRouter.post('/deleteImage/:imageId', z3.checkIsAuthenticated, async (req, res) => {
+router.post('/deleteImage/:imageId', z3.checkIsAuthenticated, async (req, res) => {
     	
     const imageId = req.params.imageId;
 
@@ -80,4 +76,4 @@ safeRouter.post('/deleteImage/:imageId', z3.checkIsAuthenticated, async (req, re
 });
 
 
-module.exports = safeRouter.router;
+module.exports = router;
