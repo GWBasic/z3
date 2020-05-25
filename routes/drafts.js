@@ -7,7 +7,7 @@ const z3 = require('../z3.js');
 
 const safeRouter = new SafeRouter(express);
 
-safeRouter.get('/:postId', z3.checkIsAuthenticated(async (req, res, next) => {
+safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res, next) => {
     	
 	const postId = req.params.postId;
 
@@ -58,18 +58,18 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated(async (req, res, next) => {
     }
 
     res.render('drafts', postModel);
-}));
+});
 
-safeRouter.post('/restore/:draftId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/restore/:draftId', z3.checkIsAuthenticated, async (req, res) => {
     	
     const draftId = req.params.draftId;
 
     const draft = await db.restoreDraft(draftId);
     
     res.redirect(`/drafts/${draft.postId}`);
-}));
+});
 
-safeRouter.post('/deleteImage/:imageId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/deleteImage/:imageId', z3.checkIsAuthenticated, async (req, res) => {
     	
     const imageId = req.params.imageId;
 
@@ -77,7 +77,7 @@ safeRouter.post('/deleteImage/:imageId', z3.checkIsAuthenticated(async (req, res
     await db.deleteImage(imageId);
 
     res.redirect(`/drafts/${imageRecord.postId}`);
-}));
+});
 
 
 module.exports = safeRouter.router;

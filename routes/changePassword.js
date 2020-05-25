@@ -9,11 +9,11 @@ const SafeRouter = require('../SafeRouter');
 
 const safeRouter = new SafeRouter(express);
 
-safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
     res.render('changePassword');
-}));
+});
 
-safeRouter.post('/', z3.checkIsAuthenticated(async(req, res) => {
+safeRouter.post('/', z3.checkIsAuthenticated, async(req, res) => {
     const currentPassword = req.body.currentPassword;
 
     const correctPassword = await z3.checkPassword(currentPassword);
@@ -35,6 +35,6 @@ safeRouter.post('/', z3.checkIsAuthenticated(async(req, res) => {
             wrongPassword: true
         });
     }
-}));
+});
     
 module.exports = safeRouter.router;

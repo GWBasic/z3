@@ -6,7 +6,7 @@ const safeRouter = new SafeRouter(express);
 const db = require('../db');
 const z3 = require('../z3.js');
 
-safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
 
     const { skip, limit } = z3.calculateSkipLimit(req);
 
@@ -25,7 +25,7 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
         previousStartMax: previousStartMax,
         limit: limit
     });
-}));
+});
 
 module.exports = safeRouter.router;
 

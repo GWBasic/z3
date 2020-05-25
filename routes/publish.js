@@ -7,16 +7,16 @@ const z3 = require('../z3.js');
 
 const safeRouter = new SafeRouter(express);
 
-safeRouter.param('postId', z3.checkIsAuthenticated(async (req, res, next, postId) => {
+safeRouter.param('postId', z3.checkIsAuthenticatedCallback(async (req, res, next, postId) => {
 
     const draft = await db.getNewestDraft(postId);
     req.draft = draft;
 
     const post = await db.getPost(postId);
     req.post = post;
-}))
+}));
 
-safeRouter.get('/:postId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -87,9 +87,9 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated(async (req, res) => {
         isBlog,
         isIndex,
         willOverwriteIndex});
-}));
+});
 
-safeRouter.post('/:postId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/:postId', z3.checkIsAuthenticated, async (req, res) => {
 	
     const draft = req.draft;
     const whereJSON = decodeURI(req.body.where);
@@ -143,23 +143,23 @@ safeRouter.post('/:postId', z3.checkIsAuthenticated(async (req, res) => {
         afterPageId);
 
     res.redirect(`/publish/${draft.postId}`);
-}));
+});
 
-safeRouter.post('/unPublish/:postId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/unPublish/:postId', z3.checkIsAuthenticated, async (req, res) => {
 	
     const post = req.post;
 
     await db.unPublishPost(post._id);
     res.redirect(`/publish/${post._id}`);
-}));
+});
 
-safeRouter.post('/delete/:postId', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/delete/:postId', z3.checkIsAuthenticated, async (req, res) => {
 	
     const post = req.post;
 
     await db.deletePost(post._id);
     res.redirect(`/dashboard`);
-}));
+});
 
 
 module.exports = safeRouter.router;

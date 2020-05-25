@@ -56,7 +56,18 @@ exports.checkPassword = async password => {
     }
 };
 
-exports.checkIsAuthenticated = serviceCall => {
+exports.checkIsAuthenticated = (req, res, next) => {
+    if (req.session) {
+        if (req.session.isLoggedIn) {
+            next();
+            return;
+        }
+    }
+
+    next(createError(401));
+};
+
+exports.checkIsAuthenticatedCallback = serviceCall => {
     return async (req, res, next, ...args) => {
         if (req.session) {
             if (req.session.isLoggedIn) {

@@ -94,11 +94,9 @@ describe('z3 module test', () => {
     });
 
     async function verifyCheckIsAuthenticated401(req) {
-        const callWrapper = z3.checkIsAuthenticated(async () => assert.fail('There is no session, but the call went through'));
-
         var err = null;
         const next = errCallback => err = errCallback;
-        await callWrapper(req, {}, next);
+        await z3.checkIsAuthenticated(req, {}, next);
 
         assert.isNotNull(err, 'Err not set');
         assert.equal(err.status, 401, 'Status not set to 401');
@@ -118,7 +116,42 @@ describe('z3 module test', () => {
 
     it('checkIsAuthenticated', async () => {
         var called = false;
-        const callWrapper = z3.checkIsAuthenticated(async () => called = true);
+        const next = err => {
+            assert.isUndefined(err, 'Next called with an error');
+            called = true;
+        };
+
+        await z3.checkIsAuthenticated({session:{isLoggedIn: true}}, {}, next);
+
+        assert.isTrue(called, 'next not called');
+    });
+
+    async function checkIsAuthenticatedCallback401(req) {
+        const callWrapper = z3.checkIsAuthenticatedCallback(async () => assert.fail('There is no session, but the call went through'));
+
+        var err = null;
+        const next = errCallback => err = errCallback;
+        await callWrapper(req, {}, next);
+
+        assert.isNotNull(err, 'Err not set');
+        assert.equal(err.status, 401, 'Status not set to 401');
+    }
+
+    it('checkIsAuthenticatedCallback, no session', async () => {
+        checkIsAuthenticatedCallback401({});
+    });
+
+    it('checkIsAuthenticatedCallback, no isLoggedIn', async () => {
+        checkIsAuthenticatedCallback401({session:{}});
+    });
+
+    it('checkIsAuthenticatedCallback, isLoggedIn = false', async () => {
+        checkIsAuthenticatedCallback401({session:{isLoggedIn: false}});
+    });
+
+    it('checkIsAuthenticatedCallback', async () => {
+        var called = false;
+        const callWrapper = z3.checkIsAuthenticatedCallback(async () => called = true);
 
         const next = errCallback => assert.fail('Next called with an error');
         await callWrapper({session:{isLoggedIn: true}}, {}, next);

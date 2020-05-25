@@ -18,7 +18,7 @@ const z3 = require('../z3');
 
 const dirname = path.dirname(__dirname);
 
-safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.get('/', z3.checkIsAuthenticated, async (req, res) => {
     const linkPathPrefix = path.join(dirname, runtimeOptions.publicFolder);
 
     const templates = [];
@@ -60,9 +60,9 @@ safeRouter.get('/', z3.checkIsAuthenticated(async (req, res) => {
         templates,
         configuredTemplate: z3.config.template
     });
-}));
+});
 
-safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.get('/*', z3.checkIsAuthenticated, async (req, res) => {
     const linkPath = req.url;
     const fullPath = path.join(dirname, runtimeOptions.publicFolder, linkPath);
     res.render('template_preview', {
@@ -71,9 +71,9 @@ safeRouter.get('/*', z3.checkIsAuthenticated(async (req, res) => {
         fullPath,
         shortName: path.basename(fullPath, '.css')
     });
-}));
+});
 
-safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
+safeRouter.post('/', z3.checkIsAuthenticated, async (req, res) => {
     z3.config.title = req.body.title;
     z3.config.author = req.body.author;
     z3.config.template = req.body.template;
@@ -100,14 +100,14 @@ safeRouter.post('/', z3.checkIsAuthenticated(async (req, res) => {
     await z3.saveConfig();
 
     res.redirect('/config');
-}));
+});
 
 const rawParser = bodyParser.raw({
     type: 'image/png',
     limit: '1024kb'
 });
 
-safeRouter.put('/avatar', z3.checkIsAuthenticated(), rawParser, async (req, res) => {
+safeRouter.put('/avatar', z3.checkIsAuthenticated, rawParser, async (req, res) => {
     const avatarImageBuffer = req.body;
 
     // Write the avatar (240x240)
