@@ -7,16 +7,19 @@ const z3 = require('../z3.js');
 
 const safeRouter = new SafeRouter(express);
 
-safeRouter.param('postId', z3.checkIsAuthenticatedCallback(async (req, res, next, postId) => {
+// All calls on the publish route must be authenticated
+safeRouter.router.all('/*', z3.checkIsAuthenticated);
+
+safeRouter.param('postId', async (req, res, next, postId) => {
 
     const draft = await db.getNewestDraft(postId);
     req.draft = draft;
 
     const post = await db.getPost(postId);
     req.post = post;
-}));
+});
 
-safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.get('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -89,7 +92,7 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res) => {
         willOverwriteIndex});
 });
 
-safeRouter.post('/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.post('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const whereJSON = decodeURI(req.body.where);
@@ -145,7 +148,7 @@ safeRouter.post('/:postId', z3.checkIsAuthenticated, async (req, res) => {
     res.redirect(`/publish/${draft.postId}`);
 });
 
-safeRouter.post('/unPublish/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.post('/unPublish/:postId', async (req, res) => {
 	
     const post = req.post;
 
@@ -153,7 +156,7 @@ safeRouter.post('/unPublish/:postId', z3.checkIsAuthenticated, async (req, res) 
     res.redirect(`/publish/${post._id}`);
 });
 
-safeRouter.post('/delete/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.post('/delete/:postId', async (req, res) => {
 	
     const post = req.post;
 

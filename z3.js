@@ -67,24 +67,6 @@ exports.checkIsAuthenticated = (req, res, next) => {
     next(createError(401));
 };
 
-exports.checkIsAuthenticatedCallback = serviceCall => {
-    return async (req, res, next, ...args) => {
-        if (req.session) {
-            if (req.session.isLoggedIn) {
-                if (serviceCall) {
-                    await serviceCall(req, res, next, ...args);
-                } else {
-                    next();
-                }
-
-                return;
-            }
-        }
-
-        next(createError(401));
-    };
-};
-
 exports.calculateSkipLimit = req => {
     const skip = (('start' in req.query) ? Math.max(0, Number(req.query.start) - 1) : 0) || 0;
     const limit = (('limit' in req.query) ? Math.max(1, Math.min(MAX_LIMIT, Number(req.query.limit))) : DEFAULT_LIMIT) || DEFAULT_LIMIT;

@@ -205,5 +205,14 @@ describe('Editor operations', () => {
         const expectedBody = await fs.readFile('test/data/img1.jpg');
         assert.isTrue(expectedBody.equals(result.body), 'Wrong contents sent');
     });
+
+    it('Upload and retrieve an image, 401', async () => {
+        var { post } = await testSetup.preparePost();
+
+        await server
+            .post(`/edit/image/${post._id}`)
+            .attach('upload', 'test/data/img1.jpg')
+            .expect(401);
+    });
 });
 

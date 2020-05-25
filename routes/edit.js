@@ -19,7 +19,10 @@ const upload = multer({
 
 const safeRouter = new SafeRouter(express);
 
-safeRouter.post('/', z3.checkIsAuthenticated, async (req, res) => {
+// All calls on the edit route must be authenticated
+safeRouter.router.all('/*', z3.checkIsAuthenticated);
+
+safeRouter.post('/', async (req, res) => {
     const title = req.body.title;
     const suggestedLocation = req.body.suggestedLocation;
 
@@ -27,16 +30,16 @@ safeRouter.post('/', z3.checkIsAuthenticated, async (req, res) => {
     res.redirect(`/edit/${postAndDrafts.post._id}`);
 });
 
-safeRouter.param('postId', z3.checkIsAuthenticatedCallback(async (req, res, next, postId) => {
+safeRouter.param('postId', async (req, res, next, postId) => {
 
     const draft = await db.getNewestDraft(postId);
     req.draft = draft;
 
     const post = await db.getPost(postId);
     req.post = post;
-}))
+});
 
-safeRouter.param('imageId', z3.checkIsAuthenticatedCallback(async (req, res, next, imageId) => {
+safeRouter.param('imageId', async (req, res, next, imageId) => {
     const imageRecord = await db.getImage(imageId);
 
     if (imageRecord.postId != req.post._id) {
@@ -44,9 +47,9 @@ safeRouter.param('imageId', z3.checkIsAuthenticatedCallback(async (req, res, nex
     }
 
     req.imageRecord = imageRecord;
-}));
+});
 
-safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.get('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -67,7 +70,7 @@ safeRouter.get('/:postId', z3.checkIsAuthenticated, async (req, res) => {
         url: post.url});
 });
 
-safeRouter.put('/:postId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.put('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
@@ -87,7 +90,7 @@ safeRouter.put('/:postId', z3.checkIsAuthenticated, async (req, res) => {
     res.json(response);
 });
 
-safeRouter.get('/image/:postId.:imageId', z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.get('/image/:postId.:imageId', async (req, res) => {
     const imageRecord = req.imageRecord;
 
     res.writeHead(200, {
@@ -97,7 +100,7 @@ safeRouter.get('/image/:postId.:imageId', z3.checkIsAuthenticated, async (req, r
       res.end(imageRecord.imageData); 
 });
 
-safeRouter.post('/image/:postId', upload.single('upload'), z3.checkIsAuthenticated, async (req, res) => {
+safeRouter.post('/image/:postId', upload.single('upload'), async (req, res) => {
     // See 
     // - https://www.npmjs.com/package/multer
     // - https://stackoverflow.com/questions/49385792/how-to-do-ckeditor-5-image-uploading/49833278#49833278
