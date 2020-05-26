@@ -281,7 +281,9 @@ function loadConfig() {
             overrideTemplate: null,
             headHtml: '',
             footerHtml: '',
-            searchUrl: ''
+            searchUrl: '',
+            forceDomain: '',
+            forceHttps: false
         };
     }
 }

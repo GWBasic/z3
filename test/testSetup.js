@@ -36,6 +36,9 @@ module.exports = {
         z3.config.title = 'title for tests';
         z3.config.author = 'author for tests';
         z3.config.private = false;
+        z3.config.searchUrl = '';
+        z3.config.forceDomain = '';
+        z3.config.forceHttps = false;
 
         try {
             await z3.saveConfig();

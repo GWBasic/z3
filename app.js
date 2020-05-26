@@ -20,6 +20,7 @@ const configRouter = require('./routes/config');
 const dashboardRouter = require('./routes/dashboard');
 const draftsRouter = require('./routes/drafts');
 const editRouter = require('./routes/edit');
+const forceDomainRouter = require('./routes/forceDomain');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const publishRouter = require('./routes/publish');
@@ -79,7 +80,7 @@ app.use(async function(req, res, next) {
 	}
 });
 
-app.use('/blog/', blogRouter);
+// Admin pages do not use domain forcing
 app.use('/changePassword/', changePasswordRouter);
 app.use('/config/', configRouter);
 app.use('/dashboard/', dashboardRouter);
@@ -87,6 +88,10 @@ app.use('/drafts/', draftsRouter);
 app.use('/edit/', editRouter);
 app.use('/login/', loginRouter);
 app.use('/publish/', publishRouter);
+
+// Globally-readable pages use domain forcing
+app.use('/', forceDomainRouter);
+app.use('/blog/', blogRouter);
 app.use('/search/', searchRouter);
 app.use('/', indexRouter);
 

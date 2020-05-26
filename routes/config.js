@@ -92,6 +92,8 @@ router.post('/', async (req, res) => {
     z3.config.headHtml = req.body.headHtml;
     z3.config.footerHtml = req.body.footerHtml;
     z3.config.searchUrl = req.body.searchUrl;
+    z3.config.forceDomain = req.body.forceDomain;
+    z3.config.forceHttps = req.body.forceHttps ? true : false;
 
     pogon.defaultTemplate = z3.config.overrideTemplate;
 
@@ -144,6 +146,5 @@ router.put('/avatar', rawParser, async (req, res) => {
     res.status(201);
     res.end();
 });
-
 
 module.exports = router;

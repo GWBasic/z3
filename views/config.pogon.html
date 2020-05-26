@@ -100,8 +100,18 @@
                 <br />
                 <br />
 
-                <label>Search engine: <input type="text" value="{{config.searchUrl}}" id="overrideTemplate" name="searchUrl" size="100"></label>
+                <label>Search engine: <input type="text" value="{{config.searchUrl}}" name="searchUrl" size="100"></label>
                 <z3-instructions>Search engine URL, use %query% for the query, and %host% for the host. Defaults to: {{config.defaultSearchUrl}} when empty</z3-instructions>
+                <br />
+                <br />
+
+                <label>Force domain to: <input type="text" value="{{config.forceDomain}}" name="forceDomain"></label>
+                <z3-instructions>Forces the domain to the specified host for blog entries. (Note that, for safety reasons, domain forcing doesn't run on admin pages.)</z3-instructions>
+                <br />
+                <br />
+
+                <label>Force https: <input type="checkbox" name="forceHttps" {{#if config.forceHttps}}checked{{/if}}></label>
+                <z3-instructions>Forces https for blog entries. (Note that, for safety reasons, https forcing doesn't run on admin pages.)</z3-instructions>
                 <br />
                 <br />
 
