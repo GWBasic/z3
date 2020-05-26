@@ -283,7 +283,8 @@ function loadConfig() {
             footerHtml: '',
             searchUrl: '',
             forceDomain: '',
-            forceHttps: false
+            forceHttps: false,
+            redirects: {}
         };
     }
 }
@@ -293,7 +294,7 @@ loadConfig();
 exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;
 
 exports.saveConfig = async () => {
-    const configJSON = JSON.stringify(exports.config);
+    const configJSON = JSON.stringify(exports.config, null, 2);
     await fs.writeFile(runtimeOptions.configFile, configJSON);
 }
 

@@ -115,6 +115,13 @@
                 <br />
                 <br />
 
+                <label>Redirects<br />
+                    <textarea name="redirects" rows="6" cols="80">{{../redirects}}</textarea>
+                </label>
+                <br /><z3-instructions>Redirects specified as JSON. For example, { "/foo":"/bar", "/x":"/y" } will redirect /foo to /bar, and /x to /y</z3-instructions>
+                <br />
+                <br />
+
                 <input id="submit" type="submit" value="Update">
             {{/with}}
         </form>

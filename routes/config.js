@@ -55,7 +55,8 @@ router.get('/', async (req, res) => {
     res.render('config', {
         isAvatarConfigured,
         templates,
-        configuredTemplate: z3.config.template
+        configuredTemplate: z3.config.template,
+        redirects: JSON.stringify(z3.config.redirects, null, 2)
     });
 });
 
@@ -94,6 +95,7 @@ router.post('/', async (req, res) => {
     z3.config.searchUrl = req.body.searchUrl;
     z3.config.forceDomain = req.body.forceDomain;
     z3.config.forceHttps = req.body.forceHttps ? true : false;
+    z3.config.redirects = JSON.parse(req.body.redirects || '{}');
 
     pogon.defaultTemplate = z3.config.overrideTemplate;
 

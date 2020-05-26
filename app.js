@@ -20,10 +20,10 @@ const configRouter = require('./routes/config');
 const dashboardRouter = require('./routes/dashboard');
 const draftsRouter = require('./routes/drafts');
 const editRouter = require('./routes/edit');
-const forceDomainRouter = require('./routes/forceDomain');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const publishRouter = require('./routes/publish');
+const redirectsRouter = require('./routes/redirects');
 const searchRouter = require('./routes/search');
 
 const app = express();
@@ -90,7 +90,7 @@ app.use('/login/', loginRouter);
 app.use('/publish/', publishRouter);
 
 // Globally-readable pages use domain forcing
-app.use('/', forceDomainRouter);
+app.use('/', redirectsRouter);
 app.use('/blog/', blogRouter);
 app.use('/search/', searchRouter);
 app.use('/', indexRouter);

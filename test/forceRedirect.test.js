@@ -1,7 +1,3 @@
-/*
-
-TODO: Currently disabled. I don't know how to determine the port number when running a test
-
 const testSetup = require('./testSetup');
 
 const chai = require('chai');
@@ -18,7 +14,7 @@ chai.use(chaiFiles);
 const expect = chai.expect;
 const file = chaiFiles.file;
 
-describe('Force domain and https', () => {
+describe('Force redirects', () => {
 
     before(() => {});
 
@@ -28,6 +24,10 @@ describe('Force domain and https', () => {
 
     afterEach(testSetup.afterEach);
 
+    /*
+
+    TODO: Currently disabled. I don't know how to determine the port number when running a test
+    
     it('Force domain disabled', async () => {
         await server
             .get('http://localhost:3000/')
@@ -48,6 +48,20 @@ describe('Force domain and https', () => {
 
     it('Force https enabled', async () => {
         assert.fail('incomplete');
+    }); */
+
+    it('Force redirects', async () => {
+        await server
+            .get('/dne')
+            .expect(404);
+
+        z3.config.redirects = {
+            '/dne': '/exists'
+        };
+
+        await server
+            .get('/dne')
+            .expect(302)
+            .expect('Location', '/exists');
     });
 });
-*/

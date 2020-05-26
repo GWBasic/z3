@@ -11,6 +11,8 @@ router.get('/*', async (req, res, next) => {
         res.redirect(`${scheme}${z3.config.forceDomain}${req.originalUrl}`);
     } else if (z3.config.forceHttps && (!req.secure)) {
         res.redirect(`https://${z3.config.forceDomain}${req.originalUrl}`);
+    } else if (z3.config.redirects[req.url]) {
+        res.redirect(z3.config.redirects[req.url]);
     } else {
         next();
     }

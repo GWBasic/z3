@@ -61,6 +61,8 @@ describe('Config', () => {
         assert.equal(options.config.searchUrl, z3.config.searchUrl, 'Wrong searchUrl');
         assert.equal(options.config.forceDomain, z3.config.forceDomain, 'Wrong footerHtml');
         assert.equal(options.config.forceHttps, z3.config.forceHttps, 'Wrong forceHttps');
+        assert.deepEqual(options.config.redirects, z3.config.redirects, 'Wrong redirects');
+        assert.equal(options.redirects, JSON.stringify(z3.config.redirects, null, 2), 'Wrong redirects');
         assert.isFalse(options.isAvatarConfigured, 'Wrong isAvatarConfigured');
 
         const templates = result.options.templates;
@@ -84,7 +86,7 @@ describe('Config', () => {
 
         await server
             .post('/config')
-            .send('title=new_title&author=new_author&private=checked&template=the_template&headHtml=hhh&footerHtml=fff&searchUrl=sss&forceDomain=foo&forceHttps=on')
+            .send('title=new_title&author=new_author&private=checked&template=the_template&headHtml=hhh&footerHtml=fff&searchUrl=sss&forceDomain=foo&forceHttps=on&redirects={"/foo":"/bar"}')
             .expect(302)
             .expect('Location', `/config`);
 
@@ -99,6 +101,7 @@ describe('Config', () => {
             assert.equal(config.searchUrl, 'sss', 'Wrong searchUrl');
             assert.equal(config.forceDomain, 'foo', 'Wrong forceDomain');
             assert.isTrue(config.forceHttps, 'Wrong forceHttps');
+            assert.deepEqual(config.redirects, {'/foo':'/bar'});
         }
 
         checkConfig(z3.config);

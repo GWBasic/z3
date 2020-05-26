@@ -39,6 +39,8 @@ module.exports = {
         z3.config.searchUrl = '';
         z3.config.forceDomain = '';
         z3.config.forceHttps = false;
+        z3.config.redirects = {};
+        z3.config.redirectsJSON = JSON.stringify({});
 
         try {
             await z3.saveConfig();
