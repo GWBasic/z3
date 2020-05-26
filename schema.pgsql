@@ -16,6 +16,22 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: andrewrondeau
+--
+
+CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.trigger_set_timestamp() OWNER TO andrewrondeau;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -26,7 +42,10 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.drafts (
     id integer NOT NULL,
-    obj json NOT NULL
+    obj jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    post_id integer
 );
 
 
@@ -60,7 +79,8 @@ ALTER SEQUENCE public.drafts_id_seq OWNED BY public.drafts.id;
 
 CREATE TABLE public.images (
     id integer NOT NULL,
-    obj json NOT NULL
+    obj jsonb NOT NULL,
+    post_id integer
 );
 
 
@@ -94,7 +114,9 @@ ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 CREATE TABLE public.posts (
     id integer NOT NULL,
-    obj json NOT NULL
+    obj jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -144,51 +166,6 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 
 
 --
--- Data for Name: drafts; Type: TABLE DATA; Schema: public; Owner: andrewrondeau
---
-
-COPY public.drafts (id, obj) FROM stdin;
-\.
-
-
---
--- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: andrewrondeau
---
-
-COPY public.images (id, obj) FROM stdin;
-\.
-
-
---
--- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: andrewrondeau
---
-
-COPY public.posts (id, obj) FROM stdin;
-\.
-
-
---
--- Name: drafts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: andrewrondeau
---
-
-SELECT pg_catalog.setval('public.drafts_id_seq', 1, false);
-
-
---
--- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: andrewrondeau
---
-
-SELECT pg_catalog.setval('public.images_id_seq', 1, false);
-
-
---
--- Name: posts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: andrewrondeau
---
-
-SELECT pg_catalog.setval('public.posts_id_seq', 1, false);
-
-
---
 -- Name: drafts drafts_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
 --
 
@@ -216,14 +193,14 @@ ALTER TABLE ONLY public.posts
 -- Name: idx_drafttoimage; Type: INDEX; Schema: public; Owner: andrewrondeau
 --
 
-CREATE INDEX idx_drafttoimage ON public.images USING btree (((obj ->> 'postId'::text)));
+CREATE INDEX idx_drafttoimage ON public.images USING btree (post_id);
 
 
 --
 -- Name: idx_drafttopost; Type: INDEX; Schema: public; Owner: andrewrondeau
 --
 
-CREATE INDEX idx_drafttopost ON public.drafts USING btree (((obj ->> 'postId'::text)));
+CREATE INDEX idx_drafttopost ON public.drafts USING btree (post_id);
 
 
 --
@@ -245,6 +222,36 @@ CREATE INDEX idx_staticgroup ON public.posts USING btree (((obj ->> 'staticGroup
 --
 
 CREATE INDEX idx_url ON public.posts USING btree (((obj ->> 'url'::text)));
+
+
+--
+-- Name: drafts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+--
+
+CREATE TRIGGER set_timestamp_post BEFORE UPDATE ON public.drafts FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
+-- Name: posts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+--
+
+CREATE TRIGGER set_timestamp_post BEFORE UPDATE ON public.posts FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
+-- Name: drafts drafts_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.drafts
+    ADD CONSTRAINT drafts_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id);
+
+
+--
+-- Name: images images_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT images_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id);
 
 
 --
