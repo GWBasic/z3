@@ -159,11 +159,14 @@ describe('Database', () => {
         // publish = async (postId, draftId, title, content, url, summary)
         const url = 'the_url';
         const summary = 'the_summary';
+        const publishedAt = new Date(1981, 3, 12);
+        const republishedAt = new Date(1984, 5, 24);
+
         await db.publishPost(
             post._id,
             restoredSecondDraft._id,
-            new Date(),
-            null,
+            publishedAt,
+            republishedAt,
             restoredSecondDraft.title,
             restoredSecondDraft.content,
             url,
@@ -177,8 +180,11 @@ describe('Database', () => {
         assert.equal(restoredSecondDraft.content, publishedPost.content);
         assert.equal(url, publishedPost.url);
         assert.equal(summary, publishedPost.summary);
-        assert.isDefined(publishedPost.publishedAt);
-        assert.equal(publishedPost.publishedImages.length, 0, 'Incorrect published images');
+        assert.equal(publishedAt.toString(), publishedPost.publishedAt.toString());
+        assert.equal(republishedAt.toString(), publishedPost.republishedAt.toString());
+
+        // TODO: This doesn't belong here
+        //assert.equal(publishedPost.publishedImages.length, 0, 'Incorrect published images');
 
         const publishedPostOrNull = await db.getPostFromUrlOrNull(url);
         assert.isNotNull(publishedPostOrNull);
@@ -193,7 +199,15 @@ describe('Database', () => {
 
         const firstDraft = drafts[0];
 
-        await db.publishPost(post._id, firstDraft._id, 'Published title', 'Published content', 'theurl', 'Published summary');
+        await db.publishPost(
+            post._id,
+            firstDraft._id,
+            null,
+            null,
+            'Published title',
+            'Published content',
+            'theurl',
+            'Published summary');
 
         await db.appendDraft(post._id, 'New draft title', 'New draft content');
 
@@ -246,7 +260,15 @@ describe('Database', () => {
                 const post = allPostsInOrder[postItr];
                 const draft = (await db.getPostAndDrafts(post._id)).drafts[0];
 
-                await db.publishPost(post._id, draft._id, `Title ${postItr}`, `Content ${postItr}`, `${postItr}`, `${postItr}`);
+                await db.publishPost(
+                    post._id,
+                    draft._id,
+                    null,
+                    null,
+                    `Title ${postItr}`,
+                    `Content ${postItr}`,
+                    `${postItr}`,
+                    `${postItr}`);
 
                 expectedNumPublishedPosts++;
             }

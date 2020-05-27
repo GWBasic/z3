@@ -65,6 +65,8 @@ module.exports = {
 
     afterEach: async () => {
         pogon.testMode = false;
+        await module.exports.logout();
+        await module.exports.deletePassword();
 
         const client = new Client({connectionString: process.env.DATABASE_URL});
 
@@ -85,11 +87,6 @@ module.exports = {
             await client.end();
         }
 
-
-
-        //await db.clear();
-        await module.exports.logout();
-        await module.exports.deletePassword();
         await fs.rmdir(`./${runtimeOptions.publicFolder}`, {recursive: true});
     },
 

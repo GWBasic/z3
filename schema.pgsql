@@ -46,7 +46,8 @@ CREATE TABLE public.drafts (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     post_id integer,
     title character varying,
-    content text
+    content text,
+    suggested_location character varying
 );
 
 
@@ -120,7 +121,14 @@ CREATE TABLE public.posts (
     title character varying,
     suggested_location character varying,
     url character varying,
-    working_title character varying
+    working_title character varying,
+    published_at timestamp with time zone,
+    republished_at timestamp with time zone,
+    summary character varying,
+    static_order real,
+    content text,
+    static_group character varying,
+    draft_id integer
 );
 
 
@@ -216,6 +224,13 @@ CREATE INDEX idx_drafttopost ON public.drafts USING btree (post_id);
 
 
 --
+-- Name: idx_static_group; Type: INDEX; Schema: public; Owner: andrewrondeau
+--
+
+CREATE INDEX idx_static_group ON public.posts USING btree (static_group);
+
+
+--
 -- Name: drafts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: andrewrondeau
 --
 
@@ -243,6 +258,14 @@ ALTER TABLE ONLY public.drafts
 
 ALTER TABLE ONLY public.images
     ADD CONSTRAINT images_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id);
+
+
+--
+-- Name: posts posts_draft_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_draft_id_fkey FOREIGN KEY (draft_id) REFERENCES public.drafts(id);
 
 
 --

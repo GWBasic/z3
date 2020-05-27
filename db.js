@@ -7,6 +7,9 @@ const DRAFT_STORE_INTERVAL_MINUTES = 5;
 
 const connectionString = process.env.DATABASE_URL;
 
+// To dump the schema:
+// ./pg_dump -s z3 > ~/git/z3/schema.pgsql
+
 const pool = new Pool({connectionString});
 
 class PostNotFoundError extends Error {
@@ -16,16 +19,12 @@ class PostNotFoundError extends Error {
     }
 };
 
-exports.PostNotFoundError = PostNotFoundError;
-
 class DraftNotFoundError extends Error {
     constructor(message) {
         super(message);
         this.name = 'DraftNotFound';
     }
 };
-
-exports.DraftNotFoundError = DraftNotFoundError;
 
 class ImageNotFoundError extends Error {
     constructor(message) {
@@ -34,16 +33,12 @@ class ImageNotFoundError extends Error {
     }
 }
 
-exports.ImageNotFoundError = ImageNotFoundError;
-
 class UnknownStaticGroupError extends Error {
     constructor(message) {
         super(message);
         this.name = 'UnknownStaticGroup';
     }
 }
-
-exports.UnknownStaticGroupError = UnknownStaticGroupError;
 
 class UnknownAfterPageIdError extends Error {
     constructor(message) {
@@ -52,13 +47,9 @@ class UnknownAfterPageIdError extends Error {
     }
 }
 
-exports.UnknownAfterPageIdError = UnknownAfterPageIdError;
-
 const dep = {
     newDate: () => new Date()
 };
-
-exports.dep = dep;
 
 async function runOnTransaction(callback) {
     const client = await pool.connect();
@@ -97,21 +88,45 @@ async function useClient(callback) {
     return toReturn;
 }
 
+function constructPostsFromRows(rows) {
+    const posts = [];
+
+    for (var row of rows) {
+        posts.push(constructPostFromRow(row));
+    }
+
+    return posts;
+}
+
 function constructPostFromRow(row) {
-    return {
+    const post = {
         _id: row.id,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-        title: row.title,
         workingTitle: row.working_title,
         suggestedLocation: row.suggested_location,
-        content: row.content
     };
+
+    // Only set published values when the post is published
+    if (row.draft_id) {
+        post.title = row.title;
+        post.content = row.content;
+        post.summary = row.summary;
+        post.url = row.url;
+        post.draftId = row.draft_id;
+        post.publishedAt = row.published_at;
+        post.republishedAt = row.republished_at;
+        post.staticGroup = row.static_group;
+        post.staticOrder = row.static_order;
+    }
+
+    return post;
 }
 
 function constructDraftFromRow(row) {
     return {
         _id: row.id,
+        postId: row.post_id,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         title: row.title,
@@ -119,31 +134,37 @@ function constructDraftFromRow(row) {
     };
 }
 
-exports.createPost = async (title, suggestedLocation) => {
+function constructDraftsFromRows(rows) {
+    const drafts = [];
 
-    return await runOnTransaction(async client => {
-        const insertPostResult = await client.query(
-            "INSERT into posts (working_title, suggested_location) VALUES ($1, $2) RETURNING id",
-            [ title, suggestedLocation ]);
+    for (var row of rows) {
+        drafts.push(constructDraftFromRow(row));
+    }
 
-        const postId = insertPostResult.rows[0].id;
+    return drafts;
+}
 
-        await client.query(
-            "INSERT into drafts (post_id, title, content) VALUES ($1, $2, '')",
-            [ postId, title ]);
+async function createPost(client, title, suggestedLocation) {
+    const insertPostResult = await client.query(
+        "INSERT into posts (working_title, suggested_location) VALUES ($1, $2) RETURNING id",
+        [ title, suggestedLocation ]);
 
-        return {
-            post: await getPost(client, postId),
-            drafts: [ await getNewestDraft(client, postId) ]
-        };
-    });
-};
+    const postId = insertPostResult.rows[0].id;
+
+    await client.query(
+        "INSERT into drafts (post_id, title, content) VALUES ($1, $2, '')",
+        [ postId, title ]);
+
+    return {
+        post: await getPost(client, postId),
+        drafts: [ await getNewestDraft(client, postId) ]
+    };
+}
 
 async function getPost(client, postId) {
     const res = await client.query(
         "SELECT * from posts where id=$1;",
         [postId]);
-
 
     if (res.rowCount == 0) {
         throw new PostNotFoundError(`No posts with id ${postId}`);
@@ -151,8 +172,6 @@ async function getPost(client, postId) {
     
     return constructPostFromRow(res.rows[0]);
 }
-
-exports.getPost = async postId => useClient(client => getPost(client, postId));
 
 async function getNewestDraft(client, postId) {
     const selectDraftResult = await client.query(
@@ -166,65 +185,200 @@ async function getNewestDraft(client, postId) {
     return constructDraftFromRow(selectDraftResult.rows[0]);
 }
 
-exports.getNewestDraft = async postId => useClient(client => getNewestDraft(client, postId));
+async function appendDraft(client, postId, title, content, suggestedLocation) {
+    const post = await getPost(client, postId);
+    const currentDraft = await getNewestDraft(client, postId);
 
-exports.appendDraft = async (postId, title, content, suggestedLocation) => {
+    if (null == currentDraft || null == post) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
 
-    return await runOnTransaction(async client => {
-        const post = await getPost(client, postId);
-        const currentDraft = await getNewestDraft(client, postId);
-    
-        if (null == currentDraft || null == post) {
-            throw new PostNotFoundError(`No posts with id ${postId}`);
+    const updatePostResult = await client.query(
+        "UPDATE posts SET working_title = $1 WHERE id=$2",
+        [title, postId]);
+
+    if (updatePostResult.rowCount != 1) {
+        throw new Error(`Could not update post ${postId}`);
+    }
+
+    const ageMs = dep.newDate() - currentDraft.createdAt;
+    const ageSeconds = ageMs / 1000;
+    const ageMinutes = ageSeconds / 60;
+
+    const insert = (ageMinutes > DRAFT_STORE_INTERVAL_MINUTES) || (currentDraft._id == post.draftId);
+
+    var draftId;
+    if (insert) {
+        const insertDraftResult = await client.query(
+            'INSERT into drafts (post_id, title, content, suggested_location) VALUES ($1, $2, $3, $4) RETURNING id',
+            [ postId, title, content, suggestedLocation ]);
+
+        draftId = insertDraftResult.rows[0].id;
+    } else {
+        draftId = currentDraft._id;
+
+        const updateDraftResult = await client.query(
+            "UPDATE drafts SET title =$2, content=$3, suggested_location=$4 WHERE id=$1",
+            [draftId, title, content, suggestedLocation]);
+
+        if (updateDraftResult.rowCount != 1) {
+            throw new Error(`Could not update draft ${draftId}`);
         }
-    
-        const updatePostResult = await client.query(
-            "UPDATE posts SET working_title = $1 WHERE id=$2",
-            [title, postId]);
+    }
 
-        if (updatePostResult.rowCount != 1) {
-            throw `Could not update post ${postId}`;
-        }
+    const selectDraftResult = await client.query(
+        "SELECT * from drafts where id=$1;",
+        [draftId]);
 
-        const ageMs = dep.newDate() - currentDraft.createdAt;
-        const ageSeconds = ageMs / 1000;
-        const ageMinutes = ageSeconds / 60;
+    if (selectDraftResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
     
-        const insert = (ageMinutes > DRAFT_STORE_INTERVAL_MINUTES) || (currentDraft._id == post.draftId);
-    
-        var draftId;
-        if (insert) {
-            const insertDraftResult = await client.query(
-                'INSERT into drafts (post_id, title, content) VALUES ($1, $2, $3) RETURNING id',
-                [ postId, title, content ]);
+    return constructDraftFromRow(selectDraftResult.rows[0]);
+}
 
-            draftId = insertDraftResult.rows[0].id;
-        } else {
-            draftId = currentDraft._id;
+async function getPostAndDrafts(client, postId) {
+    const selectDraftsResult = await client.query(
+        "SELECT * FROM drafts WHERE post_id = $1 ORDER BY created_at DESC;",
+        [postId]);
 
-            const updateDraftResult = await client.query(
-                "UPDATE drafts SET title = $1, content = $2 WHERE id=$3",
-                [title, content, draftId]);
-    
-            if (updateDraftResult.rowCount != 1) {
-                throw `Could not update draft ${draftId}`;
+    if (selectDraftsResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+
+    return {
+        post: await getPost(client, postId),
+        drafts: constructDraftsFromRows(selectDraftsResult.rows)
+    };
+}
+
+async function getDraft(client, draftId) {
+    const selectDraftResult = await client.query(
+        "SELECT * from drafts where id=$1",
+        [draftId]);
+
+    if (selectDraftResult.rowCount == 0) {
+        throw new DraftNotFoundError(`DraftId ${draftId} missing`);
+    }
+
+    return constructDraftFromRow(selectDraftResult.rows[0]);
+}
+
+async function restoreDraft(client, draftId) {
+    const originalDraft = await getDraft(client, draftId);
+
+    const insertDraftResult = await client.query(
+        'INSERT into drafts (post_id, title, content) VALUES ($1, $2, $3) RETURNING id',
+        [ originalDraft.postId, originalDraft.title, originalDraft.content ]);
+
+    const newDraftId = insertDraftResult.rows[0].id;
+
+    return getDraft(client, newDraftId);
+}
+
+async function publishPost(
+    client,
+    postId,
+    draftId,
+    publishedAt,
+    republishedAt,
+    title,
+    content,
+    url,
+    summary,
+    publishedImages,
+    staticGroup,
+    afterPageId) {
+
+    async function calculateStaticOrder(client) {
+
+        if (staticGroup) {
+            const staticPages = await getAllStaticPages(client);
+            
+            if (!(staticGroup in staticPages)) {
+                throw new UnknownStaticGroupError(`Static group ${staticGroup} unknown`);
+            }
+
+            const pages = staticPages[staticGroup];
+            if (afterPageId == postId) {
+                // Page isn't moving
+            } else if (afterPageId) {
+                // Page will be inserted relative to another page
+                var afterPageIndex = null;
+                for (var pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+                    if (pages[pageIndex]._id == afterPageId) {
+                        afterPageIndex = pageIndex;
+                    }
+                }
+
+                if (afterPageIndex == null) {
+                    throw new UnknownAfterPageIdError(`Page ID ${afterPageId} is not part of ${staticGroup}`);
+                }
+
+                if (afterPageIndex + 1 == pages.length) {
+                    // Page is going last
+                    return pages[afterPageIndex].staticOrder + 10000;
+                } else if (postId != pages[afterPageIndex + 1]._id) {
+                    // Page goes between two other pages
+                    return (pages[afterPageIndex].staticOrder + pages[afterPageIndex + 1].staticOrder) / 2;
+                }
+
+            } else {
+                // Page is going first
+                if (pages.length > 0) {
+                    // inserting the page before the other pages
+                    return pages[0].staticOrder - 10000;
+                }
+                else {
+                    // This is the first page
+                    return 0;
+                }
             }
         }
-
-        const selectDraftResult = await client.query(
-            "SELECT * from drafts where id=$1;",
-            [draftId]);
-    
-        if (selectDraftResult.rowCount == 0) {
-            throw new PostNotFoundError(`No posts with id ${postId}`);
+        else if (afterPageId) {
+            throw new UnknownAfterPageIdError('afterPostId can only be specified when staticPageName is specified');
         }
-        
-        return constructDraftFromRow(selectDraftResult.rows[0]);
-    });
-};
 
-exports.getPostFromUrl = async url => {
-    const post = await exports.getPostFromUrlOrNull(url);
+        return null;
+    }
+
+    const staticOrder = await calculateStaticOrder(client);
+
+    if (staticOrder != null) {
+        const updateStaticOrderResult = await client.query(
+            "UPDATE posts SET static_order = $2 WHERE id=$1",
+            [postId, staticOrder]);
+
+        if (updateStaticOrderResult.rowCount != 1) {
+            throw new Error(`Could not update post ${postId}`);
+        }
+    }
+
+    // Do not allow publishing multiple posts to the same url
+    // Unpublish in this case
+    const postToUnpublish = await getPostFromUrlOrNull(client, url);
+    if (postToUnpublish) {
+        if (postToUnpublish._id != postId) {
+            await unPublishPost(client, postToUnpublish._id);
+        }
+    }
+
+    const updatePostResult = await client.query(
+        "UPDATE posts SET published_at=$2, republished_at=$3, title=$4, content=$5, url=$6, summary=$7, static_group=$8, draft_id=$9 WHERE id=$1",
+        [postId, publishedAt, republishedAt, title, content, url, summary, staticGroup, draftId]);
+
+    if (updatePostResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+}
+
+async function unPublishPost(client, postId) {
+    throw new Error("unimplemented");
+}
+
+
+async function getPostFromUrl(client, url) {
+    const post = await getPostFromUrlOrNull(client, url);
 
     if (post == null) {
         throw new PostNotFoundError(`No post at url ${url}`);
@@ -233,34 +387,108 @@ exports.getPostFromUrl = async url => {
     return post;
 };
 
-exports.getPostFromUrlOrNull = async url => {
-    const res = await pool.query(
+async function getPosts(client, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
+    const selectPostsResult = await client.query(
+        "SELECT * FROM posts LIMIT $2 OFFSET $1",
+        [skip, limit]);
+
+    return constructPostsFromRows(selectPostsResult.rows);
+}
+
+async function countAllPosts(client) {
+    const selectPostsResult = await client.query("SELECT count(id) as numPosts FROM posts");
+
+    return selectPostsResult.rows[0].numposts;
+}
+
+async function getPublishedPosts(client, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
+    const selectPostsResult = await client.query(
+        "SELECT * FROM posts WHERE url IS NOT NULL AND static_group IS NULL LIMIT $2 OFFSET $1",
+        [skip, limit]);
+
+    return constructPostsFromRows(selectPostsResult.rows);
+}
+
+async function countPublishedPosts(client) {
+    const selectPostsResult = await client.query("SELECT count(id) as numPosts FROM posts WHERE url IS NOT NULL AND static_group IS NULL");
+
+    return selectPostsResult.rows[0].numposts;
+}
+
+async function getPostFromUrlOrNull(client, url) {
+    const selectPostsResult = await client.query(
         "SELECT * FROM posts where url=$1;",
         [url]);
 
-    if (res.rowCount == 0) {
+    if (selectPostsResult.rowCount == 0) {
         return null;
     }
 
-    const post = res.rows[0].obj;
-    post._id = res.rows[0].id;
+    return constructPostFromRow(selectPostsResult.rows[0]);
 };
 
-exports.getAllStaticPages = async () => {
+async function getAllStaticPages(client) {
+    const selectPostsResult = await client.query(
+        "SELECT * FROM posts WHERE static_group IS NOT NULL ORDER BY static_order");
+
+    const posts = constructPostsFromRows(selectPostsResult.rows);
+
     const staticPages = {};
     const staticLocations = z3.staticLocations;
     for (const staticLocation of staticLocations) {
         staticPages[staticLocation] = [];
     }
 
+    for (var post of posts) {
+        staticPages[post.staticGroup].push(post);
+    }
+
     return staticPages;
 };
 
-exports.getPublishedPosts = async (skip = 0, limit = Number.MAX_SAFE_INTEGER) => {
-    return [];
-};
+module.exports = {
 
-exports.countPublishedPosts = async () => {
-    return 0;
-};
+    PostNotFoundError,
+    DraftNotFoundError,
+    ImageNotFoundError,
+    UnknownStaticGroupError,
+    UnknownAfterPageIdError,
+    dep,
 
+    createPost: async (title, suggestedLocation) => await runOnTransaction(
+        async client => createPost(client, title, suggestedLocation)),
+    
+    getPost: async postId => useClient(client => getPost(client, postId)),
+    
+    getNewestDraft: async postId => useClient(client => getNewestDraft(client, postId)),
+    
+    appendDraft: async (postId, title, content, suggestedLocation) => 
+        await runOnTransaction(async client => appendDraft(client, postId, title, content, suggestedLocation)),
+
+    restoreDraft: async draftId => await runOnTransaction(client => restoreDraft(client, draftId)),
+
+    publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId) =>
+        await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId)),
+    
+    unPublishPost: async postId => await useClient(async client => await unPublishPost(client, postId)),
+
+    getPostFromUrl: async url => await useClient(async client => this.getPostFromUrl(client, url)),
+
+    getPostAndDrafts: async postId => useClient(async client => getPostAndDrafts(client, postId)),
+    
+    getAllStaticPages: async () => await useClient(getAllStaticPages),
+
+    getPosts: async (skip = 0, limit = Number.MAX_SAFE_INTEGER) => await useClient(
+        client => getPosts(client, skip, limit)),
+
+    getPublishedPosts: async (skip = 0, limit = Number.MAX_SAFE_INTEGER) =>
+        useClient(async client => await getPublishedPosts(client, skip, limit)),
+
+    countAllPosts: async () => await useClient(countAllPosts),
+
+    countPublishedPosts: async () => await useClient(countPublishedPosts),
+
+    getPostFromUrlOrNull: async url => useClient(async client => await getPostFromUrlOrNull(client, url)),
+
+    getPostFromUrl: async url => useClient(async client => await getPostFromUrl(client, url))
+}
