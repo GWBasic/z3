@@ -5,4 +5,5 @@
 #content {
     float:left;
     overflow-y: auto;
+    width: 100%;
 }
