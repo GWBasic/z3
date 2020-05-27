@@ -11,7 +11,10 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/bin/www"
+            "program": "${workspaceFolder}/bin/www",
+            "env": {
+                "DATABASE_URL": "postgresql://localhost:5432/z3"
+            }
         },
 
         {
@@ -30,7 +33,10 @@
             "internalConsoleOptions": "openOnSessionStart",
             "skipFiles": [
                 "<node_internals>/**"
-            ]
-        }
+            ],
+            "env": {
+                "DATABASE_URL": "postgresql://localhost:5432/z3_test"
+            }
+        },
     ]
 }

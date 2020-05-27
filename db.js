@@ -5,7 +5,7 @@ const z3 = require('./z3');
 
 const DRAFT_STORE_INTERVAL_MINUTES = 5;
 
-const connectionString = 'postgresql://localhost:5432/z3'
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({connectionString});
 

@@ -8,6 +8,7 @@ runtimeOptions.authentication.passwordFile = 'testPassword.json';
 runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
 const assert  = require('chai').assert;
+const { Client } = require('pg');
 const fs = require('fs-extra');
 const pogon = require('pogon.html')
 const supertest = require('supertest');
@@ -49,11 +50,44 @@ module.exports = {
         }
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
+
+        const client = new Client({connectionString: process.env.DATABASE_URL});
+
+        try {
+            client.connect();
+
+            const schema = (await fs.readFile('./schema.pgsql')).toString();
+            await client.query(schema);
+        } finally {
+            await client.end();
+        }
     },
 
     afterEach: async () => {
         pogon.testMode = false;
-        await db.clear();
+
+        const client = new Client({connectionString: process.env.DATABASE_URL});
+
+        try {
+            client.connect();
+
+            await client.query(
+                `drop schema public cascade;
+                CREATE SCHEMA public
+                AUTHORIZATION postgres;
+          
+                GRANT ALL ON SCHEMA public TO postgres;
+                GRANT ALL ON SCHEMA public TO public;
+                COMMENT ON SCHEMA public
+                    IS 'standard public schema';`);
+        } catch {
+        } finally {
+            await client.end();
+        }
+
+
+
+        //await db.clear();
         await module.exports.logout();
         await module.exports.deletePassword();
         await fs.rmdir(`./${runtimeOptions.publicFolder}`, {recursive: true});

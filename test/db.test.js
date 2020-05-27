@@ -13,11 +13,9 @@ describe('Database', () => {
 
     after(() => {});
 
-    beforeEach(() => {});
+    beforeEach(testSetup.beforeEach);
 
-    afterEach(async () => {
-        await db.clear();
-    });
+    afterEach(testSetup.afterEach);
 
     it('Verify PostNotFoundError', async () => {
         const badPostId = '6435r5gw4gs';
