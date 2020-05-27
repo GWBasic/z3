@@ -42,10 +42,11 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.drafts (
     id integer NOT NULL,
-    obj jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    post_id integer
+    post_id integer,
+    title character varying,
+    content text
 );
 
 
@@ -114,9 +115,12 @@ ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 CREATE TABLE public.posts (
     id integer NOT NULL,
-    obj jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    title character varying,
+    suggested_location character varying,
+    url character varying,
+    working_title character varying
 );
 
 
@@ -190,6 +194,14 @@ ALTER TABLE ONLY public.posts
 
 
 --
+-- Name: posts posts_url_key; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT posts_url_key UNIQUE (url);
+
+
+--
 -- Name: idx_drafttoimage; Type: INDEX; Schema: public; Owner: andrewrondeau
 --
 
@@ -201,27 +213,6 @@ CREATE INDEX idx_drafttoimage ON public.images USING btree (post_id);
 --
 
 CREATE INDEX idx_drafttopost ON public.drafts USING btree (post_id);
-
-
---
--- Name: idx_publishedat; Type: INDEX; Schema: public; Owner: andrewrondeau
---
-
-CREATE INDEX idx_publishedat ON public.posts USING btree (((obj ->> 'publishedAt'::text)));
-
-
---
--- Name: idx_staticgroup; Type: INDEX; Schema: public; Owner: andrewrondeau
---
-
-CREATE INDEX idx_staticgroup ON public.posts USING btree (((obj ->> 'staticGroup'::text)));
-
-
---
--- Name: idx_url; Type: INDEX; Schema: public; Owner: andrewrondeau
---
-
-CREATE INDEX idx_url ON public.posts USING btree (((obj ->> 'url'::text)));
 
 
 --

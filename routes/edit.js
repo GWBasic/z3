@@ -75,7 +75,7 @@ router.put('/:postId', async (req, res) => {
 	
     const draft = req.draft;
     const post = req.post;
-	const postId = draft.postId;
+	const postId = req.params.postId;
 
     const newDraft = await db.appendDraft(postId, req.body.title, req.body.content, req.body.suggestedLocation);
 

@@ -60,67 +60,88 @@ const dep = {
 
 exports.dep = dep;
 
-exports.createPost = async (title, suggestedLocation) => {
-
-    const post = {
-        suggestedLocation,
-        workingTitle: title};
-
-    const draft = {
-        title: title,
-        content: ''};
-
+async function runOnTransaction(callback) {
     const client = await pool.connect();
+
+    var toReturn;
 
     try {
         await client.query('BEGIN');
 
-        var res = await client.query(
-            'INSERT into posts (obj) VALUES ($1) RETURNING id',
-            [ JSON.stringify(post) ]);
+        try {
+            toReturn = await callback(client);
 
-        post._id = res.rows[0].id;
-        draft.postId = post._id,
-
-
-        res = await client.query(
-            'INSERT into drafts (post_id, obj) VALUES ($1, $2) RETURNING id',
-            [ post_id, JSON.stringify(draft) ]);
-
-        await client.query('COMMIT');
-    } catch (e) {
-        await client.query('ROLLBACK');
-        throw e;
+            await client.query('COMMIT');    
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        }
     } finally {
         client.release();
     }
 
-    return {
-        post: post,
-        drafts: [ draft ]
-    };
-};
-
-exports.getPost = async postId => {
-    const res = await pool.query(
-        "SELECT id, obj from posts where id=$1;",
-        [postId]);
-
-
-    if (res.rowCount == 0) {
-        throw new PostNotFoundError(`No posts with id ${postId}`);
-    }
-    
-    const post = res.rows[0].obj;
-    post._id = res.rows[0].id;
-
-    return post;
+    return toReturn;
 }
 
-exports.getNewestDraft = async postId => {
+async function useClient(callback) {
+    const client = await pool.connect();
 
-    const res = await pool.query(
-        "SELECT id, obj from drafts where post_id=$1 ORDER BY created_at DESC LIMIT 1;",
+    var toReturn;
+
+    try {
+        toReturn = await callback(client);
+    } finally {
+        client.release();
+    }
+
+    return toReturn;
+}
+
+function constructPostFromRow(row) {
+    return {
+        _id: row.id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        title: row.title,
+        workingTitle: row.working_title,
+        suggestedLocation: row.suggested_location,
+        content: row.content
+    };
+}
+
+function constructDraftFromRow(row) {
+    return {
+        _id: row.id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        title: row.title,
+        content: row.content
+    };
+}
+
+exports.createPost = async (title, suggestedLocation) => {
+
+    return await runOnTransaction(async client => {
+        const insertPostResult = await client.query(
+            "INSERT into posts (working_title, suggested_location) VALUES ($1, $2) RETURNING id",
+            [ title, suggestedLocation ]);
+
+        const postId = insertPostResult.rows[0].id;
+
+        await client.query(
+            "INSERT into drafts (post_id, title, content) VALUES ($1, $2, '')",
+            [ postId, title ]);
+
+        return {
+            post: await getPost(client, postId),
+            drafts: [ await getNewestDraft(client, postId) ]
+        };
+    });
+};
+
+async function getPost(client, postId) {
+    const res = await client.query(
+        "SELECT * from posts where id=$1;",
         [postId]);
 
 
@@ -128,10 +149,78 @@ exports.getNewestDraft = async postId => {
         throw new PostNotFoundError(`No posts with id ${postId}`);
     }
     
-    const draft = res.rows[0].obj;
-    draft._id = res.rows[0].id;
+    return constructPostFromRow(res.rows[0]);
+}
 
-    return draft;
+exports.getPost = async postId => useClient(client => getPost(client, postId));
+
+async function getNewestDraft(client, postId) {
+    const selectDraftResult = await client.query(
+        "SELECT * from drafts where post_id=$1 ORDER BY created_at DESC LIMIT 1;",
+        [postId]);
+
+    if (selectDraftResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+    
+    return constructDraftFromRow(selectDraftResult.rows[0]);
+}
+
+exports.getNewestDraft = async postId => useClient(client => getNewestDraft(client, postId));
+
+exports.appendDraft = async (postId, title, content, suggestedLocation) => {
+
+    return await runOnTransaction(async client => {
+        const post = await getPost(client, postId);
+        const currentDraft = await getNewestDraft(client, postId);
+    
+        if (null == currentDraft || null == post) {
+            throw new PostNotFoundError(`No posts with id ${postId}`);
+        }
+    
+        const updatePostResult = await client.query(
+            "UPDATE posts SET working_title = $1 WHERE id=$2",
+            [title, postId]);
+
+        if (updatePostResult.rowCount != 1) {
+            throw `Could not update post ${postId}`;
+        }
+
+        const ageMs = dep.newDate() - currentDraft.createdAt;
+        const ageSeconds = ageMs / 1000;
+        const ageMinutes = ageSeconds / 60;
+    
+        const insert = (ageMinutes > DRAFT_STORE_INTERVAL_MINUTES) || (currentDraft._id == post.draftId);
+    
+        var draftId;
+        if (insert) {
+            const insertDraftResult = await client.query(
+                'INSERT into drafts (post_id, title, content) VALUES ($1, $2, $3) RETURNING id',
+                [ postId, title, content ]);
+
+            draftId = insertDraftResult.rows[0].id;
+        } else {
+            draftId = currentDraft._id;
+
+            const updateDraftResult = await client.query(
+                "UPDATE drafts SET title = $1, content = $2 WHERE id=$3",
+                [title, content, draftId]);
+    
+            if (updateDraftResult.rowCount != 1) {
+                throw `Could not update draft ${draftId}`;
+            }
+        }
+
+        const selectDraftResult = await client.query(
+            "SELECT * from drafts where id=$1;",
+            [draftId]);
+    
+        if (selectDraftResult.rowCount == 0) {
+            throw new PostNotFoundError(`No posts with id ${postId}`);
+        }
+        
+        return constructDraftFromRow(selectDraftResult.rows[0]);
+    });
 };
 
 exports.getPostFromUrl = async url => {
@@ -146,7 +235,7 @@ exports.getPostFromUrl = async url => {
 
 exports.getPostFromUrlOrNull = async url => {
     const res = await pool.query(
-        "SELECT id, obj FROM posts where obj->>'url'=$1;",
+        "SELECT * FROM posts where url=$1;",
         [url]);
 
     if (res.rowCount == 0) {
@@ -174,3 +263,4 @@ exports.getPublishedPosts = async (skip = 0, limit = Number.MAX_SAFE_INTEGER) =>
 exports.countPublishedPosts = async () => {
     return 0;
 };
+
