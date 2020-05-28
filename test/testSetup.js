@@ -82,6 +82,10 @@ module.exports = {
                 GRANT ALL ON SCHEMA public TO public;
                 COMMENT ON SCHEMA public
                     IS 'standard public schema';`);
+
+            /*await client.query("DELETE FROM images;");
+            await client.query("DELETE FROM drafts;");
+            await client.query("DELETE FROM posts;");*/
         } catch {
         } finally {
             await client.end();

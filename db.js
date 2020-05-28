@@ -54,10 +54,10 @@ const dep = {
 const SCHEMA_VERSION = 1;
 
 async function checkSchema() {
-    const client = await pool.connect();
+    /*const client = await pool.connect();
 
     try {
-        //await client.query('BEGIN');
+        await client.query('BEGIN');
 
         try {
 
@@ -69,19 +69,20 @@ async function checkSchema() {
                 const schema = (await fs.readFile('./schema.pgsql')).toString();
                 await client.query(schema);
                 await client.query(
-                    'INSERT INTO schema_version (version) VALUES ($1)',
+                    'INSERT INTO public.schema_version (version) VALUES ($1)',
                     [SCHEMA_VERSION]);
+            } else {
+                // TODO: Assert version
             }
 
-            //await client.query('COMMIT');    
+            await client.query('COMMIT');
         } catch (err) {
-            //await client.query('ROLLBACK');
+            await client.query('ROLLBACK');
             throw err;
         }
     } finally {
         client.release();
-    }
-
+    }*/
 }
 
 const checkSchemaPromise = checkSchema();
