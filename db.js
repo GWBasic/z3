@@ -423,6 +423,29 @@ async function unPublishPost(client, postId) {
         [postId]);
 }
 
+async function deletePost(client, postId) {
+
+    await client.query(
+        "DELETE FROM images WHERE post_id = $1",
+        [postId]);
+
+    const deleteDraftsResult = await client.query(
+        "DELETE FROM drafts WHERE post_id = $1",
+        [postId]);
+
+    if (deleteDraftsResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+
+    const deletePostResult = await client.query(
+        "DELETE FROM posts WHERE id = $1",
+        [postId]);
+
+    if (deletePostResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+}
+
 
 async function getPostFromUrl(client, url) {
     const post = await getPostFromUrlOrNull(client, url);
@@ -614,10 +637,12 @@ module.exports = {
 
     publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId) =>
         await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId)),
-    
-    unPublishPost: async postId => await runOnTransaction(async client => await unPublishPost(client, postId)),
 
-    getPostFromUrl: async url => await useClient(async client => this.getPostFromUrl(client, url)),
+    unPublishPost: async postId => await runOnTransaction(async client => await unPublishPost(client, postId)),
+    
+    deletePost: async postId => await runOnTransaction(client => deletePost(client, postId)),
+
+    getPostFromUrl: async url => await useClient(async client => getPostFromUrl(client, url)),
 
     getPostAndDrafts: async postId => useClient(async client => getPostAndDrafts(client, postId)),
     

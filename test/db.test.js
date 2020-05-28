@@ -19,7 +19,7 @@ describe('Database', () => {
     afterEach(testSetup.afterEach);
 
     it('Verify PostNotFoundError', async () => {
-        const badPostId = '6435r5gw4gs';
+        const badPostId = 123456789;
 
         const functionNames = [
             'getPost',
@@ -33,7 +33,7 @@ describe('Database', () => {
         ]
 
         for (var functionName of functionNames) {
-            await assert.throwsAsync(db.PostNotFoundError, () => db[functionName](badPostId), `Incorrect error thrown for db.${functionName}`)
+            await assert.throwsAsync(db.PostNotFoundError, async () => await db[functionName](badPostId), `Incorrect error thrown for db.${functionName}`)
         }
     });
 
@@ -203,12 +203,15 @@ describe('Database', () => {
         await db.publishPost(
             post._id,
             firstDraft._id,
-            null,
+            new Date(),
             null,
             'Published title',
             'Published content',
             'theurl',
-            'Published summary');
+            'Published summary',
+            [],
+            null,
+            null);
 
         await db.appendDraft(post._id, 'New draft title', 'New draft content');
 
@@ -264,12 +267,15 @@ describe('Database', () => {
                 await db.publishPost(
                     post._id,
                     draft._id,
-                    null,
+                    new Date(),
                     null,
                     `Title ${postItr}`,
                     `Content ${postItr}`,
                     `${postItr}`,
-                    `${postItr}`);
+                    `${postItr}`,
+                    [],
+                    null,
+                    null);
 
                 expectedNumPublishedPosts++;
             }
@@ -327,11 +333,11 @@ describe('Database', () => {
             'img1.jpg',
             'image/jpeg',
             img1Data,
-            {},
+            {width: 20, height: 20},
             Buffer.alloc(10),
-            {},
+            {width: 10, height: 10},
             Buffer.alloc(10),
-            {});
+            {width: 5, height: 5});
 
         const imageRecordDuplicateName = await db.insertImage(
             post._id,
@@ -339,11 +345,11 @@ describe('Database', () => {
             'img1.jpg',
             'image/jpeg',
             img1Data,
-            {},
+            {width: 20, height: 20},
             Buffer.alloc(10),
-            {},
+            {width: 10, height: 10},
             Buffer.alloc(10),
-            {});
+            {width: 5, height: 5});
         
         await db.deletePost(post._id);
 
