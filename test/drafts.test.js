@@ -45,13 +45,11 @@ describe('Drafts operations', () => {
             'img1.jpg',
             'image/jpeg',
             img1Data,
-            {},
+            {width: 60, height: 8},
             Buffer.alloc(0),
-            {},
+            {width: 30, height: 4},
             Buffer.alloc(20),
-            {},
-            Buffer.alloc(5),
-            {});
+            {width: 15, height: 2});
         
         const imageRecordDuplicateName = await db.insertImage(
             post._id,
@@ -59,13 +57,11 @@ describe('Drafts operations', () => {
             'img1.jpg',
             'image/jpeg',
             img1Data,
-            {},
+            {width: 60, height: 8},
             Buffer.alloc(0),
-            {},
+            {width: 30, height: 4},
             Buffer.alloc(20),
-            {},
-            Buffer.alloc(5),
-            {});
+            {width: 15, height: 2});
 
         async function verifyDrafts(isPublished) {
             const response = await server
@@ -101,16 +97,10 @@ describe('Drafts operations', () => {
             assert.isDefined(images[imageRecord._id]);
             assert.equal(images[imageRecord._id].filename, 'img1.jpg');
             assert.isDefined(images[imageRecordDuplicateName._id]);
-            assert.equal(images[imageRecordDuplicateName._id].filename, 'img1.jpg');
+            assert.equal(images[imageRecordDuplicateName._id].filename, '1-img1.jpg');
         }
 
         await verifyDrafts(false);
-
-        const publishedImages = [{
-            imageId: imageRecord._id,
-            filename: imageRecord.filename,
-            mimetype: imageRecord.mimetype
-        }];
 
         await db.publishPost(
             post._id,
@@ -121,7 +111,7 @@ describe('Drafts operations', () => {
             'content',
             'url',
             'summary',
-            publishedImages);
+            [imageRecord._id]);
 
         await verifyDrafts(true);
     });
@@ -150,7 +140,7 @@ describe('Drafts operations', () => {
         await testSetup.login();
 
         await server
-            .post('/drafts/restore/75rfutjde57')
+            .post('/drafts/restore/7654')
             .expect(404)
     });
 
@@ -158,25 +148,25 @@ describe('Drafts operations', () => {
         await testSetup.login();
 
         await server
-            .post('/drafts/deleteImage/75rfutjde57')
+            .post('/drafts/deleteImage/765374')
             .expect(404)
     });
 
     it('Delete an image', async () => {
+        const { post } = await createPostAndDrafts();
+
         const img1Data = await fs.readFile('test/data/img1.jpg');
         const imageRecord = await db.insertImage(
-            '6edhy6ehfdh',
+            post._id,
             'hteshtehes',
             'img1.jpg',
             'image/jpeg',
             img1Data,
-            {},
+            {width: 60, height: 8},
             Buffer.alloc(0),
-            {},
+            {width: 30, height: 4},
             Buffer.alloc(20),
-            {},
-            Buffer.alloc(5),
-            {});
+            {width: 15, height: 2});
 
         await testSetup.login();
 

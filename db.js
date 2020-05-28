@@ -534,13 +534,38 @@ async function insertImage(
     thumbnailBuffer,
     thumbnailDimensions) {
 
+    // Determine if the filename should change
+    const originalFilename = filename;
+    var duplicateFilenameCtr = 1;
+    var duplicateFilename;
+    do {
+        const selectImageByFilenameResult = await client.query(
+            "SELECT * FROM images WHERE post_id=$1 AND filename=$2",
+            [postId, filename]);
+    
+        if (selectImageByFilenameResult.rowCount == 1) {
+            const duplicateFilenameImage = constructImageFromRow(selectImageByFilenameResult.rows[0]);
+    
+            if (duplicateFilenameImage.hash != hash) {
+                // Need to change the filename
+                duplicateFilename = true;
+                filename = `${duplicateFilenameCtr}-${originalFilename}`;
+                duplicateFilenameCtr++;
+            } else {
+                duplicateFilename = false;
+            }
+        } else {
+            duplicateFilename = false;
+        }
+    } while (duplicateFilename);
+    
     var imageId;
 
-    const selectImageResult = await client.query(
+    const selectImageByHashResult = await client.query(
         "SELECT * FROM images WHERE post_id=$1 AND hash=$2",
         [postId, hash]);
 
-    if (selectImageResult.rowCount == 0) {
+    if (selectImageByHashResult.rowCount == 0) {
 
         const insertImageResult = await client.query(
             "INSERT INTO images (post_id, hash, filename, mimetype, width, height, image, normal_width, normal_height, normal_image, thumbnail_width, thumbnail_height, thumbnail_image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id",
@@ -553,7 +578,7 @@ async function insertImage(
         imageId = insertImageResult.rows[0].id;
 
     } else {
-        const imageRow = selectImageResult.rows[0];
+        const imageRow = selectImageByHashResult.rows[0];
         imageId = imageRow.id;
 
         const updateImageResult = await client.query(

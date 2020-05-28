@@ -1,9 +1,10 @@
-const fs = require('fs').promises;
+const fs = require('fs-extra');
 
 const testSetup = require('./testSetup');
 
 const assert  = require('chai').assert;
 const db = require('../db');
+const Enumerable = require('linq-es2015');
 
 const server = testSetup.server;
 
@@ -216,7 +217,41 @@ describe('Editor operations', () => {
     });
 
     it('Upload an image and make sure the filename is unique', async () => {
-        assert.fail('incomplete');
+        var { post } = await testSetup.preparePost();
+        await testSetup.login();
+
+        await fs.copyFile('test/data/img1.jpg', 'test/data/img.jpg');
+        try {
+            const result = await server
+                .post(`/edit/image/${post._id}`)
+                .attach('upload', 'test/data/img.jpg')
+                .expect(200);
+
+            const response = JSON.parse(result.text);
+            assert.isTrue(response.uploaded, 'Uploaded not true');
+        } finally {
+            await fs.unlink('test/data/img.jpg');
+        }
+
+        await fs.copyFile('test/data/img2.jpg', 'test/data/img.jpg');
+        try {
+            const result = await server
+                .post(`/edit/image/${post._id}`)
+                .attach('upload', 'test/data/img.jpg')
+                .expect(200);
+
+            const response = JSON.parse(result.text);
+            assert.isTrue(response.uploaded, 'Uploaded not true');
+        } finally {
+            await fs.unlink('test/data/img.jpg');
+        }
+
+        const images = Enumerable.asEnumerable(await db.getImagesForPost(post._id));
+        const image1 = images.First(i => i.originalDimensions.height == 270);
+        const image2 = images.First(i => i.originalDimensions.height == 215);
+
+        assert.equal(image1.filename, 'img.jpg');
+        assert.equal(image2.filename, '1-img.jpg', 'Duplicate name not adjusted');
     })
 });
 

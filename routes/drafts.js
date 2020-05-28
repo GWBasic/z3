@@ -37,17 +37,10 @@ router.get('/:postId', async (req, res, next) => {
         });
     }
 
-    const publishedImageIds = {};
-    if (post.publishedImages) {
-        for (var publishedImage of post.publishedImages) {
-            publishedImageIds[publishedImage.imageId] = `/${post.url}/${publishedImage.filename}`;
-        }
-    }
-
     const imageRecords = await db.getImagesForPost(postId);
     for (var imageRecord of imageRecords) {
-        if (publishedImageIds[imageRecord._id]) {
-            imageRecord.url = publishedImageIds[imageRecord._id];
+        if (imageRecord.published) {
+            imageRecord.url = `/${post.url}/${imageRecord.filename}?size=original`;
             publishedImages.push(imageRecord);
         } else {
             imageRecord.url = `/edit/image/${post._id}.${imageRecord._id}`;
