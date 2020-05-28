@@ -8,7 +8,9 @@ const recentPosts = require('../recentPosts');
 
 describe('recentPosts test', () => {
 
-    afterEach(async () => await db.clear());
+    beforeEach(testSetup.beforeEach);    
+
+    afterEach(testSetup.afterEach);
 
     it('No posts', async () => {
         const recentPostsResult = (await recentPosts({}, {limit: 3}, '')).newOptions;
