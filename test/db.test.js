@@ -621,7 +621,7 @@ describe('Database', () => {
         assert.isDefined(updated_unpublishedPost.url);
     });
 
-    it('Publishing a post sets published=true for images', async () => {
+    it('Publishing a post sets published=true for images, getImageOrNullByUrlAndFilename', async () => {
 
         const postsAndDrafts = await testSetup.createPosts(1);
         const postAndDrafts = postsAndDrafts[0];
@@ -669,7 +669,10 @@ describe('Database', () => {
         expectedPublished[images[5]._id] = false;
 
         for (var imageFromDatabase of imagesFromDatabase) {
-            assert.equal(imageFromDatabase.published, expectedPublished[imagesFromDatabase._id], 'Wrong published');
+            assert.equal(imageFromDatabase.published, expectedPublished[imageFromDatabase._id], 'Wrong published');
+
+            const reloadedImage = await db.getImageOrNullByUrlAndFilename('url', imageFromDatabase.filename);
+            assert.deepEqual(reloadedImage, imageFromDatabase);
         }
     });
 });

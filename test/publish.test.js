@@ -44,19 +44,19 @@ describe('Publish operations', () => {
         await testSetup.login();
 
         await server
-            .get('/publish/anid')
+            .get('/publish/12345')
             .expect(404);
 
         await server
-            .post('/publish/anid')
+            .post('/publish/12345')
             .expect(404);
 
         await server
-            .post('/publish/unPublish/anid')
+            .post('/publish/unPublish/12345')
             .expect(404);
 
         await server
-            .post('/publish/delete/anid')
+            .post('/publish/delete/12345')
             .expect(404);
     });
 
@@ -164,13 +164,11 @@ describe('Publish operations', () => {
             'filename',
             'mimetype',
             Buffer.alloc(13),
-            {},
+            { width: 60, height: 120 },
             Buffer.alloc(0),
-            {},
+            { width: 30, height: 60 },
             Buffer.alloc(20),
-            {},
-            Buffer.alloc(5),
-            {});
+            { width: 15, height: 30 });
 
         content += `<img src="/edit/image/${post._id}.${imageRecord._id}">`;
 

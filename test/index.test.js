@@ -1,6 +1,7 @@
 const testSetup = require('./testSetup');
 
 const assert  = require('chai').assert;
+const Enumerable = require('linq-es2015');
 const db = require('../db');
 
 const server = testSetup.server;
@@ -60,10 +61,14 @@ describe('Index operations', () => {
         await testSetup.createPostsAndPublishedPosts(1, 2);
 
         const post = (await db.getPosts())[0];
+        const imagesForPost = await db.getImagesForPost(post._id);
+        const publishedImages = Enumerable.asEnumerable(imagesForPost)
+            .Where(i => i.published)
+            .ToArray();
 
-        assert.isTrue(post.publishedImages.length > 0, 'No published images');
-        const publishedImage = post.publishedImages[0];
-        const imageRecord = await db.getImage(publishedImage.imageId);
+        assert.isTrue(publishedImages.length > 0, 'No published images');
+        const publishedImage = publishedImages[0];
+        const imageRecord = await db.getImage(publishedImage._id);
 
         var result = await server
             .get(`/${post.url}/${publishedImage.filename}`)
@@ -105,19 +110,13 @@ describe('Index operations', () => {
             'filename',
             'image/jpeg',
             Buffer.alloc(20),
-            {},
+            {width: 20, height: 20},
             Buffer.alloc(10),
-            {},
+            {width: 10, height: 10},
             Buffer.alloc(5),
-            {});
+            {width: 5, height: 5});
 
-        const publishedImage = {
-            filename: 'filename',
-            imageId: imageRecord._id,
-            mimetype: 'image/jpeg'
-        };
-
-        const publishedImages = [publishedImage];
+        const imagesToPublish = [imageRecord];
 
         await db.publishPost(
             post._id,
@@ -128,7 +127,7 @@ describe('Index operations', () => {
             'Content',
             '',
             'summary',
-            publishedImages);
+            imagesToPublish);
 
         const publishedPost = await db.getPostFromUrl('');
 
@@ -147,26 +146,26 @@ describe('Index operations', () => {
         assert.equal(`"${postTemplate.options.publishedAt}"`, JSON.stringify(publishedPost.publishedAt), 'Wrong publishedAt');
     
         var result = await server
-            .get(`/${publishedImage.filename}`)
+            .get(`/${imageRecord.filename}`)
+            .expect(200)
             .expect('Content-Type', 'image/jpeg')
-            .expect('Content-Length', `${imageRecord.normalSizeImageData.length}`)
-            .expect(200);
+            .expect('Content-Length', `${imageRecord.normalSizeImageData.length}`);
 
         assert.isTrue(imageRecord.normalSizeImageData.equals(result.body), 'Wrong contents sent');
     
         var result = await server
-            .get(`/${publishedImage.filename}?size=thumbnail`)
+            .get(`/${imageRecord.filename}?size=thumbnail`)
+            .expect(200)
             .expect('Content-Type', 'image/jpeg')
-            .expect('Content-Length', `${imageRecord.thumbnailImageData.length}`)
-            .expect(200);
+            .expect('Content-Length', `${imageRecord.thumbnailImageData.length}`);
 
         assert.isTrue(imageRecord.thumbnailImageData.equals(result.body), 'Wrong contents sent');
     
         var result = await server
-            .get(`/${publishedImage.filename}?size=original`)
+            .get(`/${imageRecord.filename}?size=original`)
+            .expect(200)
             .expect('Content-Type', imageRecord.mimetype)
-            .expect('Content-Length', `${imageRecord.imageData.length}`)
-            .expect(200);
+            .expect('Content-Length', `${imageRecord.imageData.length}`);
 
         assert.isTrue(imageRecord.imageData.equals(result.body), 'Wrong contents sent');
     });

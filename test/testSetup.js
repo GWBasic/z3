@@ -132,11 +132,7 @@ module.exports = {
                     Buffer.alloc(5),
                     {width: 5, height: 10});
 
-                const publishedImages = [{
-                    filename: 'filename',
-                    imageId: imageRecord._id,
-                    mimetype: 'image/jpeg'
-                }];
+                const publishedImages = [imageRecord];
 
                 await db.publishPost(
                     post._id,

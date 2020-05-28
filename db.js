@@ -152,6 +152,7 @@ function constructImageFromRow(row) {
         filename: row.filename,
         mimetype: row.mimetype,
         imageData: row.image,
+        published: row.published,
         originalDimensions: {width: row.width, height: row.height},
         normalSizeImageData: row.normal_image,
         normalDimensions: {width: row.normal_width, height: row.normal_height},
@@ -402,9 +403,13 @@ async function publishPost(
         [postId]);
 
     for (var publishedImage of publishedImages) {
-        await client.query(
+        const updateImageResult = await client.query(
             "UPDATE images SET published=true WHERE id=$1",
-            [publishedImage.imageId]);
+            [publishedImage._id]);
+        
+        if (updateImageResult.rowCount == 0) {
+            throw new Error(`No image with id: ${publishedImage._id}`);
+        }
     }
 }
 
@@ -560,19 +565,7 @@ async function insertImage(
         }
     }
 
-    return {
-        _id: imageId,
-        postId,
-        hash,
-        filename,
-        mimetype,
-        imageData: originalImageBuffer,
-        originalDimensions,
-        normalSizeImageData: normalSizeBuffer,
-        normalDimensions,
-        thumbnailImageData: thumbnailBuffer,
-        thumbnailDimensions
-    };
+    return getImage(client, imageId);
 };
 
 async function getImageOrNull(client, imageId) {
@@ -612,6 +605,19 @@ async function deleteImage(client, imageId) {
     await client.query(
         "DELETE FROM images WHERE id=$1",
         [imageId]);
+}
+
+async function getImageOrNullByUrlAndFilename(client, url, filename) {
+
+    const selectImageResult = await client.query(
+        "SELECT images.* FROM images INNER JOIN posts on images.post_id = posts.id WHERE posts.url=$1 AND images.filename=$2",
+        [url, filename]);
+
+    if (selectImageResult.rowCount == 0) {
+        return null;
+    }
+
+    return constructImageFromRow(selectImageResult.rows[0]);
 }
 
 module.exports = {
@@ -671,5 +677,7 @@ module.exports = {
 
     getImagesForPost: async postId => useClient(async client => await getImagesForPost(client, postId)),
 
-    deleteImage: async imageId => useClient(async client => await deleteImage(client, imageId))
+    deleteImage: async imageId => useClient(async client => await deleteImage(client, imageId)),
+
+    getImageOrNullByUrlAndFilename: async (url, filename) => useClient(async client => await getImageOrNullByUrlAndFilename(client, url, filename)),
 }

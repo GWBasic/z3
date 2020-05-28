@@ -26,41 +26,35 @@ async function renderUrl(req, res, next, url) {
 };
 
 async function renderImage(req, res, next, url, imageFilename, imageSize) {
-	const post = await db.getPostFromUrl(url);
 
-	if (!(post.publishedImages)) {
+	const imageRecord = await db.getImageOrNullByUrlAndFilename(url, imageFilename);
+
+	if (imageRecord == null) {
 		next();
 		return;
 	}
 
-	for (var publishedImage of post.publishedImages) {
-		if (publishedImage.filename == imageFilename) {
-			const imageId = publishedImage.imageId;
-
-			const imageRecord = await db.getImage(imageId);
-		
-			if (imageSize == 'original') {
-				res.writeHead(200, {
-					'Content-Type': imageRecord.mimetype,
-					'Content-Length': imageRecord.imageData.length});
-					res.end(imageRecord.imageData);
-			} else if (imageSize == 'thumbnail') {
-				res.writeHead(200, {
-					'Content-Type': 'image/jpeg',
-					'Content-Length': imageRecord.thumbnailImageData.length});
-					res.end(imageRecord.thumbnailImageData);
-			} else {
-				res.writeHead(200, {
-					'Content-Type': 'image/jpeg',
-					'Content-Length': imageRecord.normalSizeImageData.length});
-					res.end(imageRecord.normalSizeImageData);
-			}
-
-			return;
-		}
+	if (!imageRecord.published) {
+		next();
+		return;
 	}
 
-	next();
+	if (imageSize == 'original') {
+		res.writeHead(200, {
+			'Content-Type': imageRecord.mimetype,
+			'Content-Length': imageRecord.imageData.length});
+			res.end(imageRecord.imageData);
+	} else if (imageSize == 'thumbnail') {
+		res.writeHead(200, {
+			'Content-Type': 'image/jpeg',
+			'Content-Length': imageRecord.thumbnailImageData.length});
+			res.end(imageRecord.thumbnailImageData);
+	} else {
+		res.writeHead(200, {
+			'Content-Type': 'image/jpeg',
+			'Content-Length': imageRecord.normalSizeImageData.length});
+			res.end(imageRecord.normalSizeImageData);
+	}
 }
 
 
