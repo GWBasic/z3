@@ -1,3 +1,4 @@
+const fs = require('fs-extra');
 const Pool = require('pg').Pool
 
 const runtimeOptions = require('./runtimeOptions');
@@ -50,7 +51,44 @@ const dep = {
     newDate: () => new Date()
 };
 
+const SCHEMA_VERSION = 1;
+
+async function checkSchema() {
+    const client = await pool.connect();
+
+    try {
+        //await client.query('BEGIN');
+
+        try {
+
+            const doesSchemaVersionTableExistResult = await client.query("SELECT to_regclass('schema_version');");
+
+            const exists = (doesSchemaVersionTableExistResult.rows[0].to_regclass == 'schema_version');
+
+            if (!exists) {
+                const schema = (await fs.readFile('./schema.pgsql')).toString();
+                await client.query(schema);
+                await client.query(
+                    'INSERT INTO schema_version (version) VALUES ($1)',
+                    [SCHEMA_VERSION]);
+            }
+
+            //await client.query('COMMIT');    
+        } catch (err) {
+            //await client.query('ROLLBACK');
+            throw err;
+        }
+    } finally {
+        client.release();
+    }
+
+}
+
+const checkSchemaPromise = checkSchema();
+
 async function runOnTransaction(callback) {
+    await checkSchemaPromise;
+
     const client = await pool.connect();
 
     var toReturn;
@@ -74,6 +112,8 @@ async function runOnTransaction(callback) {
 }
 
 async function useClient(callback) {
+    await checkSchemaPromise;
+
     const client = await pool.connect();
 
     var toReturn;

@@ -169,6 +169,17 @@ ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 
 
 --
+-- Name: schema_version; Type: TABLE; Schema: public; Owner: andrewrondeau
+--
+
+CREATE TABLE public.schema_version (
+    version integer NOT NULL
+);
+
+
+ALTER TABLE public.schema_version OWNER TO andrewrondeau;
+
+--
 -- Name: drafts id; Type: DEFAULT; Schema: public; Owner: andrewrondeau
 --
 
