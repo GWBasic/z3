@@ -39,7 +39,6 @@ if (isDevelopment) {
 pogon.registerCustomTag('z3_recentPosts', recentPosts);
 pogon.defaultTemplate = z3.config.overrideTemplate;
 
-
 app.use(session(sessionConfig));
 
 // Set up pogon as the view handler
