@@ -81,8 +81,20 @@ ALTER SEQUENCE public.drafts_id_seq OWNED BY public.drafts.id;
 
 CREATE TABLE public.images (
     id integer NOT NULL,
-    obj jsonb NOT NULL,
-    post_id integer
+    post_id integer NOT NULL,
+    hash character varying NOT NULL,
+    filename character varying NOT NULL,
+    mimetype character varying NOT NULL,
+    width integer NOT NULL,
+    height integer NOT NULL,
+    image bytea NOT NULL,
+    published boolean DEFAULT false NOT NULL,
+    normal_width integer NOT NULL,
+    normal_height integer NOT NULL,
+    normal_image bytea NOT NULL,
+    thumbnail_width integer NOT NULL,
+    thumbnail_height integer NOT NULL,
+    thumbnail_image bytea NOT NULL
 );
 
 
@@ -183,6 +195,14 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 
 ALTER TABLE ONLY public.drafts
     ADD CONSTRAINT drafts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: images hash_post_unique; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT hash_post_unique UNIQUE (post_id, hash);
 
 
 --

@@ -2,6 +2,7 @@ const runtimeOptions = require('../runtimeOptions');
 runtimeOptions.db.location = 'testdata'
 
 const assert  = require('chai').assert;
+const Enumerable = require('linq-es2015');
 const fs  = require('fs').promises;
 
 const db = require('../db');
@@ -543,37 +544,36 @@ describe('Database', () => {
     });
 
     it('ImageNotFoundError', async () => {
-        await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage('anid'));
-        assert.isNull(await db.getImageOrNull('anid'));
+        await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage(8888));
+        assert.isNull(await db.getImageOrNull(9999));
     });
 
     it('Insert, retrieve, and delete images', async () => {
 
+        const postsAndDrafts = await testSetup.createPosts(1);
+        const postAndDrafts = postsAndDrafts[0];
+        const post = postAndDrafts.post;
+
         const expectedImageRecord = await db.insertImage(
-            'postid',
+            post._id,
             'thehash',
             'thefilename',
             'themimetype',
             Buffer.alloc(10, 15),
-            {},
+            {width: 4, height: 8},
             Buffer.alloc(10),
-            {},
+            {width: 3, height: 7},
             Buffer.alloc(10),
-            {});
+            {width: 2, height: 6});
 
         function verifyImage(actualImageRecord) {
-            assert.equal(actualImageRecord._id, expectedImageRecord._id, 'Wrong ID');
-            assert.equal(actualImageRecord.postId, expectedImageRecord.postId, 'Wrong postId');
-            assert.equal(actualImageRecord.hash, expectedImageRecord.hash, 'Wrong hash');
-            assert.equal(actualImageRecord.filename, expectedImageRecord.filename, 'Wrong filename');
-            assert.equal(actualImageRecord.mimetype, expectedImageRecord.mimetype, 'Wrong mimetype');
-            assert.isTrue(expectedImageRecord.imageData.equals(actualImageRecord.imageData), 'Wrong data');
+            assert.deepEqual(actualImageRecord, expectedImageRecord);
         }
 
         const actualImageRecord = await db.getImage(expectedImageRecord._id);
         verifyImage(actualImageRecord);
 
-        const actualImageRecords = await db.getImagesForPost('postid');
+        const actualImageRecords = await db.getImagesForPost(post._id);
         assert.equal(actualImageRecords.length, 1, 'Wrong number of images returned')
         verifyImage(actualImageRecords[0]);
 
@@ -586,9 +586,10 @@ describe('Database', () => {
         await testSetup.createPostsAndPublishedPosts(2, 2);
 
         const posts = await db.getPosts();
+        const enumerablePosts = Enumerable.asEnumerable(posts);
 
-        const publishedPost = posts[0];
-        const unpublishedPost = posts[1];
+        const publishedPost = enumerablePosts.First(p => p.url);
+        const unpublishedPost = enumerablePosts.First(p => !(p.url));
         const unpublishedDraft = (await db.getPostAndDrafts(unpublishedPost._id)).drafts[0];
 
         assert.isUndefined(unpublishedPost.url);
@@ -612,5 +613,57 @@ describe('Database', () => {
 
         assert.isUndefined(updated_publishedPost.url);
         assert.isDefined(updated_unpublishedPost.url);
-    })
+    });
+
+    it('Publishing a post sets published=true for images', async () => {
+
+        const postsAndDrafts = await testSetup.createPosts(1);
+        const postAndDrafts = postsAndDrafts[0];
+        const post = postAndDrafts.post;
+        const draft = postAndDrafts.drafts[0];
+
+        const images = [];
+        for (var imageCtr = 0; imageCtr < 6; imageCtr++) {
+            const newImage = await db.insertImage(
+                post._id,
+                `hash${imageCtr}`,
+                `filename${imageCtr}`,
+                'themimetype',
+                Buffer.alloc(10, 15),
+                {width: 4, height: 8},
+                Buffer.alloc(10),
+                {width: 3, height: 7},
+                Buffer.alloc(10),
+                {width: 2, height: 6});
+
+            images.push(newImage);
+        }
+
+        await db.publishPost(
+            post._id,
+            draft._id,
+            new Date(),
+            null,
+            'title',
+            'content',
+            'url',
+            'the summary',
+            [images[0], images[1], images[2]],
+            null,
+            null);
+
+        const imagesFromDatabase = await db.getImagesForPost(post._id);
+
+        const expectedPublished = {};
+        expectedPublished[images[0]._id] = true;
+        expectedPublished[images[1]._id] = true;
+        expectedPublished[images[2]._id] = true;
+        expectedPublished[images[3]._id] = false;
+        expectedPublished[images[4]._id] = false;
+        expectedPublished[images[5]._id] = false;
+
+        for (var imageFromDatabase of imagesFromDatabase) {
+            assert.equal(imageFromDatabase.published, expectedPublished[imagesFromDatabase._id], 'Wrong published');
+        }
+    });
 });

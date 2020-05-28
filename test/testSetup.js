@@ -126,11 +126,11 @@ module.exports = {
                     'filename',
                     'image/jpeg',
                     Buffer.alloc(20),
-                    {},
+                    {width: 20, height: 40},
                     Buffer.alloc(10),
-                    {},
+                    {width: 10, height: 20},
                     Buffer.alloc(5),
-                    {});
+                    {width: 5, height: 10});
 
                 const publishedImages = [{
                     filename: 'filename',

@@ -144,6 +144,32 @@ function constructDraftsFromRows(rows) {
     return drafts;
 }
 
+function constructImageFromRow(row) {
+    return {
+        _id: row.id,
+        postId: row.post_id,
+        hash: row.hash,
+        filename: row.filename,
+        mimetype: row.mimetype,
+        imageData: row.image,
+        originalDimensions: {width: row.width, height: row.height},
+        normalSizeImageData: row.normal_image,
+        normalDimensions: {width: row.normal_width, height: row.normal_height},
+        thumbnailImageData: row.thumbnail_image,
+        thumbnailDimensions: {width: row.thumbnail_width, height: row.thumbnail_height}
+    };
+}
+
+function constructImagesFromRows(rows) {
+    const images = [];
+
+    for (var row of rows) {
+        images.push(constructImageFromRow(row));
+    }
+
+    return images;
+}
+
 async function createPost(client, title, suggestedLocation) {
     const insertPostResult = await client.query(
         "INSERT into posts (working_title, suggested_location) VALUES ($1, $2) RETURNING id",
@@ -370,10 +396,31 @@ async function publishPost(
     if (updatePostResult.rowCount == 0) {
         throw new PostNotFoundError(`No posts with id ${postId}`);
     }
+
+    await client.query(
+        "UPDATE images SET published=false WHERE post_id=$1",
+        [postId]);
+
+    for (var publishedImage of publishedImages) {
+        await client.query(
+            "UPDATE images SET published=true WHERE id=$1",
+            [publishedImage.imageId]);
+    }
 }
 
 async function unPublishPost(client, postId) {
-    throw new Error("unimplemented");
+
+    const updatePostResult = await client.query(
+        "UPDATE posts SET draft_id=NULL, title=NULL, content=NULL, url=NULL, published_at=NULL, republished_at=NULL, summary=NULL, static_group=NULL, static_order=NULL WHERE id=$1",
+        [postId]);
+
+    if (updatePostResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+    
+    await client.query(
+        "UPDATE images SET published=false WHERE post_id=$1",
+        [postId]);
 }
 
 
@@ -446,6 +493,104 @@ async function getAllStaticPages(client) {
     return staticPages;
 };
 
+async function insertImage(
+    client,
+    postId,
+    hash,
+    filename,
+    mimetype,
+    originalImageBuffer,
+    originalDimensions,
+    normalSizeBuffer,
+    normalDimensions,
+    thumbnailBuffer,
+    thumbnailDimensions) {
+
+    var imageId;
+
+    const selectImageResult = await client.query(
+        "SELECT * FROM images WHERE post_id=$1 AND hash=$2",
+        [postId, hash]);
+
+    if (selectImageResult.rowCount == 0) {
+
+        const insertImageResult = await client.query(
+            "INSERT INTO images (post_id, hash, filename, mimetype, width, height, image, normal_width, normal_height, normal_image, thumbnail_width, thumbnail_height, thumbnail_image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id",
+            [postId, hash, filename, mimetype, originalDimensions.width, originalDimensions.height, originalImageBuffer, normalDimensions.width, normalDimensions.height, normalSizeBuffer, thumbnailDimensions.width, thumbnailDimensions.height, thumbnailBuffer]);
+
+        if (insertImageResult.rowCount != 1) {
+            throw new Error("Can not insert an image");
+        }
+
+        imageId = insertImageResult.rows[0].id;
+
+    } else {
+        const imageRow = selectImageResult.rows[0];
+        imageId = imageRow.id;
+
+        const updateImageResult = await client.query(
+            "UPDATE images SET filename=$2, mimetype=$3 WHERE id=$1",
+            [imageId, filename, mimetype]);
+
+        if (updateImageResult.rowCount != 1) {
+            throw new Error("Can not update an image");
+        }
+    }
+
+    return {
+        _id: imageId,
+        postId,
+        hash,
+        filename,
+        mimetype,
+        imageData: originalImageBuffer,
+        originalDimensions,
+        normalSizeImageData: normalSizeBuffer,
+        normalDimensions,
+        thumbnailImageData: thumbnailBuffer,
+        thumbnailDimensions
+    };
+};
+
+async function getImageOrNull(client, imageId) {
+
+    const selectImageResult = await client.query(
+        "SELECT * FROM images WHERE id=$1",
+        [imageId]);
+
+    if (selectImageResult.rowCount == 0) {
+        return null;
+    }
+
+    return constructImageFromRow(selectImageResult.rows[0]);
+};
+
+async function getImage(client, imageId) {
+    const imageRecord = await getImageOrNull(client, imageId);
+
+    if (imageRecord == null) {
+        throw new ImageNotFoundError(`No image with id: ${imageId}`);
+    }
+
+    return imageRecord;
+};
+
+async function getImagesForPost(client, postId) {
+
+    const selectImagesResult = await client.query(
+        "SELECT * FROM images WHERE post_id=$1",
+        [postId]);
+
+    return constructImagesFromRows(selectImagesResult.rows);
+}
+
+async function deleteImage(client, imageId) {
+
+    await client.query(
+        "DELETE FROM images WHERE id=$1",
+        [imageId]);
+}
+
 module.exports = {
 
     PostNotFoundError,
@@ -470,7 +615,7 @@ module.exports = {
     publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId) =>
         await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId)),
     
-    unPublishPost: async postId => await useClient(async client => await unPublishPost(client, postId)),
+    unPublishPost: async postId => await runOnTransaction(async client => await unPublishPost(client, postId)),
 
     getPostFromUrl: async url => await useClient(async client => this.getPostFromUrl(client, url)),
 
@@ -490,5 +635,16 @@ module.exports = {
 
     getPostFromUrlOrNull: async url => useClient(async client => await getPostFromUrlOrNull(client, url)),
 
-    getPostFromUrl: async url => useClient(async client => await getPostFromUrl(client, url))
+    getPostFromUrl: async url => useClient(async client => await getPostFromUrl(client, url)),
+
+    insertImage: async (postId, hash, filename, mimetype, originalImageBuffer, originalDimensions, normalSizeBuffer, normalDimensions, thumbnailBuffer, thumbnailDimensions) =>
+        runOnTransaction(async client => await insertImage(client, postId, hash, filename, mimetype, originalImageBuffer, originalDimensions, normalSizeBuffer, normalDimensions, thumbnailBuffer, thumbnailDimensions)),
+
+    getImageOrNull: async imageId => useClient(async client => await getImageOrNull(client, imageId)),
+
+    getImage: async imageId => useClient(async client => await getImage(client, imageId)),
+
+    getImagesForPost: async postId => useClient(async client => await getImagesForPost(client, postId)),
+
+    deleteImage: async imageId => useClient(async client => await deleteImage(client, imageId))
 }
