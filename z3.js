@@ -198,11 +198,9 @@ exports.extractImages = async (content, url, postId) => {
     const $ = cheerio.load(content);
     const imageElements = $('img');
 
-    const publishedImageNames = {};
-    const imageNamesForId = {};
-    const publishedImages = [];
+    const imageIdsToPublish = [];
 
-    const filterPrefix = `/edit/image/${postId}.`;
+    const filterPrefix = `/edit/image/${postId}/`;
 
     for (var imageElementCtr = 0; imageElementCtr < imageElements.length; imageElementCtr++) {
         const imageElement = imageElements[imageElementCtr];
@@ -214,27 +212,8 @@ exports.extractImages = async (content, url, postId) => {
             const imageRecord = await db.getImageOrNull(imageId);
 
             if (imageRecord) {
-                var filename;
-                if (imageNamesForId[imageId]) {
-                    filename = imageNamesForId[imageId];
-                } else {
-                    var filename = imageRecord.filename;
-
-                    var duplicateCtr = 1;
-                    while (publishedImageNames[filename]) {
-                        filename = `${duplicateCtr}_${imageRecord.filename}`;
-                        duplicateCtr++;
-                    }
-    
-                    publishedImageNames[filename] = true;
-                    imageNamesForId[imageId] = filename;
-    
-                    publishedImages.push({
-                        filename,
-                        imageId,
-                        mimetype: imageRecord.mimetype
-                    });
-                }
+                const filename = imageRecord.filename;
+                imageIdsToPublish.push(imageRecord._id);
 
                 if (url.length > 0) {
                     imageElement.attribs.src = `/${url}/${filename}`;
@@ -261,7 +240,7 @@ exports.extractImages = async (content, url, postId) => {
     const bodyText = $.html();
 
     return {
-        publishedImages,
+        imageIdsToPublish,
         content: bodyText
     };
 };

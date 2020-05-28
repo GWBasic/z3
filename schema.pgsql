@@ -198,6 +198,14 @@ ALTER TABLE ONLY public.drafts
 
 
 --
+-- Name: images filename_post_unique; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT filename_post_unique UNIQUE (post_id, filename);
+
+
+--
 -- Name: images hash_post_unique; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
 --
 

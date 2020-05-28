@@ -342,7 +342,7 @@ describe('Database', () => {
         const imageRecordDuplicateName = await db.insertImage(
             post._id,
             'h4eh65h',
-            'img1.jpg',
+            'img2.jpg',
             'image/jpeg',
             img1Data,
             {width: 20, height: 20},
@@ -654,7 +654,7 @@ describe('Database', () => {
             'content',
             'url',
             'the summary',
-            [images[0], images[1], images[2]],
+            [images[0]._id, images[1]._id, images[2]._id],
             null,
             null);
 

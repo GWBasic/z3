@@ -41,13 +41,12 @@ describe('Editor operations', () => {
             'gssaadsfa',
             'egregerafe',
             'greareaa',
-            {},
             Buffer.alloc(0),
-            {},
+            {width: 50, height: 100},
             Buffer.alloc(20),
-            {},
+            {width: 25, height: 50},
             Buffer.alloc(5),
-            {});
+            {width: 12, height: 25});
 
         await server
             .get(`/edit/${post._id}.${imageRecord._id}`)
@@ -58,13 +57,13 @@ describe('Editor operations', () => {
         await testSetup.login();
 
         await server
-            .get('/edit/anid')
+            .get('/edit/76543')
             .expect(404);
 
         var { post, workingTitle, content } = await testSetup.preparePost();
 
         await server
-            .get(`/edit/${post._id}.anid`)
+            .get(`/edit/${post._id}/457754`)
             .expect(404);
     });
 
@@ -167,7 +166,8 @@ describe('Editor operations', () => {
             draft.title,
             content,
             'theurl',
-            'the summary');
+            'the summary',
+            []);
 
         await verifySendNewEdit(true);
     });
@@ -194,10 +194,10 @@ describe('Editor operations', () => {
 
         const response = JSON.parse(result.text);
         assert.isTrue(response.uploaded, 'Uploaded not true');
-        assert.equal(response.url, `/edit/image/${post._id}.${imageRecord._id}`);
+        assert.equal(response.url, `/edit/image/${post._id}/${imageRecord._id}`);
 
         var result = await server
-            .get(`/edit/image/${post._id}.${imageRecord._id}`)
+            .get(`/edit/image/${post._id}/${imageRecord._id}`)
             .expect('Content-Type', 'image/jpeg')
             .expect('Content-Length', `${imageStats.size}`)
             .expect(200);
@@ -214,5 +214,9 @@ describe('Editor operations', () => {
             .attach('upload', 'test/data/img1.jpg')
             .expect(401);
     });
+
+    it('Upload an image and make sure the filename is unique', async () => {
+        assert.fail('incomplete');
+    })
 });
 

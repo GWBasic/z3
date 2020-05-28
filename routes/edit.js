@@ -91,7 +91,7 @@ router.put('/:postId', async (req, res) => {
     res.json(response);
 });
 
-router.get('/image/:postId.:imageId', async (req, res) => {
+router.get('/image/:postId/:imageId', async (req, res) => {
     const imageRecord = req.imageRecord;
 
     res.writeHead(200, {
@@ -160,7 +160,7 @@ router.post('/image/:postId', upload.single('upload'), async (req, res) => {
     res.status(200);
     res.json({
         uploaded: true,
-        url: `/edit/image/${post._id}.${imageRecord._id}`
+        url: `/edit/image/${post._id}/${imageRecord._id}`
     });
 });
 

@@ -170,7 +170,7 @@ describe('Publish operations', () => {
             Buffer.alloc(20),
             { width: 15, height: 30 });
 
-        content += `<img src="/edit/image/${post._id}.${imageRecord._id}">`;
+        content += `<img src="/edit/image/${post._id}/${imageRecord._id}">`;
 
         await db.appendDraft(post._id, workingTitle, content);
 
@@ -195,7 +195,7 @@ describe('Publish operations', () => {
         assert.isDefined(publishedPost.content);
         assert.equal(publishedPost.publishedAt.toString(), publishedAt.toString(), 'Wrong publishedAt');
         assert.equal(publishedPost.republishedAt.toString(), republishedAt.toString(), 'Wrong republishedAt');
-        assert.isTrue(publishedPost.content.endsWith('<a href="/title_for_test/filename?size=original" target="_blank"><img src="/title_for_test/filename" width="725px" height="NaNpx"></a>'), 'Image link not updated');
+        assert.isTrue(publishedPost.content.endsWith('<a href="/title_for_test/filename?size=original" target="_blank"><img src="/title_for_test/filename" width="30px" height="60px"></a>'), 'Image link not updated');
 
         // unpublish
         response = await server

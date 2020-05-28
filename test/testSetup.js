@@ -132,8 +132,6 @@ module.exports = {
                     Buffer.alloc(5),
                     {width: 5, height: 10});
 
-                const publishedImages = [imageRecord];
-
                 await db.publishPost(
                     post._id,
                     draft._id,
@@ -143,7 +141,7 @@ module.exports = {
                     `Content ${postItr}`,
                     `title_${postItr}`,
                     `${postItr}`,
-                    publishedImages);
+                    [imageRecord._id]);
             }
         }
     },

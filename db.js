@@ -1,7 +1,6 @@
 const Pool = require('pg').Pool
 
 const runtimeOptions = require('./runtimeOptions');
-const z3 = require('./z3');
 
 const DRAFT_STORE_INTERVAL_MINUTES = 5;
 
@@ -130,7 +129,8 @@ function constructDraftFromRow(row) {
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         title: row.title,
-        content: row.content
+        content: row.content,
+        suggestedLocation: row.suggested_location
     };
 }
 
@@ -221,8 +221,8 @@ async function appendDraft(client, postId, title, content, suggestedLocation) {
     }
 
     const updatePostResult = await client.query(
-        "UPDATE posts SET working_title = $1 WHERE id=$2",
-        [title, postId]);
+        "UPDATE posts SET working_title=$2, suggested_location=$3 WHERE id=$1",
+        [postId, title, suggestedLocation]);
 
     if (updatePostResult.rowCount != 1) {
         throw new Error(`Could not update post ${postId}`);
@@ -245,7 +245,7 @@ async function appendDraft(client, postId, title, content, suggestedLocation) {
         draftId = currentDraft._id;
 
         const updateDraftResult = await client.query(
-            "UPDATE drafts SET title =$2, content=$3, suggested_location=$4 WHERE id=$1",
+            "UPDATE drafts SET title=$2, content=$3, suggested_location=$4 WHERE id=$1",
             [draftId, title, content, suggestedLocation]);
 
         if (updateDraftResult.rowCount != 1) {
@@ -313,7 +313,7 @@ async function publishPost(
     content,
     url,
     summary,
-    publishedImages,
+    imageIdsToPublish,
     staticGroup,
     afterPageId) {
 
@@ -402,13 +402,13 @@ async function publishPost(
         "UPDATE images SET published=false WHERE post_id=$1",
         [postId]);
 
-    for (var publishedImage of publishedImages) {
+    for (var imageId of imageIdsToPublish) {
         const updateImageResult = await client.query(
             "UPDATE images SET published=true WHERE id=$1",
-            [publishedImage._id]);
+            [imageId]);
         
         if (updateImageResult.rowCount == 0) {
-            throw new Error(`No image with id: ${publishedImage._id}`);
+            throw new Error(`No image with id: ${imageId}`);
         }
     }
 }
@@ -641,8 +641,8 @@ module.exports = {
 
     restoreDraft: async draftId => await runOnTransaction(client => restoreDraft(client, draftId)),
 
-    publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId) =>
-        await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, publishedImages, staticGroup, afterPageId)),
+    publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, imageIdsToPublish, staticGroup, afterPageId) =>
+        await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, imageIdsToPublish, staticGroup, afterPageId)),
 
     unPublishPost: async postId => await runOnTransaction(async client => await unPublishPost(client, postId)),
     
@@ -681,3 +681,6 @@ module.exports = {
 
     getImageOrNullByUrlAndFilename: async (url, filename) => useClient(async client => await getImageOrNullByUrlAndFilename(client, url, filename)),
 }
+
+// Loading z3 after the exports works around a circular reference
+const z3 = require('./z3');

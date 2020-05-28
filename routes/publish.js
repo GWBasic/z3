@@ -128,7 +128,7 @@ router.post('/:postId', async (req, res) => {
     }
 
     const { url, summary } = await z3.constructUrlAndSummary(draft, isIndex);
-    const { publishedImages, content } = await z3.extractImages(draft.content, url, draft.postId);
+    const { imageIdsToPublish, content } = await z3.extractImages(draft.content, url, draft.postId);
 
     await db.publishPost(
         draft.postId,
@@ -139,7 +139,7 @@ router.post('/:postId', async (req, res) => {
         content,
         url,
         summary,
-        publishedImages,
+        imageIdsToPublish,
         staticGroup,
         afterPageId);
 

@@ -116,8 +116,6 @@ describe('Index operations', () => {
             Buffer.alloc(5),
             {width: 5, height: 5});
 
-        const imagesToPublish = [imageRecord];
-
         await db.publishPost(
             post._id,
             draft._id,
@@ -127,7 +125,7 @@ describe('Index operations', () => {
             'Content',
             '',
             'summary',
-            imagesToPublish);
+            [imageRecord._id]);
 
         const publishedPost = await db.getPostFromUrl('');
 
