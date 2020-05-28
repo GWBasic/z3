@@ -50,17 +50,6 @@ module.exports = {
         }
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
-
-        const client = new Client({connectionString: process.env.DATABASE_URL});
-
-        try {
-            client.connect();
-
-            const schema = (await fs.readFile('./schema.pgsql')).toString();
-            await client.query(schema);
-        } finally {
-            await client.end();
-        }
     },
 
     afterEach: async () => {
@@ -68,24 +57,17 @@ module.exports = {
         await module.exports.logout();
         await module.exports.deletePassword();
 
+        await db.checkSchemaPromise;
+
         const client = new Client({connectionString: process.env.DATABASE_URL});
 
         try {
             client.connect();
 
-            await client.query(
-                `drop schema public cascade;
-                CREATE SCHEMA public
-                AUTHORIZATION postgres;
-          
-                GRANT ALL ON SCHEMA public TO postgres;
-                GRANT ALL ON SCHEMA public TO public;
-                COMMENT ON SCHEMA public
-                    IS 'standard public schema';`);
-
-            /*await client.query("DELETE FROM images;");
-            await client.query("DELETE FROM drafts;");
-            await client.query("DELETE FROM posts;");*/
+            await client.query("DELETE FROM images");
+            await client.query("UPDATE posts SET draft_id=NULL")
+            await client.query("DELETE FROM drafts");
+            await client.query("DELETE FROM posts");
         } catch {
         } finally {
             await client.end();

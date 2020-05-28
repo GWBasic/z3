@@ -363,6 +363,8 @@ describe('Database', () => {
 
         await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage(imageRecord._id), 'Images not deleted');
         assert.isNull(await db.getImageOrNull(imageRecordDuplicateName._id), 'Images not deleted');
+
+        assert.fail('Need to delete published post');
     });
 
     it('Publish static pages', async () => {

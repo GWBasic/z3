@@ -54,7 +54,7 @@ const dep = {
 const SCHEMA_VERSION = 1;
 
 async function checkSchema() {
-    /*const client = await pool.connect();
+    const client = await pool.connect();
 
     try {
         await client.query('BEGIN');
@@ -82,7 +82,7 @@ async function checkSchema() {
         }
     } finally {
         client.release();
-    }*/
+    }
 }
 
 const checkSchemaPromise = checkSchema();
@@ -694,6 +694,7 @@ module.exports = {
     UnknownStaticGroupError,
     UnknownAfterPageIdError,
     dep,
+    checkSchemaPromise,
 
     createPost: async (title, suggestedLocation) => await runOnTransaction(
         async client => createPost(client, title, suggestedLocation)),
