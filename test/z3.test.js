@@ -238,34 +238,39 @@ describe('z3 module test', () => {
     });
 
     it('Test loading the configuration', async () => {
-        /*const expectedConfig = {
-            title: 'load test title',
-            author: 'load test author'
-        };
+        var expectedConfig;
 
-        const configJSON = JSON.stringify(expectedConfig);
-        await fs.writeFile(runtimeOptions.configFile, configJSON);
+        await db.setConfiguration('config', config => {
+            config.title = 'load test title',
+            config.author = 'load test author'
 
-        z3.loadConfig_BLOCKING_CALL_FOR_TESTS();
+            expectedConfig = config;
+        }, () => {});
 
-        assert.deepEqual(await z3.getCachedConfig(), expectedConfig, 'Wrong config saved');*/
+        const getNow = z3.getNow;
+        z3.getNow = () => (new Date()).setMinutes(10);
 
-        assert.fail('incomplete');
+        try {
+            const actualConfig = await z3.getCachedConfig();
+            assert.deepEqual(actualConfig, expectedConfig, 'Wrong configuration loaded');
+        } finally {
+            z3.getNow = getNow;
+        }
     });
 
     it('Test saving the configuration', async () => {
+        var expectedConfig;
 
-        /*z3.updateConfig(config => {
+        await z3.updateConfig(config => {
             config.title = 'Written title';
             config.author = 'Written author';
+
+            expectedConfig = config;
         });
 
-        const configBuffer = await fs.readFile(runtimeOptions.configFile);
-        const actualConfig = JSON.parse(configBuffer);
+        const actualConfig = await db.getConfiguration('config');
 
-        assert.deepEqual(actualConfig, await z3.getCachedConfig(), 'Configuration not saved correctly'); */
-
-        assert.fail('Incomplete');
+        assert.deepEqual(actualConfig, expectedConfig, 'Configuration not saved correctly');
     });
 
     it('Test configuration cache expiration', async () => {
