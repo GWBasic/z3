@@ -58,7 +58,8 @@ router.get('/', async (req, res) => {
         isAvatarConfigured,
         templates,
         configuredTemplate: config.template,
-        redirects: JSON.stringify(config.redirects, null, 2)
+        redirects: JSON.stringify(config.redirects, null, 2),
+        defaultSearchUrl: z3.DEFAULT_SEARCH_URL
     });
 });
 
