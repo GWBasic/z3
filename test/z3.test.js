@@ -38,7 +38,16 @@ describe('z3 module test', () => {
     });
 
     it('Check changing the password', async () => {
-        assert.fail('Incomplete');
+
+        const newPassword = 'newpassword';
+        const checkedBeforeChange = await z3.checkPassword(newPassword);
+
+        assert.isFalse(checkedBeforeChange, 'The password should not be changed');
+
+        await z3.changePassword(newPassword);
+        const checkedAfterChange = await z3.checkPassword(newPassword);
+
+        assert.isTrue(checkedAfterChange, 'The password should be changed');
     });
 
     it('Check getting start and limit', async () => {
@@ -271,10 +280,6 @@ describe('z3 module test', () => {
         const actualConfig = await db.getConfiguration('config');
 
         assert.deepEqual(actualConfig, expectedConfig, 'Configuration not saved correctly');
-    });
-
-    it('Test configuration cache expiration', async () => {
-        assert.fail('Incomplete');
     });
 });
 
