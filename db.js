@@ -71,8 +71,18 @@ async function checkSchema() {
                 await client.query(
                     'INSERT INTO public.schema_version (version) VALUES ($1)',
                     [SCHEMA_VERSION]);
-            } else {
-                // TODO: Assert version
+            }
+
+            const schemaVersionResult = await client.query("SELECT version FROM schema_version");
+
+            if (schemaVersionResult.rowCount != 1) {
+                throw new Error('No schema version');
+            }
+
+            const schemaVersion = schemaVersionResult.rows[0].version;
+
+            if (SCHEMA_VERSION != schemaVersion) {
+                throw new Error(`Unsupported schema version: ${schemaVersion}`);
             }
 
             await client.query('COMMIT');
