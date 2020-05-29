@@ -485,6 +485,10 @@ async function deletePost(client, postId) {
         "DELETE FROM images WHERE post_id = $1",
         [postId]);
 
+    await client.query(
+        "UPDATE posts SET draft_id=NULL WHERE id=$1",
+        [postId]);
+
     const deleteDraftsResult = await client.query(
         "DELETE FROM drafts WHERE post_id = $1",
         [postId]);

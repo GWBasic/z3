@@ -321,50 +321,54 @@ describe('Database', () => {
     });
 
     it('Delete', async () => {
-        await testSetup.createPosts(4);
+        await testSetup.createPostsAndPublishedPosts(4, 2);
 
-        const post = (await db.getPosts())[2];
+        const posts = await db.getPosts();
+        var remainingPostsCount = posts.length;
+
+        assert.isTrue(Enumerable.asEnumerable(posts).Any(p => p.url != null), 'At least one post must be published');
         
-        const img1Data = await fs.readFile('test/data/img1.jpg');
+        for (var post of posts) {
+            const img1Data = await fs.readFile('test/data/img1.jpg');
 
-        const imageRecord = await db.insertImage(
-            post._id,
-            'hteshtehes',
-            'img1.jpg',
-            'image/jpeg',
-            img1Data,
-            {width: 20, height: 20},
-            Buffer.alloc(10),
-            {width: 10, height: 10},
-            Buffer.alloc(10),
-            {width: 5, height: 5});
+            const imageRecord = await db.insertImage(
+                post._id,
+                'hteshtehes',
+                'img1.jpg',
+                'image/jpeg',
+                img1Data,
+                {width: 20, height: 20},
+                Buffer.alloc(10),
+                {width: 10, height: 10},
+                Buffer.alloc(10),
+                {width: 5, height: 5});
 
-        const imageRecordDuplicateName = await db.insertImage(
-            post._id,
-            'h4eh65h',
-            'img2.jpg',
-            'image/jpeg',
-            img1Data,
-            {width: 20, height: 20},
-            Buffer.alloc(10),
-            {width: 10, height: 10},
-            Buffer.alloc(10),
-            {width: 5, height: 5});
-        
-        await db.deletePost(post._id);
+            const imageRecordDuplicateName = await db.insertImage(
+                post._id,
+                'h4eh65h',
+                'img2.jpg',
+                'image/jpeg',
+                img1Data,
+                {width: 20, height: 20},
+                Buffer.alloc(10),
+                {width: 10, height: 10},
+                Buffer.alloc(10),
+                {width: 5, height: 5});
+            
+            await db.deletePost(post._id);
 
-        const remainingPosts = await db.getPosts();
+            const remainingPosts = await db.getPosts();
 
-        assert.equal(3, remainingPosts.length, 'Post not deleted');
+            remainingPostsCount--;
+            assert.equal(remainingPostsCount, remainingPosts.length, 'Post not deleted');
 
-        for (var remainingPost of remainingPosts) {
-            assert.notEqual(remainingPost._id, post._id, 'Post not deleted');
+            for (var remainingPost of remainingPosts) {
+                assert.notEqual(remainingPost._id, post._id, 'Post not deleted');
+            }
+
+            await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage(imageRecord._id), 'Images not deleted');
+            assert.isNull(await db.getImageOrNull(imageRecordDuplicateName._id), 'Images not deleted');
         }
-
-        await assert.throwsAsync(db.ImageNotFoundError, async () => await db.getImage(imageRecord._id), 'Images not deleted');
-        assert.isNull(await db.getImageOrNull(imageRecordDuplicateName._id), 'Images not deleted');
-
-        assert.fail('Need to delete published post');
     });
 
     it('Publish static pages', async () => {
