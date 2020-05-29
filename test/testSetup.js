@@ -15,6 +15,7 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const db = require('../db');
+const dbSchema = require('../dbSchema');
 const z3 = require('../z3');
 
 const passwordInfo = {
@@ -33,6 +34,8 @@ module.exports = {
         pogon.testMode = true;
         await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(passwordInfo.hashAndSalt));
         db.dep.newDate = () => new Date();
+
+        await dbSchema.setupSchema();
 
         z3.updateConfig(config => {
             config.title = 'title for tests';
@@ -53,8 +56,6 @@ module.exports = {
         await module.exports.logout();
         await module.exports.deletePassword();
 
-        await db.checkSchemaPromise;
-
         const client = new Client({connectionString: process.env.DATABASE_URL});
 
         try {
@@ -64,7 +65,6 @@ module.exports = {
             await client.query("UPDATE posts SET draft_id=NULL")
             await client.query("DELETE FROM drafts");
             await client.query("DELETE FROM posts");
-        } catch {
         } finally {
             await client.end();
         }

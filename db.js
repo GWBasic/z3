@@ -51,55 +51,7 @@ const dep = {
     newDate: () => new Date()
 };
 
-const SCHEMA_VERSION = 1;
-
-async function checkSchema() {
-    const client = await pool.connect();
-
-    try {
-        await client.query('BEGIN');
-
-        try {
-
-            const doesSchemaVersionTableExistResult = await client.query("SELECT to_regclass('schema_version');");
-
-            const exists = (doesSchemaVersionTableExistResult.rows[0].to_regclass == 'schema_version');
-
-            if (!exists) {
-                const schema = (await fs.readFile('./schema.pgsql')).toString();
-                await client.query(schema);
-                await client.query(
-                    'INSERT INTO public.schema_version (version) VALUES ($1)',
-                    [SCHEMA_VERSION]);
-            }
-
-            const schemaVersionResult = await client.query("SELECT version FROM schema_version");
-
-            if (schemaVersionResult.rowCount != 1) {
-                throw new Error('No schema version');
-            }
-
-            const schemaVersion = schemaVersionResult.rows[0].version;
-
-            if (SCHEMA_VERSION != schemaVersion) {
-                throw new Error(`Unsupported schema version: ${schemaVersion}`);
-            }
-
-            await client.query('COMMIT');
-        } catch (err) {
-            await client.query('ROLLBACK');
-            throw err;
-        }
-    } finally {
-        client.release();
-    }
-}
-
-const checkSchemaPromise = checkSchema();
-
 async function runOnTransaction(callback) {
-    await checkSchemaPromise;
-
     const client = await pool.connect();
 
     var toReturn;
@@ -123,8 +75,6 @@ async function runOnTransaction(callback) {
 }
 
 async function useClient(callback) {
-    await checkSchemaPromise;
-
     const client = await pool.connect();
 
     var toReturn;
@@ -708,7 +658,6 @@ module.exports = {
     UnknownStaticGroupError,
     UnknownAfterPageIdError,
     dep,
-    checkSchemaPromise,
 
     createPost: async (title, suggestedLocation) => await runOnTransaction(
         async client => createPost(client, title, suggestedLocation)),

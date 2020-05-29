@@ -9,6 +9,7 @@ const pogon = require('pogon.html');
 const session = require('client-sessions');
 
 const db = require('./db');
+const dbSchema = require('./dbSchema');
 const sessionConfig = require('./sessionConfig');
 const recentPosts = require('./recentPosts');
 const runtimeOptions = require('./runtimeOptions');
@@ -37,7 +38,6 @@ if (isDevelopment) {
 }
 
 pogon.registerCustomTag('z3_recentPosts', recentPosts);
-pogon.defaultTemplate = z3.config.overrideTemplate;
 
 app.use(session(sessionConfig));
 
@@ -51,8 +51,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
 
+async function startup() {
+	await dbSchema.setupSchema();
+
+	const config = await z3.getCachedConfig();
+	pogon.defaultTemplate = config.overrideTemplate;
+}
+
+const startupPromise = startup();
+
 app.use(async function(req, res, next) {
 	try {
+		await startupPromise;
+
 		res.locals.isLoggedIn = false;
 
 		if (req.session) {
