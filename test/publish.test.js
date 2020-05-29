@@ -221,7 +221,7 @@ describe('Publish operations', () => {
         await testSetup.login();
 
         async function testPublishOptions(suggestedLocation, toCheck, publish = false) {
-            const post = await db.createPost(`Goes in ${suggestedLocation}`, 'blog');
+            const post = (await db.createPost(`Goes in ${suggestedLocation}`, suggestedLocation)).post;
 
             var result = await server
                 .get(`/publish/${post._id}`)
@@ -231,15 +231,15 @@ describe('Publish operations', () => {
             const options = editortestResult.options;
 
             if (toCheck.blog) {
-                assert.isTrue(options.toBlogValue);
+                assert.isTrue(options.isBlog);
             } else {
-                assert.isFalse(options.toBlogValue);
+                assert.isFalse(options.isBlog);
             }
 
             if (toCheck.index) {
-                assert.isTrue(options.toIndexValue);
+                assert.isTrue(options.isIndex);
             } else {
-                assert.isFalse(options.toIndexValue);
+                assert.isFalse(options.isIndex);
             }
 
             if (toCheck.firstHeader) {
@@ -251,7 +251,9 @@ describe('Publish operations', () => {
             if (toCheck.secondHeader) {
                 assert.isTrue(options.staticPages[0].pages[0].checked);
             } else {
-                assert.isUndefined(options.staticPages[0].pages[0].checked);
+                if (options.staticPages[0].pages.length > 0) {
+                    assert.isFalse(options.staticPages[0].pages[0].checked);
+                }
             }
 
             if (toCheck.firstFooter) {
@@ -263,7 +265,9 @@ describe('Publish operations', () => {
             if (toCheck.secondFooter) {
                 assert.isTrue(options.staticPages[1].pages[0].checked);
             } else {
-                assert.isUndefined(options.staticPages[1].pages[0].checked);
+                if (options.staticPages[1].pages.length > 0) {
+                    assert.isFalse(options.staticPages[1].pages[0].checked);
+                }
             }
 
             if (publish) {
