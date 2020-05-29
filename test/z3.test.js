@@ -173,7 +173,10 @@ describe('z3 module test', () => {
     });
 
     async function verifyConvertImgTags(url, imgUrlPrefix) {
-        const postId = 'gregreeragea';
+
+        const post = (await testSetup.createPosts(1))[0].post;
+
+        const postId = post._id;
 
         const img1Data = await fs.readFile('test/data/img1.jpg');
         const imageRecord = await db.insertImage(
@@ -200,34 +203,30 @@ describe('z3 module test', () => {
             Buffer.alloc(10),
             {height: 10, width: 10});
 
-        const originalContent = +`Image to update: <img src="/edit/image/${postId}.${imageRecord._id}">`
-            + `Image to update: <img src="/edit/image/${postId}.${imageRecord._id}">`
-            + `Image to update: <img src="/edit/image/${postId}.${imageRecordDuplicateName._id}">`
-            + `Bad imageId: <img src="/edit/image/${postId}.dne">`
-            + `Bad postId: <img src="/edit/image/dne.${imageRecord._id}">`;
+        const originalContent = `Image to update: <img src="/edit/image/${postId}/${imageRecord._id}">`
+            + `Image to update: <img src="/edit/image/${postId}/${imageRecord._id}">`
+            + `Image to update: <img src="/edit/image/${postId}/${imageRecordDuplicateName._id}">`
+            + `Bad imageId: <img src="/edit/image/${postId}/dne">`
+            + `Bad postId: <img src="/edit/image/dne/${imageRecord._id}">`
+            + `Bad imageId: <img src="/edit/image/${postId}/9999999">`
+            + `Bad postId: <img src="/edit/image/9999999/${imageRecord._id}">`;
 
-        const { publishedImages, content } = await z3.extractImages(originalContent, url, postId);
+        const { imageIdsToPublish, content } = await z3.extractImages(originalContent, url, postId);
 
-        const expectedContent = +`Image to update: <img src="${imgUrlPrefix}/img1.jpg">`
+        const expectedContent = `Image to update: <a href="${imgUrlPrefix}/img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/img1.jpg" width="10px" height="10px"></a>`
             + `Image to update: <a href="${imgUrlPrefix}/img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/img1.jpg" width="10px" height="10px"></a>`
-            + `Image to update: <a href="${imgUrlPrefix}/1_img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/1_img1.jpg" width="10px" height="10px"></a>`
-            + `Bad imageId: <img src="/edit/image/${postId}.dne">`
-            + `Bad postId: <img src="/edit/image/dne.${imageRecord._id}">`;
+            + `Image to update: <a href="${imgUrlPrefix}/1-img1.jpg?size=original" target="_blank"><img src="${imgUrlPrefix}/1-img1.jpg" width="10px" height="10px"></a>`
+            + `Bad imageId: <img src="/edit/image/${postId}/dne">`
+            + `Bad postId: <img src="/edit/image/dne/${imageRecord._id}">`
+            + `Bad imageId: <img src="/edit/image/${postId}/9999999">`
+            + `Bad postId: <img src="/edit/image/9999999/${imageRecord._id}">`;
 
         assert.equal(content, expectedContent, 'Img tags incorrectly filtered');
-        assert.equal(publishedImages.length, 2, 'Wrong number of published images');
+        assert.equal(imageIdsToPublish.length, 2, 'Wrong number of published images');
 
-        const expectedPublishedImages = [{
-            filename: 'img1.jpg',
-            imageId: imageRecord._id,
-            mimetype: 'image/jpeg'
-        }, {
-            filename: '1_img1.jpg',
-            imageId: imageRecordDuplicateName._id,
-            mimetype: 'image/jpeg'
-        }];
+        const expectedImageIdsToPublish = [ imageRecord._id, imageRecordDuplicateName._id];
 
-        assert.deepEqual(publishedImages, expectedPublishedImages, 'Wrong published images');
+        assert.deepEqual(imageIdsToPublish, expectedImageIdsToPublish, 'Wrong published images');
     }
     
     it('Verify converting img tags on publish', async () => {

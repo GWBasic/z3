@@ -218,32 +218,37 @@ exports.extractImages = async (content, url, postId) => {
         const originalSrc = imageElement.attribs.src;
 
         if (originalSrc.startsWith(filterPrefix)) {
-            const imageId = originalSrc.substring(filterPrefix.length);
+            const imageId = parseInt(originalSrc.substring(filterPrefix.length));
 
-            const imageRecord = await db.getImageOrNull(imageId);
+            if (!isNaN(imageId)) {
+                const imageRecord = await db.getImageOrNull(imageId);
 
-            if (imageRecord) {
-                const filename = imageRecord.filename;
-                imageIdsToPublish.push(imageRecord._id);
+                if (imageRecord) {
+                    const filename = imageRecord.filename;
 
-                if (url.length > 0) {
-                    imageElement.attribs.src = `/${url}/${filename}`;
-                } else {
-                    imageElement.attribs.src = `/${filename}`;
+                    if (!imageIdsToPublish.includes(imageRecord._id)) {
+                        imageIdsToPublish.push(imageRecord._id);
+                    }
+
+                    if (url.length > 0) {
+                        imageElement.attribs.src = `/${url}/${filename}`;
+                    } else {
+                        imageElement.attribs.src = `/${filename}`;
+                    }
+
+                    if (imageRecord.normalDimensions.width <= MAX_IMAGE_WIDTH) {
+                        imageElement.attribs.width = `${imageRecord.normalDimensions.width}px`;
+                        imageElement.attribs.height = `${imageRecord.normalDimensions.height}px`;
+                    } else {
+                        const ratio = imageRecord.normalDimensions.width / imageRecord.normalDimensions.height;
+                        imageElement.attribs.width = `${MAX_IMAGE_WIDTH}px`;
+                        const height = Math.round(MAX_IMAGE_WIDTH / ratio);
+                        imageElement.attribs.height = `${height}px`;
+                    }
+
+                    const imageElement$ = $(imageElement);
+                    imageElement$.wrap(`<a href="${imageElement.attribs.src}?size=original" target="_blank"></a>`);
                 }
-
-                if (imageRecord.normalDimensions.width <= MAX_IMAGE_WIDTH) {
-                    imageElement.attribs.width = `${imageRecord.normalDimensions.width}px`;
-                    imageElement.attribs.height = `${imageRecord.normalDimensions.height}px`;
-                } else {
-                    const ratio = imageRecord.normalDimensions.width / imageRecord.normalDimensions.height;
-                    imageElement.attribs.width = `${MAX_IMAGE_WIDTH}px`;
-                    const height = Math.round(MAX_IMAGE_WIDTH / ratio);
-                    imageElement.attribs.height = `${height}px`;
-                }
-
-                const imageElement$ = $(imageElement);
-                imageElement$.wrap(`<a href="${imageElement.attribs.src}?size=original" target="_blank"></a>`);
             }
         }
     };
