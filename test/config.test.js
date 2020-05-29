@@ -4,6 +4,7 @@ const chai = require('chai');
 const chaiFiles = require('chai-files');
 const fs = require('fs').promises;
 
+const db = require('../db');
 const z3 = require('../z3');
 
 const server = testSetup.server;
@@ -107,10 +108,7 @@ describe('Config', () => {
         }
 
         checkConfig(await z3.getCachedConfig());
-
-        const configFileJSON = await fs.readFile(testSetup.runtimeOptions.configFile);
-        const configFile = JSON.parse(configFileJSON);
-        checkConfig(configFile);
+        checkConfig(await db.getConfiguration('config'));
     });
 
     it('Upload avatar', async () => {

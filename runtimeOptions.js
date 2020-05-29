@@ -1,5 +1,4 @@
 module.exports = {
-    configFile: 'config.json',
     publicFolder: 'public',
 
     db: {

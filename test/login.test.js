@@ -103,7 +103,7 @@ describe('Login and session handling', () => {
     });
 
     it('private mode', async () => {
-        z3.updateConfig(config => {
+        await z3.updateConfig(config => {
             config.private = true;
         });
 

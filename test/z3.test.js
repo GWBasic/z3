@@ -240,7 +240,7 @@ describe('z3 module test', () => {
     });
 
     it('Test loading the configuration', async () => {
-        const expectedConfig = {
+        /*const expectedConfig = {
             title: 'load test title',
             author: 'load test author'
         };
@@ -250,7 +250,9 @@ describe('z3 module test', () => {
 
         z3.loadConfig_BLOCKING_CALL_FOR_TESTS();
 
-        assert.deepEqual(await z3.getCachedConfig(), expectedConfig, 'Wrong config saved');
+        assert.deepEqual(await z3.getCachedConfig(), expectedConfig, 'Wrong config saved');*/
+
+        assert.fail('incomplete');
     });
 
     it('Test saving the configuration', async () => {

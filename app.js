@@ -59,6 +59,7 @@ async function startup() {
 }
 
 const startupPromise = startup();
+app.startupPromise = startupPromise;
 
 app.use(async function(req, res, next) {
 	try {

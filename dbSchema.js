@@ -10,6 +10,9 @@ const SCHEMA_VERSION = 1;
 // cd /Applications/Postgres.app/Contents/Versions/12/bin
 // ./pg_dump -s z3 > ~/git/z3/schema.pgsql
 
+// To clear the schema:
+// drop schema public cascade; CREATE SCHEMA public AUTHORIZATION postgres; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';
+
 async function setupSchema() {
     const client = await pool.connect();
 
@@ -28,22 +31,24 @@ async function setupSchema() {
                 await client.query(
                     'INSERT INTO public.schema_version (version) VALUES ($1)',
                     [SCHEMA_VERSION]);
+            } else {
+                const schemaVersionResult = await client.query("SELECT version FROM schema_version");
+
+                if (schemaVersionResult.rowCount != 1) {
+                    throw new Error('No schema version');
+                }
+
+                const schemaVersion = schemaVersionResult.rows[0].version;
+
+                if (SCHEMA_VERSION != schemaVersion) {
+                    throw new Error(`Unsupported schema version: ${schemaVersion}`);
+                }
             }
-
-            const schemaVersionResult = await client.query("SELECT version FROM schema_version");
-
-            if (schemaVersionResult.rowCount != 1) {
-                throw new Error('No schema version');
-            }
-
-            const schemaVersion = schemaVersionResult.rows[0].version;
-
-            if (SCHEMA_VERSION != schemaVersion) {
-                throw new Error(`Unsupported schema version: ${schemaVersion}`);
-            }
-
+            
             await client.query('COMMIT');
         } catch (err) {
+            console.error(`Can not startup the schema: ${err}`);
+            
             await client.query('ROLLBACK');
             throw err;
         }

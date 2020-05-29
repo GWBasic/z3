@@ -37,6 +37,18 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: configurations; Type: TABLE; Schema: public; Owner: andrewrondeau
+--
+
+CREATE TABLE public.configurations (
+    name character varying NOT NULL,
+    obj jsonb
+);
+
+
+ALTER TABLE public.configurations OWNER TO andrewrondeau;
+
+--
 -- Name: drafts; Type: TABLE; Schema: public; Owner: andrewrondeau
 --
 
@@ -201,6 +213,14 @@ ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_
 
 
 --
+-- Name: configurations configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+--
+
+ALTER TABLE ONLY public.configurations
+    ADD CONSTRAINT configurations_pkey PRIMARY KEY (name);
+
+
+--
 -- Name: drafts drafts_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
 --
 
@@ -305,6 +325,13 @@ ALTER TABLE ONLY public.images
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_draft_id_fkey FOREIGN KEY (draft_id) REFERENCES public.drafts(id);
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

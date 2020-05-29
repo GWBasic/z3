@@ -1,7 +1,6 @@
 require('use-strict');
 
 const runtimeOptions = require('../runtimeOptions');
-runtimeOptions.configFile = 'testConfig.json';
 runtimeOptions.publicFolder = 'testpublic'
 runtimeOptions.db.location = 'testdata';
 runtimeOptions.authentication.passwordFile = 'testPassword.json';
@@ -31,13 +30,15 @@ module.exports = {
     server,
 
     beforeEach: async () => {
+        await app.startupPromise;
+
         pogon.testMode = true;
         await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(passwordInfo.hashAndSalt));
         db.dep.newDate = () => new Date();
 
-        await dbSchema.setupSchema();
+        //await dbSchema.setupSchema();
 
-        z3.updateConfig(config => {
+        await z3.updateConfig(config => {
             config.title = 'title for tests';
             config.author = 'author for tests';
             config.private = false;
@@ -65,6 +66,7 @@ module.exports = {
             await client.query("UPDATE posts SET draft_id=NULL")
             await client.query("DELETE FROM drafts");
             await client.query("DELETE FROM posts");
+            await client.query("DELETE FROM configurations");
         } finally {
             await client.end();
         }

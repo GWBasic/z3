@@ -107,11 +107,7 @@ dist
 
 # Application data
 bin/
-data/
-testdata
 password.json
-config.json
-testConfig.json
 testPassword.json
 session.json
 

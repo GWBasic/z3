@@ -248,11 +248,34 @@ exports.extractImages = async (content, url, postId) => {
     };
 };
 
-exports.getCachedConfig = async function() {
-    return exports.config;
+function constructDefaultConfig() {
+    return {
+        title: '',
+        author: '',
+        private: true,
+        z3_cr_in_footer: true,
+        template: null,
+        overrideTemplate: null,
+        headHtml: '',
+        footerHtml: '',
+        searchUrl: '',
+        forceDomain: '',
+        forceHttps: false,
+        redirects: {}
+    };
 }
 
-function loadConfig() {
+exports.getCachedConfig = async function() {
+    const config = await db.getConfiguration('config');
+
+    if (null == config) {
+        return constructDefaultConfig();
+    }
+
+    return config;
+}
+
+/*function loadConfig() {
     try {
         const configBuffer = fsSync.readFileSync(runtimeOptions.configFile);
         exports.config = JSON.parse(configBuffer);
@@ -277,15 +300,9 @@ function loadConfig() {
 
 loadConfig();
 
-exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;
-
-exports.saveConfig = async () => {
-    const configJSON = JSON.stringify(exports.config, null, 2);
-    await fs.writeFile(runtimeOptions.configFile, configJSON);
-}
+exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;*/
 
 exports.updateConfig = async callback => {
-    await callback(exports.config);
-    exports.saveConfig();
+    await db.setConfiguration('config', callback, constructDefaultConfig);
 }
 
