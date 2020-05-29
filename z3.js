@@ -273,20 +273,38 @@ function constructDefaultConfig() {
     };
 }
 
+const MIN_DATE = new Date(-8640000000000000);
+const CHECK_CONFIG_FREQUENCY_MILLISECONDS = 30 * 1000;
+
+var nextGetCachedConfig = MIN_DATE;
+var getCachedConfigPromise = null;
+
+exports.getNow = () => new Date();
+
 exports.getCachedConfig = async function() {
 
-    // TODO: Caching...
+    async function getConfigFromDb() {
+        const config = await db.getConfiguration('config');
 
-    const config = await db.getConfiguration('config');
+        if (null == config) {
+            return constructDefaultConfig();
+        }
 
-    if (null == config) {
-        return constructDefaultConfig();
+        return config;
     }
 
-    return config;
+    const now = exports.getNow();
+    if (now >= nextGetCachedConfig || getCachedConfigPromise == null) {
+        nextGetCachedConfig = new Date(now.valueOf() + CHECK_CONFIG_FREQUENCY_MILLISECONDS);
+        getCachedConfigPromise = getConfigFromDb();
+    }
+
+    return await getCachedConfigPromise;
 }
 
 exports.updateConfig = async callback => {
+    nextGetCachedConfig = MIN_DATE;
     await db.setConfiguration('config', callback, constructDefaultConfig);
+    nextGetCachedConfig = MIN_DATE;
 }
 

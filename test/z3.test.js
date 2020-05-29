@@ -256,7 +256,7 @@ describe('z3 module test', () => {
 
     it('Test saving the configuration', async () => {
 
-        z3.updateConfig(config => {
+        /*z3.updateConfig(config => {
             config.title = 'Written title';
             config.author = 'Written author';
         });
@@ -264,7 +264,13 @@ describe('z3 module test', () => {
         const configBuffer = await fs.readFile(runtimeOptions.configFile);
         const actualConfig = JSON.parse(configBuffer);
 
-        assert.deepEqual(actualConfig, await z3.getCachedConfig(), 'Configuration not saved correctly');
+        assert.deepEqual(actualConfig, await z3.getCachedConfig(), 'Configuration not saved correctly'); */
+
+        assert.fail('Incomplete');
+    });
+
+    it('Test configuration cache expiration', async () => {
+        assert.fail('Incomplete');
     });
 });
 
