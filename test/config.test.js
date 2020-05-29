@@ -52,17 +52,19 @@ describe('Config', () => {
         const result = JSON.parse(response.text);
         const options = result.options;
 
-        assert.equal(options.config.title, z3.config.title, 'Wrong title');
-        assert.equal(options.config.author, z3.config.author, 'Wrong author');
-        assert.equal(options.config.private, z3.config.private, 'Wrong private');
-        assert.equal(options.config.z3_cr_in_footer, z3.config.z3_cr_in_footer, 'Wrong z3_cr_in_footer');
-        assert.equal(options.config.headHtml, z3.config.headHtml, 'Wrong headHtml');
-        assert.equal(options.config.footerHtml, z3.config.footerHtml, 'Wrong footerHtml');
-        assert.equal(options.config.searchUrl, z3.config.searchUrl, 'Wrong searchUrl');
-        assert.equal(options.config.forceDomain, z3.config.forceDomain, 'Wrong footerHtml');
-        assert.equal(options.config.forceHttps, z3.config.forceHttps, 'Wrong forceHttps');
-        assert.deepEqual(options.config.redirects, z3.config.redirects, 'Wrong redirects');
-        assert.equal(options.redirects, JSON.stringify(z3.config.redirects, null, 2), 'Wrong redirects');
+        const config = await z3.getCachedConfig();
+
+        assert.equal(options.config.title, config.title, 'Wrong title');
+        assert.equal(options.config.author, config.author, 'Wrong author');
+        assert.equal(options.config.private, config.private, 'Wrong private');
+        assert.equal(options.config.z3_cr_in_footer, config.z3_cr_in_footer, 'Wrong z3_cr_in_footer');
+        assert.equal(options.config.headHtml, config.headHtml, 'Wrong headHtml');
+        assert.equal(options.config.footerHtml, config.footerHtml, 'Wrong footerHtml');
+        assert.equal(options.config.searchUrl, config.searchUrl, 'Wrong searchUrl');
+        assert.equal(options.config.forceDomain, config.forceDomain, 'Wrong footerHtml');
+        assert.equal(options.config.forceHttps, config.forceHttps, 'Wrong forceHttps');
+        assert.deepEqual(options.config.redirects, config.redirects, 'Wrong redirects');
+        assert.equal(options.redirects, JSON.stringify(config.redirects, null, 2), 'Wrong redirects');
         assert.isFalse(options.isAvatarConfigured, 'Wrong isAvatarConfigured');
 
         const templates = result.options.templates;
@@ -104,7 +106,7 @@ describe('Config', () => {
             assert.deepEqual(config.redirects, {'/foo':'/bar'});
         }
 
-        checkConfig(z3.config);
+        checkConfig(await z3.getCachedConfig());
 
         const configFileJSON = await fs.readFile(testSetup.runtimeOptions.configFile);
         const configFile = JSON.parse(configFileJSON);

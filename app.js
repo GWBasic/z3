@@ -62,10 +62,12 @@ app.use(async function(req, res, next) {
 		}
 
 		res.locals.staticPages = await db.getAllStaticPages();
-		res.locals.config = z3.config;
+
+		const config = await z3.getCachedConfig();
+		res.locals.config = config;
 
 		// Private mode
-		if (z3.config.private && !req.session.isLoggedIn) {
+		if (config.private && !req.session.isLoggedIn) {
 			if (req.url != '/login') {
 				res.redirect('/login');
 				res.end();

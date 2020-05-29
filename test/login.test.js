@@ -103,7 +103,9 @@ describe('Login and session handling', () => {
     });
 
     it('private mode', async () => {
-        z3.config.private = true;
+        z3.updateConfig(config => {
+            config.private = true;
+        });
 
         await server
             .get('/dashboard')

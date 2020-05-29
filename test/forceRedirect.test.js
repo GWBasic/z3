@@ -55,9 +55,11 @@ describe('Force redirects', () => {
             .get('/dne')
             .expect(404);
 
-        z3.config.redirects = {
-            '/dne': '/exists'
-        };
+        await z3.updateConfig(config => {
+            config.redirects = {
+                '/dne': '/exists'
+            };
+        });
 
         await server
             .get('/dne')

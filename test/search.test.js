@@ -38,15 +38,13 @@ describe('Search', () => {
     });
 
     it('search engine configured', async () => {
-        try {
-            z3.config.searchUrl = 'https://search?q=%query%&h=%host%';
+        z3.updateConfig(config => {
+            config.searchUrl = 'https://search?q=%query%&h=%host%';
+        });
 
-            await server
-                .get('/search?q=bloop+beep')
-                .expect(302)
-                .expect('Location', 'https://search?q=bloop%20beep&h=127.0.0.1');
-        } finally {
-            z3.config.searchUrl = '';
-        }
+        await server
+            .get('/search?q=bloop+beep')
+            .expect(302)
+            .expect('Location', 'https://search?q=bloop%20beep&h=127.0.0.1');
     });
 });

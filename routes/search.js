@@ -18,11 +18,13 @@ router.get('/', async (req, res, next) => {
 
     const encodedHost = encodeURIComponent(host);
 
+    const config = await z3.getCachedConfig();
+
     var searchUrl;
-    if (z3.config.searchUrl.length > 0) {
-        searchUrl = z3.config.searchUrl;
+    if (config.searchUrl.length > 0) {
+        searchUrl = config.searchUrl;
     } else {
-        searchUrl = z3.config.defaultSearchUrl;
+        searchUrl = config.defaultSearchUrl;
     }
 
     searchUrl = searchUrl.replace('%query%', encodedQuery);

@@ -52,11 +52,13 @@ router.get('/', async (req, res) => {
         isAvatarConfigured = false;
     }
 
+    const config = await z3.getCachedConfig();
+
     res.render('config', {
         isAvatarConfigured,
         templates,
-        configuredTemplate: z3.config.template,
-        redirects: JSON.stringify(z3.config.redirects, null, 2)
+        configuredTemplate: config.template,
+        redirects: JSON.stringify(config.redirects, null, 2)
     });
 });
 
@@ -72,35 +74,36 @@ router.get('/*', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    z3.config.title = req.body.title;
-    z3.config.author = req.body.author;
-    z3.config.template = req.body.template;
-
-    z3.config.private = req.body.publish ? false : true;
+    await z3.updateConfig(async config => {
+        config.title = req.body.title;
+        config.author = req.body.author;
+        config.template = req.body.template;
     
-    z3.config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
-
-    if (req.body.overrideTemplate) {
-        if (req.body.overrideTemplate.length > 0) {
-            z3.config.overrideTemplate = req.body.overrideTemplate;
+        config.private = req.body.publish ? false : true;
+        
+        config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
+    
+        if (req.body.overrideTemplate) {
+            if (req.body.overrideTemplate.length > 0) {
+                config.overrideTemplate = req.body.overrideTemplate;
+            } else {
+                config.overrideTemplate = null;
+            }
         } else {
-            z3.config.overrideTemplate = null;
+            config.overrideTemplate = null;
         }
-    } else {
-        z3.config.overrideTemplate = null;
-    }
+    
+        config.headHtml = req.body.headHtml;
+        config.footerHtml = req.body.footerHtml;
+        config.searchUrl = req.body.searchUrl;
+        config.forceDomain = req.body.forceDomain;
+        config.forceHttps = req.body.forceHttps ? true : false;
+        config.redirects = JSON.parse(req.body.redirects || '{}');
+    
+        pogon.defaultTemplate = config.overrideTemplate;
+    });
 
-    z3.config.headHtml = req.body.headHtml;
-    z3.config.footerHtml = req.body.footerHtml;
-    z3.config.searchUrl = req.body.searchUrl;
-    z3.config.forceDomain = req.body.forceDomain;
-    z3.config.forceHttps = req.body.forceHttps ? true : false;
-    z3.config.redirects = JSON.parse(req.body.redirects || '{}');
-
-    pogon.defaultTemplate = z3.config.overrideTemplate;
-
-    await z3.saveConfig();
-
+    res.locals.config = await z3.getCachedConfig();;
     res.redirect('/config');
 });
 

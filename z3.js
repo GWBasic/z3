@@ -245,6 +245,10 @@ exports.extractImages = async (content, url, postId) => {
     };
 };
 
+exports.getCachedConfig = async function() {
+    return exports.config;
+}
+
 function loadConfig() {
     try {
         const configBuffer = fsSync.readFileSync(runtimeOptions.configFile);
@@ -275,5 +279,10 @@ exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;
 exports.saveConfig = async () => {
     const configJSON = JSON.stringify(exports.config, null, 2);
     await fs.writeFile(runtimeOptions.configFile, configJSON);
+}
+
+exports.updateConfig = async callback => {
+    await callback(exports.config);
+    exports.saveConfig();
 }
 

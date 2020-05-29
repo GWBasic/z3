@@ -250,19 +250,20 @@ describe('z3 module test', () => {
 
         z3.loadConfig_BLOCKING_CALL_FOR_TESTS();
 
-        assert.deepEqual(z3.config, expectedConfig, 'Wrong config saved');
+        assert.deepEqual(await z3.getCachedConfig(), expectedConfig, 'Wrong config saved');
     });
 
     it('Test saving the configuration', async () => {
-        z3.config.title = 'Written title';
-        z3.config.author = 'Written author';
 
-        await z3.saveConfig();
+        z3.updateConfig(config => {
+            config.title = 'Written title';
+            config.author = 'Written author';
+        });
 
         const configBuffer = await fs.readFile(runtimeOptions.configFile);
         const actualConfig = JSON.parse(configBuffer);
 
-        assert.deepEqual(actualConfig, z3.config, 'Configuration not saved correctly');
+        assert.deepEqual(actualConfig, await z3.getCachedConfig(), 'Configuration not saved correctly');
     });
 });
 

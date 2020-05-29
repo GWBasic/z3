@@ -34,20 +34,16 @@ module.exports = {
         await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(passwordInfo.hashAndSalt));
         db.dep.newDate = () => new Date();
 
-        z3.config.title = 'title for tests';
-        z3.config.author = 'author for tests';
-        z3.config.private = false;
-        z3.config.searchUrl = '';
-        z3.config.forceDomain = '';
-        z3.config.forceHttps = false;
-        z3.config.redirects = {};
-        z3.config.redirectsJSON = JSON.stringify({});
-
-        try {
-            await z3.saveConfig();
-        } catch (err) {
-            console.log(err);
-        }
+        z3.updateConfig(config => {
+            config.title = 'title for tests';
+            config.author = 'author for tests';
+            config.private = false;
+            config.searchUrl = '';
+            config.forceDomain = '';
+            config.forceHttps = false;
+            config.redirects = {};
+            config.redirectsJSON = JSON.stringify({});
+        });
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
     },
