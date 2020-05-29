@@ -75,7 +75,10 @@ module.exports = {
     },
 
     deletePassword: async () => {
-        await fs.unlink(runtimeOptions.authentication.passwordFile);
+        // TODO: Refactor...
+        try {
+            await fs.unlink(runtimeOptions.authentication.passwordFile);
+        } catch {}
     },
 
     createPosts: async (numPosts = 50) => {

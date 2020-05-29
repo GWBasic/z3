@@ -9,14 +9,9 @@ const runtimeOptions = require('../runtimeOptions');
 
 describe('z3 module test', () => {
 
-    afterEach(async () =>
-    {
-        await db.clear();
+    beforeEach(testSetup.beforeEach);
 
-        try {
-            await fs.unlink(runtimeOptions.configFile);
-        } catch {}
-    });
+    afterEach(testSetup.afterEach);
 
     it('Check if the password is configured', async () => {
         await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(testSetup.passwordInfo.hashAndSalt));
@@ -40,7 +35,11 @@ describe('z3 module test', () => {
         const hashAndSaltJSON = await z3.generatePasswordAndHash('password');
 
         assert.isTrue(hashAndSaltJSON.startsWith('pbkdf2$10000$'), 'Incorrect hash and salt generated');
-    })
+    });
+
+    it('Check changing the password', async () => {
+        assert.fail('Incomplete');
+    });
 
     it('Check getting start and limit', async () => {
 

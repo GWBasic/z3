@@ -59,6 +59,14 @@ exports.checkPassword = async password => {
     }
 };
 
+exports.changePassword = async newPassword => {
+    const passwordAndHash = await exports.generatePasswordAndHash(newPassword);
+
+    const passwordAndHashJSON = JSON.stringify(passwordAndHash);
+
+    await fs.writeFile(runtimeOptions.authentication.passwordFile, passwordAndHashJSON);
+};
+
 exports.checkIsAuthenticated = (req, res, next) => {
     if (req.session) {
         if (req.session.isLoggedIn) {
@@ -266,6 +274,9 @@ function constructDefaultConfig() {
 }
 
 exports.getCachedConfig = async function() {
+
+    // TODO: Caching...
+
     const config = await db.getConfiguration('config');
 
     if (null == config) {
@@ -274,33 +285,6 @@ exports.getCachedConfig = async function() {
 
     return config;
 }
-
-/*function loadConfig() {
-    try {
-        const configBuffer = fsSync.readFileSync(runtimeOptions.configFile);
-        exports.config = JSON.parse(configBuffer);
-    } catch (err) {
-        console.log(`Error loading config: ${err}`);
-        module.exports.config = {
-            title: '',
-            author: '',
-            private: true,
-            z3_cr_in_footer: true,
-            template: null,
-            overrideTemplate: null,
-            headHtml: '',
-            footerHtml: '',
-            searchUrl: '',
-            forceDomain: '',
-            forceHttps: false,
-            redirects: {}
-        };
-    }
-}
-
-loadConfig();
-
-exports.loadConfig_BLOCKING_CALL_FOR_TESTS = loadConfig;*/
 
 exports.updateConfig = async callback => {
     await db.setConfiguration('config', callback, constructDefaultConfig);

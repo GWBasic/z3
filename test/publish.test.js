@@ -285,12 +285,12 @@ describe('Publish operations', () => {
             }
         }
 
-        testPublishOptions('blog', {blog: true});
-        testPublishOptions('index', {index: true});
-        testPublishOptions('header', {firstHeader: true}, true);
-        testPublishOptions('footer', {firstFooter: true}, true);
+        await testPublishOptions('blog', {blog: true});
+        await testPublishOptions('index', {index: true});
+        await testPublishOptions('header', {firstHeader: true}, true);
+        await testPublishOptions('footer', {firstFooter: true}, true);
 
-        testPublishOptions('header', {secondHeader: true});
-        testPublishOptions('footer', {secondFooter: true});
+        await testPublishOptions('header', {secondHeader: true});
+        await testPublishOptions('footer', {secondFooter: true});
     })
 });

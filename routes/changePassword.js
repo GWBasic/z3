@@ -17,11 +17,7 @@ router.post('/', async(req, res) => {
 
     if (correctPassword) {
         const newPassword = req.body.newPassword;
-        const passwordAndHash = await z3.generatePasswordAndHash(newPassword);
-
-        const passwordAndHashJSON = JSON.stringify(passwordAndHash);
-
-        await fs.writeFile(runtimeOptions.authentication.passwordFile, passwordAndHashJSON);
+        await z3.changePassword(newPassword);
 
         res.render('changePassword', {
             passwordUpdated: true
