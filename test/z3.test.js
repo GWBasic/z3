@@ -13,28 +13,15 @@ describe('z3 module test', () => {
 
     afterEach(testSetup.afterEach);
 
-    it('Check if the password is configured', async () => {
-        await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(testSetup.passwordInfo.hashAndSalt));
+    it('Check verifying the password', async () => {
 
-        assert.isTrue(await z3.isPasswordConfigured(), "Password is not configured");
+        assert.isFalse(await z3.checkPassword('bad password'), 'Incorrect password accepted');
+        assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.password), 'Correct password rejected');
+        assert.isFalse(await z3.checkPassword(testSetup.passwordInfo.defaultPassword), 'Default password accepted');
 
         await testSetup.deletePassword();
 
-        assert.isFalse(await z3.isPasswordConfigured(), "Password is not configured");
-    });
-
-    it('Check verifying the password', async () => {
-        await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(testSetup.passwordInfo.hashAndSalt));
-
-        assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.password), "Could not verify the password")
-        assert.isFalse(await z3.checkPassword('badpassword'), "Incorrect password")
-    });
-
-    it('Check generating the password file', async () => {
-
-        const hashAndSaltJSON = await z3.generatePasswordAndHash('password');
-
-        assert.isTrue(hashAndSaltJSON.startsWith('pbkdf2$10000$'), 'Incorrect hash and salt generated');
+        assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.defaultPassword), 'Default password rejected');
     });
 
     it('Check changing the password', async () => {
@@ -48,6 +35,9 @@ describe('z3 module test', () => {
         const checkedAfterChange = await z3.checkPassword(newPassword);
 
         assert.isTrue(checkedAfterChange, 'The password should be changed');
+
+        const passwordRecord = await db.getConfiguration('password');
+        assert.isTrue(passwordRecord.hashAndSalt.startsWith('pbkdf2$10000$'), 'Incorrect hash and salt generated');
     });
 
     it('Check getting start and limit', async () => {

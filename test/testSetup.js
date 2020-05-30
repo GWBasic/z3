@@ -3,7 +3,6 @@ require('use-strict');
 const runtimeOptions = require('../runtimeOptions');
 runtimeOptions.publicFolder = 'testpublic'
 runtimeOptions.db.location = 'testdata';
-runtimeOptions.authentication.passwordFile = 'testPassword.json';
 runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
 const assert  = require('chai').assert;
@@ -19,7 +18,7 @@ const z3 = require('../z3');
 
 const passwordInfo = {
     password: 'sgrgsfdgsfdgfsd',
-    hashAndSalt: 'pbkdf2$10000$44af80d71519231a393d118107661a0a1bb8c613448d96c5626aa1b443bf21b15add5ece18822550d1d9b26b812e83e3f86e3213decff76f3aa13ab6407129f1$5fddb753852d3e75aa723d10282192047b505729767c92aeaec0bde307518e8a63a6ee454a04b288b8bc64c2e4e5d5bf685665cb60971203ae54a850c7a9a407'
+    defaultPassword: 'gtw4gwgrgt'
 };
 
 const server = supertest.agent(app);
@@ -30,13 +29,13 @@ module.exports = {
     server,
 
     beforeEach: async () => {
+        process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
+
         await app.startupPromise;
 
         pogon.testMode = true;
-        await fs.writeFile(runtimeOptions.authentication.passwordFile, JSON.stringify(passwordInfo.hashAndSalt));
+        await z3.changePassword(passwordInfo.password);
         db.dep.newDate = () => new Date();
-
-        //await dbSchema.setupSchema();
 
         await z3.updateConfig(config => {
             config.title = 'title for tests';
@@ -75,10 +74,15 @@ module.exports = {
     },
 
     deletePassword: async () => {
-        // TODO: Refactor...
+        const client = new Client({connectionString: process.env.DATABASE_URL});
+
         try {
-            await fs.unlink(runtimeOptions.authentication.passwordFile);
-        } catch {}
+            client.connect();
+
+            await client.query("DELETE FROM configurations WHERE name='password'");
+        } finally {
+            await client.end();
+        }
     },
 
     createPosts: async (numPosts = 50) => {

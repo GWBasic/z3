@@ -31,40 +31,32 @@ exports.MAX_THUMBNAIL_HEIGHT_HD = MAX_THUMBNAIL_HEIGHT_HD;
 const DEFAULT_SEARCH_URL = 'https://www.google.com/search?q=%query%&as_sitesearch=%host%';
 exports.DEFAULT_SEARCH_URL = DEFAULT_SEARCH_URL;
 
-exports.isPasswordConfigured = async () => {
-    try {
-        await fs.access(runtimeOptions.authentication.passwordFile, fsConstants.R_OK);
-        return true;
-    } catch (ex) {
-        return false;
-    }
-};
-
-exports.generatePasswordAndHash = async password => {
-    const hashAndSalt = await promisify(callback => passwordHashAndSalt(password).hash(callback))();
-    return hashAndSalt;
-};
-
 exports.checkPassword = async password => {
 
-    try {
-        const hashAndSaltData = await fs.readFile(runtimeOptions.authentication.passwordFile);
-        const hashAndSalt = JSON.parse(hashAndSaltData);
+    const passwordRecord = await db.getConfiguration('password');
 
-        const verified = await promisify(callback => passwordHashAndSalt(password).verifyAgainst(hashAndSalt, callback))();
-        return verified;
-    } catch (err) {
-        console.error(`Can not verify password: ${err}`);
-        return false;
+    if (passwordRecord) {
+        if (passwordRecord.hashAndSalt) {
+            const hashAndSalt = passwordRecord.hashAndSalt;
+            const verified = await promisify(callback => passwordHashAndSalt(password).verifyAgainst(hashAndSalt, callback))();
+            return verified;
+        }
+    } else {
+        if (password == process.env.DEFAULT_PASSWORD) {
+            return true;
+        }
     }
+
+    return false;
 };
 
 exports.changePassword = async newPassword => {
-    const passwordAndHash = await exports.generatePasswordAndHash(newPassword);
-
-    const passwordAndHashJSON = JSON.stringify(passwordAndHash);
-
-    await fs.writeFile(runtimeOptions.authentication.passwordFile, passwordAndHashJSON);
+    const hashAndSalt = await promisify(callback => passwordHashAndSalt(newPassword).hash(callback))();
+    
+    await db.setConfiguration(
+        'password',
+        passwordRecord => passwordRecord.hashAndSalt = hashAndSalt,
+        () => { return {} });
 };
 
 exports.checkIsAuthenticated = (req, res, next) => {

@@ -6,7 +6,6 @@ module.exports = {
     },
 
     authentication: {
-        passwordFile: 'password.json',
         sessionConfigFile: 'session.json',
         defaultSessionConfig: {
             cookieName: 'session',

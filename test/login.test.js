@@ -23,37 +23,14 @@ describe('Login and session handling', () => {
         await testSetup.logout();
         await testSetup.deletePassword();
 
-        const password = 'sgrgsfdgsfdgfsd';
-
         var result;
 
-        async function verifyLogin(isPasswordConfigured) {
-            result = await server
-                .get('/login')
-                .expect(200);
-
-            var pageParameters = JSON.parse(result.text);
-            assert.equal(pageParameters.options.isPasswordConfigured, isPasswordConfigured, 'Wrong isPasswordConfigured');
-            assert.equal(pageParameters.options.isLoggedIn, false, 'Wrong isLoggedIn');
-        }
-
-        await verifyLogin(false);
-
         result = await server
-            .post('/login/generatePassword')
-            .send(`password=${password}`)
-            .expect('Content-Type', /json/)
-            .expect('Content-Disposition', 'attachment; filename="password.json"')
+            .get('/login')
             .expect(200);
 
-        var hashAndSaltText = result.text;
-        var hashAndSalt = JSON.parse(hashAndSaltText);
-
-        assert.isTrue(hashAndSalt.startsWith('pbkdf2'));
-
-        await fs.writeFile(testSetup.runtimeOptions.authentication.passwordFile, hashAndSaltText);
-
-        await verifyLogin(true);
+        var pageParameters = JSON.parse(result.text);
+        assert.equal(pageParameters.options.isLoggedIn, false, 'Wrong isLoggedIn');
 
         result = await server
             .post('/login')
@@ -61,7 +38,6 @@ describe('Login and session handling', () => {
             .expect(401);
 
         var pageParameters = JSON.parse(result.text);
-        assert.equal(pageParameters.options.isPasswordConfigured, true, 'Wrong isPasswordConfigured');
         assert.equal(pageParameters.options.wrongPassword, true, 'Wrong wrongPassword');
         assert.equal(pageParameters.options.isLoggedIn, false, 'Wrong isLoggedIn');
 
@@ -70,20 +46,31 @@ describe('Login and session handling', () => {
             .get('/dashboard')
             .expect(401);
 
-        // Log in
-        result = await server
-            .post('/login')
-            .send(`password=${password}`)
-            .expect(302)
-            .expect('Location', '/dashboard');
+        async function testLogin(password) {
 
-        // Now the dashboard should work because the session is logged in
-        result = await server
-            .get('/dashboard')
-            .expect(200);
+            // Log in
+            result = await server
+                .post('/login')
+                .send(`password=${password}`)
+                .expect(302)
+                .expect('Location', '/dashboard');
 
-        var pageParameters = JSON.parse(result.text);
-        assert.equal(pageParameters.options.isLoggedIn, true, 'Wrong isLoggedIn');
+            // Now the dashboard should work because the session is logged in
+            result = await server
+                .get('/dashboard')
+                .expect(200);
+
+            var pageParameters = JSON.parse(result.text);
+            assert.equal(pageParameters.options.isLoggedIn, true, 'Wrong isLoggedIn');
+        }
+
+        await testLogin(testSetup.passwordInfo.defaultPassword);
+
+        await testSetup.logout();
+
+        await z3.changePassword(testSetup.passwordInfo.password);
+
+        await testLogin(testSetup.passwordInfo.password);
     });
 
     it('logout', async () => {

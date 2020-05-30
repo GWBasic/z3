@@ -4,12 +4,7 @@ const router = require('express-promise-router')();
 const z3 = require('../z3');
 
 router.get('/', async (req, res) => {
-    const isPasswordConfigured = await z3.isPasswordConfigured();
-
-    res.render(
-        'login', {
-            isPasswordConfigured
-        });
+    res.render('login');
 });
 
 router.post('/', async (req, res, next) => {
@@ -23,7 +18,6 @@ router.post('/', async (req, res, next) => {
 
         res.redirect(destination);
     } else {
-        const isPasswordConfigured = await z3.isPasswordConfigured();
         res.clearCookie(runtimeOptions.authentication.cookieName);
 
         if (req.body.destination) {
@@ -32,7 +26,6 @@ router.post('/', async (req, res, next) => {
             res.status(401);
 
             res.render('login', {
-                isPasswordConfigured,
                 wrongPassword: true
             });
         }
@@ -42,16 +35,6 @@ router.post('/', async (req, res, next) => {
 router.post('/logout', async (req, res) => {
     res.clearCookie(sessionConfig.cookieName);
     res.redirect('/login');
-});
-
-router.post('/generatePassword', async (req, res) => {
-
-    const password = req.body.password;
-
-    const hashAndSalt = await z3.generatePasswordAndHash(password);
-
-    res.attachment('password.json');
-    res.json(hashAndSalt);
 });
     
 module.exports = router;

@@ -13,7 +13,8 @@
             ],
             "program": "${workspaceFolder}/bin/www",
             "env": {
-                "DATABASE_URL": "postgresql://localhost:5432/z3"
+                "DATABASE_URL": "postgresql://localhost:5432/z3",
+                "DEFAULT_PASSWORD": "ch@ng3mE!"
             }
         },
 
