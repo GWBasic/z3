@@ -1,12 +1,8 @@
 const testSetup = require('./testSetup');
-const sessionConfig = require('../sessionConfig');
+const sessionConfigPromise = require('../sessionConfig');
 const z3 = require('../z3');
 
 const assert  = require('chai').assert;
-const fs = require('fs').promises;
-
-const server = testSetup.server;
-
 
 describe('Login and session handling', () => {
 
@@ -75,6 +71,8 @@ describe('Login and session handling', () => {
 
     it('logout', async () => {
         await testSetup.login();
+
+        const sessionConfig = await sessionConfigPromise;
 
         // Log out
         await testSetup.server

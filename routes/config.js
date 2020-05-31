@@ -75,7 +75,7 @@ router.get('/*', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    await z3.updateConfig(async config => {
+    await z3.updateConfig(config => {
         config.title = req.body.title;
         config.author = req.body.author;
         config.template = req.body.template;

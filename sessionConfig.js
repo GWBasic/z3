@@ -1,4 +1,5 @@
 const runtimeOptions = require('./runtimeOptions');
 const sessionConfigLoader = require('./sessionConfigLoader');
 
-module.exports = sessionConfigLoader.loadSession(runtimeOptions.authentication.defaultSessionConfig);
+const sessionConfigPromise = sessionConfigLoader.loadSession(runtimeOptions.authentication.defaultSessionConfig);
+module.exports = sessionConfigPromise;
