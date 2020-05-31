@@ -244,6 +244,8 @@ describe('z3 module test', () => {
             config.author = 'load test author'
 
             expectedConfig = config;
+
+            return config;
         }, () => {});
 
         const getNow = z3.getNow;
@@ -265,6 +267,8 @@ describe('z3 module test', () => {
             config.author = 'Written author';
 
             expectedConfig = config;
+
+            return config;
         });
 
         const actualConfig = await db.getConfiguration('config');

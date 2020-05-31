@@ -59,6 +59,8 @@ describe('Force redirects', () => {
             config.redirects = {
                 '/dne': '/exists'
             };
+
+            return config;
         });
 
         await testSetup.server

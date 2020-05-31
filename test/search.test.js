@@ -40,6 +40,7 @@ describe('Search', () => {
     it('search engine configured', async () => {
         z3.updateConfig(config => {
             config.searchUrl = 'https://search?q=%query%&h=%host%';
+            return config;
         });
 
         await testSetup.server
