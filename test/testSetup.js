@@ -13,7 +13,7 @@ const supertest = require('supertest');
 
 const app = require('../app');
 const db = require('../db');
-const dbSchema = require('../dbSchema');
+const dbConnector = require('../dbConnector');
 const z3 = require('../z3');
 
 const passwordInfo = {
@@ -56,7 +56,7 @@ module.exports = {
         await module.exports.logout();
         await module.exports.deletePassword();
 
-        const client = new Client({connectionString: process.env.DATABASE_URL});
+        const client = await dbConnector.connect();
 
         try {
             client.connect();
@@ -69,6 +69,8 @@ module.exports = {
         } finally {
             await client.end();
         }
+
+        await dbConnector.end();
 
         await fs.rmdir(`./${runtimeOptions.publicFolder}`, {recursive: true});
     },

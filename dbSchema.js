@@ -1,8 +1,6 @@
 const fs = require('fs-extra');
-const Pool = require('pg').Pool
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({connectionString});
+const dbConnector = require('./dbConnector');
 
 const SCHEMA_VERSION = 1;
 
@@ -14,7 +12,7 @@ const SCHEMA_VERSION = 1;
 // drop schema public cascade; CREATE SCHEMA public AUTHORIZATION postgres; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';
 
 async function setupSchema() {
-    const client = await pool.connect();
+    const client = await dbConnector.connect();
 
     try {
         await client.query('BEGIN');

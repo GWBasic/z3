@@ -1,16 +1,6 @@
-const fs = require('fs-extra');
-const Pool = require('pg').Pool
-
-const runtimeOptions = require('./runtimeOptions');
+const dbConnector = require('./dbConnector');
 
 const DRAFT_STORE_INTERVAL_MINUTES = 5;
-
-const connectionString = process.env.DATABASE_URL;
-
-// To dump the schema:
-// ./pg_dump -s z3 > ~/git/z3/schema.pgsql
-
-const pool = new Pool({connectionString});
 
 class PostNotFoundError extends Error {
     constructor(message) {
@@ -52,7 +42,7 @@ const dep = {
 };
 
 async function runOnTransaction(callback) {
-    const client = await pool.connect();
+    const client = await dbConnector.connect();
 
     var toReturn;
 
@@ -75,7 +65,7 @@ async function runOnTransaction(callback) {
 }
 
 async function useClient(callback) {
-    const client = await pool.connect();
+    const client = await dbConnector.connect();
 
     var toReturn;
 
