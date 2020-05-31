@@ -6,7 +6,6 @@ module.exports = {
     },
 
     authentication: {
-        sessionConfigFile: 'session.json',
         defaultSessionConfig: {
             cookieName: 'session',
             duration: 30 * 24 * 60 * 60 * 1000, // Sessions last 30 days

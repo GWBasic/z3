@@ -55,7 +55,7 @@ exports.changePassword = async newPassword => {
     
     await db.setConfiguration(
         'password',
-        passwordRecord => passwordRecord.hashAndSalt = hashAndSalt,
+        _ => { return { hashAndSalt } },
         () => { return {} });
 };
 

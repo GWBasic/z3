@@ -10,7 +10,7 @@ const session = require('client-sessions');
 
 const db = require('./db');
 const dbSchema = require('./dbSchema');
-const sessionConfig = require('./sessionConfig');
+const sessionConfigPromise = require('./sessionConfig');
 const recentPosts = require('./recentPosts');
 const runtimeOptions = require('./runtimeOptions');
 const z3 = require('./z3');
@@ -34,6 +34,7 @@ async function startApp() {
 
 	// Enable session keys on http in develop mode
 	// (Otherwise, they require https only)
+	const sessionConfig = await sessionConfigPromise;
 	if (isDevelopment) {
 		sessionConfig.cookie.secure = false;
 	}

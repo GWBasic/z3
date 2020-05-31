@@ -102,6 +102,8 @@ router.post('/', async (req, res) => {
         config.redirects = JSON.parse(req.body.redirects || '{}');
     
         pogon.defaultTemplate = config.overrideTemplate;
+
+        return config;
     });
 
     res.locals.config = await z3.getCachedConfig();;

@@ -3,7 +3,6 @@ require('use-strict');
 const runtimeOptions = require('../runtimeOptions');
 runtimeOptions.publicFolder = 'testpublic'
 runtimeOptions.db.location = 'testdata';
-runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
 const assert  = require('chai').assert;
 const { Client } = require('pg');
@@ -34,21 +33,20 @@ const testSetup = {
 
         process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
 
-        await appFunction.startupPromise;
-
         pogon.testMode = true;
         await z3.changePassword(passwordInfo.password);
         db.dep.newDate = () => new Date();
 
-        await z3.updateConfig(config => {
-            config.title = 'title for tests';
-            config.author = 'author for tests';
-            config.private = false;
-            config.searchUrl = '';
-            config.forceDomain = '';
-            config.forceHttps = false;
-            config.redirects = {};
-            config.redirectsJSON = JSON.stringify({});
+        await z3.updateConfig(c_ => {
+            return {
+                title: 'title for tests',
+                author: 'author for tests',
+                private: false,
+                searchUrl: '',
+                forceDomain: '',
+                forceHttps: false,
+                redirects: {},
+            };
         });
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
