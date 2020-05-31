@@ -27,135 +27,132 @@ const publishRouter = require('./routes/publish');
 const redirectsRouter = require('./routes/redirects');
 const searchRouter = require('./routes/search');
 
-const app = express();
+async function startApp() {
+	const app = express();
 
-const isDevelopment = app.get('env') === 'development';
+	const isDevelopment = app.get('env') === 'development';
 
-// Enable session keys on http in develop mode
-// (Otherwise, they require https only)
-if (isDevelopment) {
-	sessionConfig.cookie.secure = false;
-}
+	// Enable session keys on http in develop mode
+	// (Otherwise, they require https only)
+	if (isDevelopment) {
+		sessionConfig.cookie.secure = false;
+	}
 
-pogon.registerCustomTag('z3_recentPosts', recentPosts);
+	pogon.registerCustomTag('z3_recentPosts', recentPosts);
 
-app.use(session(sessionConfig));
+	app.use(session(sessionConfig));
 
-// Set up pogon as the view handler
-app.set('views', './views') // specify the views directory
-app.set('view engine', 'pogon.html') // register the template engine
+	// Set up pogon as the view handler
+	app.set('views', './views') // specify the views directory
+	app.set('view engine', 'pogon.html') // register the template engine
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
+	app.use(logger('dev'));
+	app.use(express.json());
+	app.use(express.urlencoded({ extended: false }));
+	app.use(cookieParser());
+	app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
 
-async function startup() {
 	await dbSchema.setupSchema();
 
 	const config = await z3.getCachedConfig();
 	pogon.defaultTemplate = config.overrideTemplate;
+
+	app.use(async function(req, res, next) {
+		try {
+			res.locals.isLoggedIn = false;
+
+			if (req.session) {
+				if (req.session.isLoggedIn) {
+					res.locals.isLoggedIn = true;
+				}
+			}
+
+			res.locals.staticPages = await db.getAllStaticPages();
+
+			const config = await z3.getCachedConfig();
+			res.locals.config = config;
+
+			// Private mode
+			if (config.private && !req.session.isLoggedIn) {
+				if (req.url != '/login') {
+					res.redirect('/login');
+					res.end();
+					return;
+				}
+			}
+
+			next();
+		} catch (err) {
+			next(err);
+		}
+	});
+
+	// Admin pages do not use domain forcing
+	app.use('/changePassword/', changePasswordRouter);
+	app.use('/config/', configRouter);
+	app.use('/dashboard/', dashboardRouter);
+	app.use('/drafts/', draftsRouter);
+	app.use('/edit/', editRouter);
+	app.use('/login/', loginRouter);
+	app.use('/publish/', publishRouter);
+
+	// Globally-readable pages use domain forcing
+	app.use('/', redirectsRouter);
+	app.use('/blog/', blogRouter);
+	app.use('/search/', searchRouter);
+	app.use('/', indexRouter);
+
+	// catch 404 and forward to error handler
+	app.use((req, res, next) => {
+		next(createError(404));
+	});
+
+	// error handler
+	app.use((err, req, res, next) => {
+		if (res.headersSent) {
+			return next(err);
+		}
+
+		if ((err instanceof db.PostNotFoundError) ||
+			(err instanceof db.DraftNotFoundError) ||
+			(err instanceof db.ImageNotFoundError)) {
+			res.status(404);
+			res.render(
+				'error', {
+					status: 404,
+					message: err.message
+				});
+
+			return;
+		} else if ((err instanceof db.UnknownStaticGroupError) ||
+			(err instanceof db.UnknownAfterPageIdError)) {
+			res.status(401);
+			res.render(
+				'error', {
+					status: 400,
+					message: err.message
+				});
+
+			return;
+		} else {
+			if (!(err.status)) {
+				console.error(`Unhandled error ${req.method} ${req.originalUrl}: ${err.stack}`);
+			}
+
+			const args = {};
+			// set locals, only providing error in development
+			args.message = err.message;
+			args.error = isDevelopment ? err : {};
+			args.status = err.status || 500;
+			args.url = req.url;
+
+			const viewFile = err.status == 401 ? '401' : 'error';
+			res.status(args.status);
+			res.render(viewFile, args);
+		}
+	});
+
+	return app;
 }
 
-const startupPromise = startup();
-app.startupPromise = startupPromise;
-
-app.use(async function(req, res, next) {
-	try {
-		await startupPromise;
-
-		res.locals.isLoggedIn = false;
-
-		if (req.session) {
-			if (req.session.isLoggedIn) {
-				res.locals.isLoggedIn = true;
-			}
-		}
-
-		res.locals.staticPages = await db.getAllStaticPages();
-
-		const config = await z3.getCachedConfig();
-		res.locals.config = config;
-
-		// Private mode
-		if (config.private && !req.session.isLoggedIn) {
-			if (req.url != '/login') {
-				res.redirect('/login');
-				res.end();
-				return;
-			}
-		}
-
-		next();
-	} catch (err) {
-		next(err);
-	}
-});
-
-// Admin pages do not use domain forcing
-app.use('/changePassword/', changePasswordRouter);
-app.use('/config/', configRouter);
-app.use('/dashboard/', dashboardRouter);
-app.use('/drafts/', draftsRouter);
-app.use('/edit/', editRouter);
-app.use('/login/', loginRouter);
-app.use('/publish/', publishRouter);
-
-// Globally-readable pages use domain forcing
-app.use('/', redirectsRouter);
-app.use('/blog/', blogRouter);
-app.use('/search/', searchRouter);
-app.use('/', indexRouter);
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-	next(createError(404));
-});
-
-// error handler
-app.use((err, req, res, next) => {
-	if (res.headersSent) {
-		return next(err);
-	}
-
-	if ((err instanceof db.PostNotFoundError) ||
-		(err instanceof db.DraftNotFoundError) ||
-		(err instanceof db.ImageNotFoundError)) {
-		res.status(404);
-		res.render(
-			'error', {
-				status: 404,
-				message: err.message
-			});
-
-		return;
-	} else if ((err instanceof db.UnknownStaticGroupError) ||
-		(err instanceof db.UnknownAfterPageIdError)) {
-		res.status(401);
-		res.render(
-			'error', {
-				status: 400,
-				message: err.message
-			});
-
-		return;
-	} else {
-		if (!(err.status)) {
-			console.error(`Unhandled error ${req.method} ${req.originalUrl}: ${err.stack}`);
-		}
-
-		const args = {};
-		// set locals, only providing error in development
-		args.message = err.message;
-		args.error = isDevelopment ? err : {};
-		args.status = err.status || 500;
-		args.url = req.url;
-
-		const viewFile = err.status == 401 ? '401' : 'error';
-		res.status(args.status);
-		res.render(viewFile, args);
-	}
-});
-
-module.exports = app;
+module.exports = startApp;

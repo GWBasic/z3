@@ -3,8 +3,6 @@ const testSetup = require('./testSetup');
 const assert  = require('chai').assert;
 const db = require('../db');
 
-const server = testSetup.server;
-
 describe('Dashboard operations', () => {
 
     before(() => {});
@@ -16,7 +14,7 @@ describe('Dashboard operations', () => {
     afterEach(testSetup.afterEach);
 
     it('Not authenticated', async() => {
-        await server
+        await testSetup.server
             .get('/dashboard')
             .expect(401);
     });

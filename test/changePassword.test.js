@@ -25,11 +25,11 @@ describe('Change password', () => {
     afterEach(testSetup.afterEach);
 
     it('Not authenticated', async() => {
-        await server
+        await testSetup.server
             .get('/changePassword')
             .expect(401);
 
-        await server
+        await testSetup.server
             .post('/changePassword')
             .expect(401);
     });
@@ -37,7 +37,7 @@ describe('Change password', () => {
     it('Wrong password', async() => {
         await testSetup.login();
 
-        const response = await server
+        const response = await testSetup.server
             .post('/changePassword')
             .send('currentPassword=bad&newPassword=secret')
             .expect(401)
@@ -55,7 +55,7 @@ describe('Change password', () => {
     it('Password is changed', async() => {
         await testSetup.login();
 
-        const response = await server
+        const response = await testSetup.server
             .post('/changePassword')
             .send(`currentPassword=${testSetup.passwordInfo.password}&newPassword=secret`)
             .expect(200)

@@ -29,11 +29,11 @@ describe('Force redirects', () => {
     TODO: Currently disabled. I don't know how to determine the port number when running a test
     
     it('Force domain disabled', async () => {
-        await server
+        await testSetup.server
             .get('http://localhost:3000/')
             .expect(200);
 
-        await server
+        await testSetup.server
             .get('http://127.0.0.1:3000/')
             .expect(200);
     });
@@ -51,7 +51,7 @@ describe('Force redirects', () => {
     }); */
 
     it('Force redirects', async () => {
-        await server
+        await testSetup.server
             .get('/dne')
             .expect(404);
 
@@ -61,7 +61,7 @@ describe('Force redirects', () => {
             };
         });
 
-        await server
+        await testSetup.server
             .get('/dne')
             .expect(302)
             .expect('Location', '/exists');

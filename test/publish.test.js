@@ -17,25 +17,25 @@ describe('Publish operations', () => {
     afterEach(testSetup.afterEach);
 
     it('Verify calls are authenticated', async () => {
-        await server
+        await testSetup.server
             .get('/publish/anid')
             .expect(401);
 
-        await server
+        await testSetup.server
             .post('/publish/anid')
             .expect(401);
 
         var { post, workingTitle, content } = await testSetup.preparePost();
 
-        await server
+        await testSetup.server
             .post(`/publish/${post._id}`)
             .expect(401);
 
-        await server
+        await testSetup.server
             .post(`/publish/unPublish/${post._id}`)
             .expect(401);
 
-        await server
+        await testSetup.server
             .post(`/publish/delete/${post._id}`)
             .expect(401);
     });
@@ -43,19 +43,19 @@ describe('Publish operations', () => {
     it('Verify 404s', async () => {
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .get('/publish/12345')
             .expect(404);
 
-        await server
+        await testSetup.server
             .post('/publish/12345')
             .expect(404);
 
-        await server
+        await testSetup.server
             .post('/publish/unPublish/12345')
             .expect(404);
 
-        await server
+        await testSetup.server
             .post('/publish/delete/12345')
             .expect(404);
     });
@@ -84,7 +84,7 @@ describe('Publish operations', () => {
         await testSetup.login();
 
         async function checkPublishPage(isPublished, url) {
-            var result = await server
+            var result = await testSetup.server
                 .get(`/publish/${unpublishedPost._id}`)
                 .expect(200);
 
@@ -178,7 +178,7 @@ describe('Publish operations', () => {
         const publishedAt = new Date(1981, 3, 12);
         const republishedAt = new Date(1984, 5, 24);
 
-        var response = await server
+        var response = await testSetup.server
             .post(`/publish/${post._id}`)
             .send(`where=${whereParam}&publishedAt=${encodeURI(publishedAt)}&republishedAt=${encodeURI(republishedAt)}`)
             .expect(302)
@@ -198,7 +198,7 @@ describe('Publish operations', () => {
         assert.isTrue(publishedPost.content.endsWith('<a href="/title_for_test/filename?size=original" target="_blank"><img src="/title_for_test/filename" width="30px" height="60px"></a>'), 'Image link not updated');
 
         // unpublish
-        response = await server
+        response = await testSetup.server
             .post(`/publish/unPublish/${post._id}`)
             .expect(302)
             .expect('Location', `/publish/${post._id}`);
@@ -206,7 +206,7 @@ describe('Publish operations', () => {
         await assert.throwsAsync(db.PostNotFoundError, async () => await db.getPostFromUrl(url), 'Post not un-published');
 
         // delete
-        response = await server
+        response = await testSetup.server
             .post(`/publish/delete/${post._id}`)
             .expect(302)
             .expect('Location', '/dashboard');
@@ -223,7 +223,7 @@ describe('Publish operations', () => {
         async function testPublishOptions(suggestedLocation, toCheck, publish = false) {
             const post = (await db.createPost(`Goes in ${suggestedLocation}`, suggestedLocation)).post;
 
-            var result = await server
+            var result = await testSetup.server
                 .get(`/publish/${post._id}`)
                 .expect(200);
 

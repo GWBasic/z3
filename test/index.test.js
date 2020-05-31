@@ -17,7 +17,7 @@ describe('Index operations', () => {
     afterEach(testSetup.afterEach);
 
     it('default /', async () => {
-        var result = await server
+        var result = await testSetup.server
             .get('/')
             .expect(200);
 
@@ -36,7 +36,7 @@ describe('Index operations', () => {
 
         const post = (await db.getPosts())[0];
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${post.url}`)
             .expect(200);
 
@@ -52,7 +52,7 @@ describe('Index operations', () => {
     });
 
     it('post not found', async () => {
-        await server
+        await testSetup.server
             .get('/doesntexist')
             .expect(404);
     });
@@ -70,7 +70,7 @@ describe('Index operations', () => {
         const publishedImage = publishedImages[0];
         const imageRecord = await db.getImage(publishedImage._id);
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${post.url}/${publishedImage.filename}`)
             .expect('Content-Type', 'image/jpeg')
             .expect('Content-Length', `${imageRecord.normalSizeImageData.length}`)
@@ -78,7 +78,7 @@ describe('Index operations', () => {
 
         assert.isTrue(imageRecord.normalSizeImageData.equals(result.body), 'Wrong contents sent');
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${post.url}/${publishedImage.filename}?size=original`)
             .expect('Content-Type', publishedImage.mimetype)
             .expect('Content-Length', `${imageRecord.imageData.length}`)
@@ -86,7 +86,7 @@ describe('Index operations', () => {
 
         assert.isTrue(imageRecord.imageData.equals(result.body), 'Wrong contents sent');
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${post.url}/${publishedImage.filename}?size=thumbnail`)
             .expect('Content-Type', publishedImage.mimetype)
             .expect('Content-Length', `${imageRecord.thumbnailImageData.length}`)
@@ -94,7 +94,7 @@ describe('Index operations', () => {
 
         assert.isTrue(imageRecord.thumbnailImageData.equals(result.body), 'Wrong contents sent');
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${post.url}/doesnotexist`)
             .expect(404);
     });
@@ -129,7 +129,7 @@ describe('Index operations', () => {
 
         const publishedPost = await db.getPostFromUrl('');
 
-        var result = await server
+        var result = await testSetup.server
             .get('/')
             .expect(200);
 
@@ -143,7 +143,7 @@ describe('Index operations', () => {
         assert.isFalse(postTemplate.options.isBlogPost, 'Wrong isBlogPost');
         assert.equal(`"${postTemplate.options.publishedAt}"`, JSON.stringify(publishedPost.publishedAt), 'Wrong publishedAt');
     
-        var result = await server
+        var result = await testSetup.server
             .get(`/${imageRecord.filename}`)
             .expect(200)
             .expect('Content-Type', 'image/jpeg')
@@ -151,7 +151,7 @@ describe('Index operations', () => {
 
         assert.isTrue(imageRecord.normalSizeImageData.equals(result.body), 'Wrong contents sent');
     
-        var result = await server
+        var result = await testSetup.server
             .get(`/${imageRecord.filename}?size=thumbnail`)
             .expect(200)
             .expect('Content-Type', 'image/jpeg')
@@ -159,7 +159,7 @@ describe('Index operations', () => {
 
         assert.isTrue(imageRecord.thumbnailImageData.equals(result.body), 'Wrong contents sent');
     
-        var result = await server
+        var result = await testSetup.server
             .get(`/${imageRecord.filename}?size=original`)
             .expect(200)
             .expect('Content-Type', imageRecord.mimetype)

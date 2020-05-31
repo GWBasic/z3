@@ -20,15 +20,15 @@ describe('Drafts operations', () => {
     it('Not authenticated', async() => {
         await testSetup.logout();
 
-        await server
+        await testSetup.server
             .get('/drafts/g53etg5w')
             .expect(401);
 
-        await server
+        await testSetup.server
             .post('/drafts/restore/g53etg5w')
             .expect(401);
 
-        await server
+        await testSetup.server
             .post('/drafts/deleteImage/g53etg5w')
             .expect(401);
     });
@@ -64,7 +64,7 @@ describe('Drafts operations', () => {
             {width: 15, height: 2});
 
         async function verifyDrafts(isPublished) {
-            const response = await server
+            const response = await testSetup.server
                 .get(`/drafts/${post._id}`)
                 .expect(200);
 
@@ -122,7 +122,7 @@ describe('Drafts operations', () => {
 
         const draftToRestore = drafts[4];
 
-        await server
+        await testSetup.server
             .post(`/drafts/restore/${draftToRestore._id}`)
             .expect(302)
             .expect('Location', `/drafts/${post._id}`);
@@ -139,7 +139,7 @@ describe('Drafts operations', () => {
     it('Restore a draft with an invalid id', async () => {
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .post('/drafts/restore/7654')
             .expect(404)
     });
@@ -147,7 +147,7 @@ describe('Drafts operations', () => {
     it('Delete an image with an invalid id', async () => {
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .post('/drafts/deleteImage/765374')
             .expect(404)
     });
@@ -170,7 +170,7 @@ describe('Drafts operations', () => {
 
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .post(`/drafts/deleteImage/${imageRecord._id}`)
             .expect(302)
             .expect('Location', `/drafts/${imageRecord.postId}`);

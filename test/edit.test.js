@@ -19,21 +19,21 @@ describe('Editor operations', () => {
     afterEach(testSetup.afterEach);
 
     it('Verify calls are authenticated', async () => {
-        await server
+        await testSetup.server
             .post('/edit')
             .expect(401);
 
         var { post, workingTitle, content } = await testSetup.preparePost();
 
-        await server
+        await testSetup.server
             .get(`/edit/${post._id}`)
             .expect(401);
 
-        await server
+        await testSetup.server
             .put(`/edit/${post._id}`)
             .expect(401);
 
-        await server
+        await testSetup.server
             .post(`/edit/image/${post._id}`)
             .expect(401);
 
@@ -49,7 +49,7 @@ describe('Editor operations', () => {
             Buffer.alloc(5),
             {width: 12, height: 25});
 
-        await server
+        await testSetup.server
             .get(`/edit/${post._id}.${imageRecord._id}`)
             .expect(401);
     });
@@ -57,13 +57,13 @@ describe('Editor operations', () => {
     it('Verify 404s', async () => {
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .get('/edit/76543')
             .expect(404);
 
         var { post, workingTitle, content } = await testSetup.preparePost();
 
-        await server
+        await testSetup.server
             .get(`/edit/${post._id}/457754`)
             .expect(404);
     });
@@ -74,7 +74,7 @@ describe('Editor operations', () => {
 
         const title = 'the first title';
 
-        var response = await server
+        var response = await testSetup.server
             .post('/edit')
             .send(`title=${title}`)
             .expect(302)
@@ -93,7 +93,7 @@ describe('Editor operations', () => {
         var { post, workingTitle, content } = await testSetup.preparePost();
 
         async function verifyEditor(isPublished, draftIsOutdated) {
-            var result = await server
+            var result = await testSetup.server
                 .get(`/edit/${post._id}`)
                 .expect(200);
 
@@ -110,7 +110,7 @@ describe('Editor operations', () => {
 
         const whereParam = encodeURI(JSON.stringify({}));
 
-        await server
+        await testSetup.server
             .post(`/publish/${post._id}`)
             .send(`where=${whereParam}`)
             .expect(302);
@@ -136,7 +136,7 @@ describe('Editor operations', () => {
         async function verifySendNewEdit(draftIsOutdated) {
             const suggestedLocation = suggestedLocationQueue.pop();
 
-            const result = await server
+            const result = await testSetup.server
                 .put(`/edit/${post._id}`)
                 .send({title: workingTitle, content: content, suggestedLocation})
                 .expect(201);
@@ -179,7 +179,7 @@ describe('Editor operations', () => {
 
         const imageStats = await fs.stat('test/data/img1.jpg');
 
-        var result = await server
+        var result = await testSetup.server
             .post(`/edit/image/${post._id}`)
             .attach('upload', 'test/data/img1.jpg')
             .expect(200);
@@ -197,7 +197,7 @@ describe('Editor operations', () => {
         assert.isTrue(response.uploaded, 'Uploaded not true');
         assert.equal(response.url, `/edit/image/${post._id}/${imageRecord._id}`);
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/edit/image/${post._id}/${imageRecord._id}`)
             .expect('Content-Type', 'image/jpeg')
             .expect('Content-Length', `${imageStats.size}`)
@@ -210,7 +210,7 @@ describe('Editor operations', () => {
     it('Upload and retrieve an image, 401', async () => {
         var { post } = await testSetup.preparePost();
 
-        await server
+        await testSetup.server
             .post(`/edit/image/${post._id}`)
             .attach('upload', 'test/data/img1.jpg')
             .expect(401);
@@ -222,7 +222,7 @@ describe('Editor operations', () => {
 
         await fs.copyFile('test/data/img1.jpg', 'test/data/img.jpg');
         try {
-            const result = await server
+            const result = await testSetup.server
                 .post(`/edit/image/${post._id}`)
                 .attach('upload', 'test/data/img.jpg')
                 .expect(200);
@@ -235,7 +235,7 @@ describe('Editor operations', () => {
 
         await fs.copyFile('test/data/img2.jpg', 'test/data/img.jpg');
         try {
-            const result = await server
+            const result = await testSetup.server
                 .post(`/edit/image/${post._id}`)
                 .attach('upload', 'test/data/img.jpg')
                 .expect(200);
