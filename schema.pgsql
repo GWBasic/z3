@@ -73,9 +73,9 @@ CREATE TABLE public.drafts (
     id integer NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    post_id integer,
-    title character varying,
-    content text,
+    post_id integer NOT NULL,
+    title character varying NOT NULL,
+    content text NOT NULL,
     suggested_location character varying
 );
 
@@ -162,7 +162,7 @@ CREATE TABLE public.posts (
     title character varying,
     suggested_location character varying,
     url character varying,
-    working_title character varying,
+    working_title character varying NOT NULL,
     published_at timestamp with time zone,
     republished_at timestamp with time zone,
     summary character varying,
