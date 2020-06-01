@@ -37,7 +37,7 @@ describe('z3 module test', () => {
 
         assert.isTrue(checkedAfterChange, 'The password should be changed');
 
-        const passwordRecord = await db.getConfiguration('password');
+        const passwordRecord = await cachedConfigurationValues.getPassword();
         assert.isTrue(passwordRecord.hashAndSalt.startsWith('pbkdf2$10000$'), 'Incorrect hash and salt generated');
     });
 
@@ -235,29 +235,6 @@ describe('z3 module test', () => {
 
     it('Verify converting img tags on publish, index page', async () => {
         await verifyConvertImgTags('', '');
-    });
-
-    it('Test loading the configuration', async () => {
-        var expectedConfig;
-
-        await db.setConfiguration('config', config => {
-            config.title = 'load test title',
-            config.author = 'load test author'
-
-            expectedConfig = config;
-
-            return config;
-        }, () => {});
-
-        const getNow = z3.getNow;
-        z3.getNow = () => (new Date()).setMinutes(10);
-
-        try {
-            const actualConfig = await cachedConfigurationValues.getConfig();
-            assert.deepEqual(actualConfig, expectedConfig, 'Wrong configuration loaded');
-        } finally {
-            z3.getNow = getNow;
-        }
     });
 });
 

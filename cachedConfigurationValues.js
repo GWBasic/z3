@@ -17,6 +17,8 @@ async function update(name) {
 
         if (selectConfigurationResult.rowCount > 0) {
             cachedValues[name] = selectConfigurationResult.rows[0].obj;
+        } else {
+            delete cachedValues[name];
         }
     } finally {
         client.release();
@@ -106,6 +108,8 @@ async function set (name, value) {
     } finally {
         client.release();
     }
+
+    cachedValues[name] = value;
 }
 
 module.exports = {
@@ -120,5 +124,8 @@ module.exports = {
     setConfig: async config => await module.exports.set('config', config),
 
     getSession: async () => await module.exports.get('session'),
-    setSession: async config => await module.exports.set('session', config)
+    setSession: async config => await module.exports.set('session', config),
+
+    getPassword: async () => await module.exports.get('password'),
+    setPassword: async config => await module.exports.set('password', config)
 }

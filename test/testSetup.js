@@ -77,6 +77,7 @@ const testSetup = {
             await client.query("UPDATE posts SET draft_id=NULL")
             await client.query("DELETE FROM drafts");
             await client.query("DELETE FROM posts");
+            await client.query("DELETE FROM configurations WHERE name='password'");
         } finally {
             await client.end();
         }
@@ -87,15 +88,7 @@ const testSetup = {
     },
 
     deletePassword: async () => {
-        const client = new Client({connectionString: process.env.DATABASE_URL});
-
-        try {
-            client.connect();
-
-            await client.query("DELETE FROM configurations WHERE name='password'");
-        } finally {
-            await client.end();
-        }
+        await cachedConfigurationValues.setPassword(null);
     },
 
     createPosts: async (numPosts = 50) => {

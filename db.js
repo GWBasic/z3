@@ -640,49 +640,6 @@ async function getImageOrNullByUrlAndFilename(client, url, filename) {
     return constructImageFromRow(selectImageResult.rows[0]);
 }
 
-async function getConfiguration(client, name) {
-    const selectConfigurationResult = await client.query(
-        "SELECT obj FROM configurations WHERE name=$1",
-        [name]);
-
-    if (selectConfigurationResult.rowCount == 0) {
-        return null;
-    }
-
-    return selectConfigurationResult.rows[0].obj;
-}
-
-async function setConfiguration(client, name, objCallback, defaultObjectCallback) {
-    const selectConfigurationResult = await client.query(
-        "SELECT obj FROM configurations WHERE name=$1",
-        [name]);
-
-    var updateConfigurationResult;
-    if (selectConfigurationResult.rowCount == 0) {
-        var obj = defaultObjectCallback();
-        obj = objCallback(obj);
-
-        updateConfigurationResult = await client.query(
-            "INSERT INTO configurations (name, obj) VALUES ($1, $2)",
-            [name, obj]);
-    
-        if (updateConfigurationResult.rowCount != 1) {
-            throw new Error(`Can not insert ${name} into configurations`);
-        }
-    } else {
-        var obj = selectConfigurationResult.rows[0].obj;
-        obj = objCallback(obj);
-
-        updateConfigurationResult = await client.query(
-            "UPDATE configurations SET obj=$2 WHERE name=$1",
-            [name, obj]);
-    
-        if (updateConfigurationResult.rowCount != 1) {
-            throw new Error(`Can not update ${name} into configurations`);
-        }
-    }
-}
-
 module.exports = {
 
     PostNotFoundError,
@@ -743,10 +700,6 @@ module.exports = {
     deleteImage: async imageId => useClient(async client => await deleteImage(client, imageId)),
 
     getImageOrNullByUrlAndFilename: async (url, filename) => useClient(async client => await getImageOrNullByUrlAndFilename(client, url, filename)),
-
-    getConfiguration: async name => useClient(async client => await getConfiguration(client, name)),
-
-    setConfiguration: async (name, objCallback, defaultObjectCallback) => runOnTransaction(async client => await setConfiguration(client, name, objCallback, defaultObjectCallback)),
 }
 
 // Loading z3 after the exports works around a circular reference

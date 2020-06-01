@@ -9,7 +9,7 @@ const promisify = require('util').promisify;
 const striptags = require('striptags');
 
 const db = require('./db');
-const runtimeOptions = require('./runtimeOptions');
+const cachedConfigurationValues = require('./cachedConfigurationValues');
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 25;
@@ -33,9 +33,9 @@ exports.DEFAULT_SEARCH_URL = DEFAULT_SEARCH_URL;
 
 exports.checkPassword = async password => {
 
-    const passwordRecord = await db.getConfiguration('password');
+    const passwordRecord = await cachedConfigurationValues.getPassword();
 
-    if (passwordRecord) {
+    if (passwordRecord != null) {
         if (passwordRecord.hashAndSalt) {
             const hashAndSalt = passwordRecord.hashAndSalt;
             const verified = await promisify(callback => passwordHashAndSalt(password).verifyAgainst(hashAndSalt, callback))();
@@ -52,11 +52,8 @@ exports.checkPassword = async password => {
 
 exports.changePassword = async newPassword => {
     const hashAndSalt = await promisify(callback => passwordHashAndSalt(newPassword).hash(callback))();
-    
-    await db.setConfiguration(
-        'password',
-        _ => { return { hashAndSalt } },
-        () => { return {} });
+
+    await cachedConfigurationValues.setPassword({ hashAndSalt });
 };
 
 exports.checkIsAuthenticated = (req, res, next) => {

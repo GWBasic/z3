@@ -109,7 +109,6 @@ describe('Config', () => {
         }
 
         checkConfig(await cachedConfigurationValues.getConfig());
-        checkConfig(await db.getConfiguration('config'));
     });
 
     it('Upload avatar', async () => {
