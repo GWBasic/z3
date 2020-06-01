@@ -3,7 +3,6 @@ require('use-strict');
 const runtimeOptions = require('../runtimeOptions');
 runtimeOptions.publicFolder = 'testpublic'
 runtimeOptions.db.location = 'testdata';
-runtimeOptions.authentication.sessionConfigFile = 'testSession.json';
 
 const assert  = require('chai').assert;
 const { Client } = require('pg');
@@ -11,7 +10,7 @@ const fs = require('fs-extra');
 const pogon = require('pogon.html')
 const supertest = require('supertest');
 
-const app = require('../app');
+const appFunction = require('../app');
 const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const dbConnector = require('../dbConnector');
@@ -22,22 +21,12 @@ const passwordInfo = {
     defaultPassword: 'gtw4gwgrgt'
 };
 
-const server = supertest.agent(app);
-
-module.exports = {
+const testSetup = {
     passwordInfo,
     runtimeOptions,
-    server,
+    server: null,
 
     beforeEach: async () => {
-        process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
-
-        await app.startupPromise;
-
-        pogon.testMode = true;
-        await z3.changePassword(passwordInfo.password);
-        db.dep.newDate = () => new Date();
-
         await cachedConfigurationValues.set('config', {
             title: 'title for tests',
             author: 'author for tests',
@@ -47,6 +36,17 @@ module.exports = {
             forceHttps: false,
             redirects: {}
         });
+
+        if (testSetup.server == null) {
+            const app = await appFunction();
+            testSetup.server = supertest.agent(app);
+        }
+
+        process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
+
+        pogon.testMode = true;
+        await z3.changePassword(passwordInfo.password);
+        db.dep.newDate = () => new Date();
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
     },
@@ -59,8 +59,6 @@ module.exports = {
         const client = await dbConnector.connect();
 
         try {
-            client.connect();
-
             await client.query("DELETE FROM images");
             await client.query("UPDATE posts SET draft_id=NULL")
             await client.query("DELETE FROM drafts");
@@ -140,7 +138,7 @@ module.exports = {
     },
 
     login: async () => {
-        const result = await server
+        const result = await testSetup.server
             .post('/login')
             .send(`password=${passwordInfo.password}`)
             .expect(302)
@@ -150,7 +148,7 @@ module.exports = {
     },
 
     logout: async () => {
-        const result = await server
+        const result = await testSetup.server
             .post('/login/logout')
             .expect(302);
 
@@ -163,7 +161,7 @@ module.exports = {
 
         const expectedPosts = await loadPostsFromDb();
 
-        var result = await server
+        var result = await testSetup.server
             .get(url)
             .expect(200);
 
@@ -198,7 +196,7 @@ module.exports = {
         await module.exports.createPostsAndPublishedPosts();
         await module.exports.login();
 
-        var result = await server
+        var result = await testSetup.server
             .get(`/${url}?start=3&limit=7`)
             .expect(200);
 
@@ -290,3 +288,5 @@ assert.throwsAsync = async (cl, fn, message) => {
         }
     }
 };
+
+module.exports = testSetup;

@@ -27,19 +27,19 @@ describe('Config', () => {
     afterEach(testSetup.afterEach);
 
     it('Not authenticated', async() => {
-        await server
+        await testSetup.server
             .get('/config')
             .expect(401);
 
-        await server
+        await testSetup.server
             .post('/config')
             .expect(401);
 
-        await server
+        await testSetup.server
             .put('/config/avatar')
             .expect(401);
 
-        await server
+        await testSetup.server
             .get('/config/sometemplate.css')
             .expect(401);
     });
@@ -47,7 +47,7 @@ describe('Config', () => {
     it('Get config', async () => {
         await testSetup.login();
 
-        const response = await server
+        const response = await testSetup.server
             .get('/config')
             .expect(200);
 
@@ -88,7 +88,7 @@ describe('Config', () => {
     it('Update config', async () => {
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .post('/config')
             .send('title=new_title&author=new_author&private=checked&template=the_template&headHtml=hhh&footerHtml=fff&searchUrl=sss&forceDomain=foo&forceHttps=on&redirects={"/foo":"/bar"}')
             .expect(302)
@@ -116,7 +116,7 @@ describe('Config', () => {
         const img1Data = await fs.readFile('test/data/avatar.png');
         await testSetup.login();
 
-        await server
+        await testSetup.server
             .put('/config/avatar')
             .set('Content-type', 'image/png')
             .send(img1Data)
@@ -131,7 +131,7 @@ describe('Config', () => {
         expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon-32x32.png`)).to.exist;
         expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon.ico`)).to.exist;
 
-        const response = await server
+        const response = await testSetup.server
             .get('/config')
             .expect(200);
 
@@ -143,7 +143,7 @@ describe('Config', () => {
     it('Preview template', async () => {
         await testSetup.login();
 
-        const response = await server
+        const response = await testSetup.server
             .get('/config/sometemplate.css')
             .expect(200);
 

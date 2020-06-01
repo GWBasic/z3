@@ -4,6 +4,7 @@ const chai = require('chai');
 const chaiFiles = require('chai-files');
 const fs = require('fs').promises;
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const z3 = require('../z3');
 
 const server = testSetup.server;
@@ -29,11 +30,11 @@ describe('Force redirects', () => {
     TODO: Currently disabled. I don't know how to determine the port number when running a test
     
     it('Force domain disabled', async () => {
-        await server
+        await testSetup.server
             .get('http://localhost:3000/')
             .expect(200);
 
-        await server
+        await testSetup.server
             .get('http://127.0.0.1:3000/')
             .expect(200);
     });
@@ -51,17 +52,19 @@ describe('Force redirects', () => {
     }); */
 
     it('Force redirects', async () => {
-        await server
+        await testSetup.server
             .get('/dne')
             .expect(404);
 
-        await z3.updateConfig(config => {
-            config.redirects = {
-                '/dne': '/exists'
-            };
-        });
+        const config = await cachedConfigurationValues.getConfig();
 
-        await server
+        config.redirects = {
+            '/dne': '/exists'
+        };
+
+        await cachedConfigurationValues.setConfig(config);
+
+        await testSetup.server
             .get('/dne')
             .expect(302)
             .expect('Location', '/exists');

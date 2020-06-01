@@ -76,34 +76,36 @@ router.get('/*', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    await z3.updateConfig(async config => {
-        config.title = req.body.title;
-        config.author = req.body.author;
-        config.template = req.body.template;
+    const config = await cachedConfigurationValues.getConfig();
+
+    config.title = req.body.title;
+    config.author = req.body.author;
+    config.template = req.body.template;
+
+    config.private = req.body.publish ? false : true;
     
-        config.private = req.body.publish ? false : true;
-        
-        config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
-    
-        if (req.body.overrideTemplate) {
-            if (req.body.overrideTemplate.length > 0) {
-                config.overrideTemplate = req.body.overrideTemplate;
-            } else {
-                config.overrideTemplate = null;
-            }
+    config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
+
+    if (req.body.overrideTemplate) {
+        if (req.body.overrideTemplate.length > 0) {
+            config.overrideTemplate = req.body.overrideTemplate;
         } else {
             config.overrideTemplate = null;
         }
-    
-        config.headHtml = req.body.headHtml;
-        config.footerHtml = req.body.footerHtml;
-        config.searchUrl = req.body.searchUrl;
-        config.forceDomain = req.body.forceDomain;
-        config.forceHttps = req.body.forceHttps ? true : false;
-        config.redirects = JSON.parse(req.body.redirects || '{}');
-    
-        pogon.defaultTemplate = config.overrideTemplate;
-    });
+    } else {
+        config.overrideTemplate = null;
+    }
+
+    config.headHtml = req.body.headHtml;
+    config.footerHtml = req.body.footerHtml;
+    config.searchUrl = req.body.searchUrl;
+    config.forceDomain = req.body.forceDomain;
+    config.forceHttps = req.body.forceHttps ? true : false;
+    config.redirects = JSON.parse(req.body.redirects || '{}');
+
+    pogon.defaultTemplate = config.overrideTemplate;
+
+    await cachedConfigurationValues.setConfig(config);
 
     res.locals.config = await cachedConfigurationValues.getConfig();;
     res.redirect('/config');

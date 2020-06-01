@@ -1,20 +1,21 @@
 const crypto = require('crypto');
 const fsAsync = require('fs');
 
-module.exports.loadSession = (sessionConfigFile, defaultSessionConfig) => {
-    if (!fsAsync.existsSync(sessionConfigFile)) {
-        const sessionToWrite = defaultSessionConfig;
-    
+const db = require('./db');
+
+module.exports.loadSession = async defaultSessionConfig => {
+    var session = await db.getConfiguration('session');
+
+    if (session == null) {
+
+        session = JSON.parse(JSON.stringify(defaultSessionConfig));
+
         const buf = Buffer.alloc(256);
         crypto.randomFillSync(buf);
-        sessionToWrite.secret = buf.toString('base64');
-    
-        const sessionToWriteJSON = JSON.stringify(sessionToWrite, null, 5);
-        fsAsync.writeFileSync(sessionConfigFile, sessionToWriteJSON);
+        session.secret = buf.toString('base64');
+
+        await db.setConfiguration('session', () => session, () => null);
     }
-    
-    const sessionJSON = fsAsync.readFileSync(sessionConfigFile);
-    const session = JSON.parse(sessionJSON);
     
     return session;
 };

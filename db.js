@@ -659,8 +659,8 @@ async function setConfiguration(client, name, objCallback, defaultObjectCallback
 
     var updateConfigurationResult;
     if (selectConfigurationResult.rowCount == 0) {
-        const obj = defaultObjectCallback();
-        objCallback(obj);
+        var obj = defaultObjectCallback();
+        obj = objCallback(obj);
 
         updateConfigurationResult = await client.query(
             "INSERT INTO configurations (name, obj) VALUES ($1, $2)",
@@ -670,8 +670,8 @@ async function setConfiguration(client, name, objCallback, defaultObjectCallback
             throw new Error(`Can not insert ${name} into configurations`);
         }
     } else {
-        const obj = selectConfigurationResult.rows[0].obj;
-        objCallback(obj);
+        var obj = selectConfigurationResult.rows[0].obj;
+        obj = objCallback(obj);
 
         updateConfigurationResult = await client.query(
             "UPDATE configurations SET obj=$2 WHERE name=$1",

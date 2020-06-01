@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/bin/www",
+            "program": "${workspaceFolder}/www.js",
             "env": {
                 "DATABASE_URL": "postgresql://localhost:5432/z3",
                 "DEFAULT_PASSWORD": "ch@ng3mE!"

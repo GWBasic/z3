@@ -245,6 +245,8 @@ describe('z3 module test', () => {
             config.author = 'load test author'
 
             expectedConfig = config;
+
+            return config;
         }, () => {});
 
         const getNow = z3.getNow;
@@ -256,21 +258,6 @@ describe('z3 module test', () => {
         } finally {
             z3.getNow = getNow;
         }
-    });
-
-    it('Test saving the configuration', async () => {
-        var expectedConfig;
-
-        await z3.updateConfig(config => {
-            config.title = 'Written title';
-            config.author = 'Written author';
-
-            expectedConfig = config;
-        });
-
-        const actualConfig = await db.getConfiguration('config');
-
-        assert.deepEqual(actualConfig, expectedConfig, 'Configuration not saved correctly');
     });
 });
 

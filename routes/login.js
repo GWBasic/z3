@@ -1,5 +1,5 @@
 const runtimeOptions = require('../runtimeOptions');
-const sessionConfig = require('../sessionConfig')
+const sessionConfigPromise = require('../sessionConfig')
 const router = require('express-promise-router')();
 const z3 = require('../z3');
 
@@ -33,6 +33,8 @@ router.post('/', async (req, res, next) => {
 });
 
 router.post('/logout', async (req, res) => {
+    const sessionConfig = await sessionConfigPromise;
+
     res.clearCookie(sessionConfig.cookieName);
     res.redirect('/login');
 });

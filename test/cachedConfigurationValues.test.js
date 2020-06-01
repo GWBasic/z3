@@ -60,4 +60,21 @@ describe('Cached configuration values', () => {
             clearTimeout(timeout);
         }
     });
+
+    it('Test saving the configuration', async () => {
+        const config = await cachedConfigurationValues.getConfig();
+        config.title = 'Written title';
+        config.author = 'Written author';
+        await cachedConfigurationValues.setConfig(config);
+
+        const client = await dbConnector.connect();
+
+        try {
+            const selectConfigQuery = await client.query("SELECT * FROM configurations WHERE name='config'");
+            const actualConfig = selectConfigQuery.rows[0].obj;
+            assert.deepEqual(actualConfig, config, 'Configuration not saved correctly');
+        } finally {
+            client.release();
+        }
+    });
 });
