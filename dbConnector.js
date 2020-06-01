@@ -24,7 +24,9 @@ module.exports = {
             callback(data.payload);
         });
 
-        client.on('end', done);
+        if (done) {
+            client.on('end', done);
+        }
 
         clients.push(client);
     },
