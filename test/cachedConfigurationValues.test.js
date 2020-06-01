@@ -20,40 +20,44 @@ describe('Cached configuration values', () => {
 
     it('Test get and update', async () => {
 
-        const name = 'yamo';
-        const expectedValue = {a:1, b:2, c:3};
-        var value;
+        var reject = () => {};
+        const timeout = setTimeout(() => reject(), 5000);
 
-        // No value should be configured
-        value = await cachedConfigurationValues.get(name);
-        assert.isNull(value, 'Value should not be configured');
+        try {
+            const name = 'yamo';
+            const expectedValue = {a:1, b:2, c:3};
+            var value;
 
-        // Wait until the event comes before re-reading the value
-        var waitForEvent;
-        waitForEvent = new Promise((resolve, reject) => {
-            cachedConfigurationValues.callOnEvent = () => {
-                resolve();
-                cachedConfigurationValues.callOnEvent = null;
-            }
-        });
+            // No value should be configured
+            value = await cachedConfigurationValues.get(name);
+            assert.isNull(value, 'Value should not be configured');
 
-        await cachedConfigurationValues.set(name, expectedValue);
-        await waitForEvent;
+            // Wait until the event comes before re-reading the value
+            var waitForEvent;
+            waitForEvent = new Promise((resolve, j) => {
+                cachedConfigurationValues.callOnEvent = resolve;
+                reject = () => j(new Error("Callback didn't come"));
+            });
 
-        value = await cachedConfigurationValues.get(name);
-        assert.deepEqual(value, expectedValue, 'Value not updated via an event')
+            await cachedConfigurationValues.set(name, expectedValue);
+            await waitForEvent;
 
-        waitForEvent = new Promise((resolve, reject) => {
-            cachedConfigurationValues.callOnEvent = () => {
-                resolve();
-                cachedConfigurationValues.callOnEvent = null;
-            }
-        });
+            value = await cachedConfigurationValues.get(name);
+            assert.deepEqual(value, expectedValue, 'Value not updated via an event')
 
-        dbConnector.end();
-        await waitForEvent;
+            waitForEvent = new Promise((resolve, j) => {
+                cachedConfigurationValues.callOnEvent = resolve();
+                reject = () => j(new Error("Callback didn't come"));
+            });
 
-        value = await cachedConfigurationValues.get(name);
-        assert.deepEqual(value, expectedValue, 'Value not updated via reconnect')
+            dbConnector.end();
+            await waitForEvent;
+
+            value = await cachedConfigurationValues.get(name);
+            assert.deepEqual(value, expectedValue, 'Value not updated via reconnect')
+        } finally {
+            cachedConfigurationValues.callOnEvent = null;
+            clearTimeout(timeout);
+        }
     });
 });

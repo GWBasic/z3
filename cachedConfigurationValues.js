@@ -12,7 +12,7 @@ module.exports = {
 
     get: async name => {
         if (!isSubscribed) {
-            dbConnector.listen(
+            await dbConnector.listen(
                 channel,
                 messageJSON => {
                     const message = JSON.parse(messageJSON);
