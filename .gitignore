@@ -107,24 +107,6 @@ dist
 
 # Application data
 bin/
-password.json
-testPassword.json
-session.json
 
 # Profile picture
-public/images/avatar.png
-public/images/avatar.webp
-public/android-chrome-192x192.png
-public/android-chrome-512x512.png
-public/apple-touch-icon.png
-public/favicon-16x16.png
-public/favicon-32x32.png
-public/favicon.ico
-testpublic/android-chrome-192x192.png
-testpublic/android-chrome-512x512.png
-testpublic/apple-touch-icon.png
-testpublic/favicon-16x16.png
-testpublic/favicon-32x32.png
-testpublic/images/avatar.png
-testpublic/images/avatar.webp
-testpublic/favicon.ico
+testpublic/

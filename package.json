@@ -20,8 +20,6 @@
     "linq-es2015": "^2.4.36",
     "morgan": "~1.9.1",
     "multer": "^1.4.2",
-    "nedb": "^1.8.0",
-    "nedb-promises": "^4.0.3",
     "password-hash-and-salt": "^0.1.4",
     "pg": "^8.2.1",
     "pg-format": "^1.0.4",
