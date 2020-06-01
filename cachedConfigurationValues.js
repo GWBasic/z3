@@ -127,5 +127,8 @@ module.exports = {
     setSession: async config => await module.exports.set('session', config),
 
     getPassword: async () => await module.exports.get('password'),
-    setPassword: async config => await module.exports.set('password', config)
+    setPassword: async config => await module.exports.set('password', config),
+
+    getAvatar: async () => await module.exports.get('avatar'),
+    setAvatar: async config => await module.exports.set('avatar', config)
 }

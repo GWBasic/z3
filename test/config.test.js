@@ -121,14 +121,19 @@ describe('Config', () => {
             .send(img1Data)
             .expect(201);
 
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/images/avatar.webp`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/android-chrome-192x192.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/android-chrome-512x512.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/apple-touch-icon.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon-16x16.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon-32x32.png`)).to.exist;
-        expect(file(`./${testSetup.runtimeOptions.publicFolder}/favicon.ico`)).to.exist;
+        const avatarValues = await cachedConfigurationValues.getAvatar();
+
+        assert.isNotNull(avatarValues, 'Avatar not saved');
+        assert.isDefined(avatarValues.avatar, 'avatar not defined');
+        assert.isDefined(avatarValues.avatarWebp, 'avatarWebp not defined');
+        assert.isDefined(avatarValues.avatarPng, 'avatarPng not defined');
+        assert.isDefined(avatarValues.androidChrome192, 'androidChrome192 not defined');
+        assert.isDefined(avatarValues.androidChrome512, 'androidChrome512 not defined');
+        assert.isDefined(avatarValues.appleTouchIcon, 'appleTouchIcon not defined');
+        assert.isDefined(avatarValues.favicon16, 'favicon16 not defined');
+        assert.isDefined(avatarValues.favicon32, 'favicon32 not defined');
+        assert.isDefined(avatarValues.favicon, 'favicon not defined');
+
 
         const response = await testSetup.server
             .get('/config')

@@ -21,6 +21,7 @@ const configRouter = require('./routes/config');
 const dashboardRouter = require('./routes/dashboard');
 const draftsRouter = require('./routes/drafts');
 const editRouter = require('./routes/edit');
+const avatarRouter = require('./routes/avatar');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const publishRouter = require('./routes/publish');
@@ -102,6 +103,7 @@ async function startApp() {
 
 	// Globally-readable pages use domain forcing
 	app.use('/', redirectsRouter);
+	app.use('/', avatarRouter);
 	app.use('/blog/', blogRouter);
 	app.use('/search/', searchRouter);
 	app.use('/', indexRouter);

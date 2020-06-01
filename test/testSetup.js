@@ -78,6 +78,7 @@ const testSetup = {
             await client.query("DELETE FROM drafts");
             await client.query("DELETE FROM posts");
             await client.query("DELETE FROM configurations WHERE name='password'");
+            await client.query("DELETE FROM configurations WHERE name='avatar'");
         } finally {
             await client.end();
         }

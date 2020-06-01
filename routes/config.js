@@ -44,14 +44,7 @@ router.get('/', async (req, res) => {
     isBuiltIn = true;
     await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
 
-    var isAvatarConfigured;
-
-    try {
-        await fs.access(path.join(dirname, runtimeOptions.publicFolder, 'favicon.ico'), fsConstants.R_OK);
-        isAvatarConfigured = true;
-    } catch (ex) {
-        isAvatarConfigured = false;
-    }
+    const isAvatarConfigured = (await cachedConfigurationValues.getAvatar()) != null;
 
     const config = await cachedConfigurationValues.getConfig();
 
@@ -117,40 +110,53 @@ const rawParser = bodyParser.raw({
 });
 
 router.put('/avatar', rawParser, async (req, res) => {
-    const avatarImageBuffer = req.body;
+    const avatar = req.body;
 
     // Write the avatar (240x240)
-    await sharp(avatarImageBuffer)
+    const avatarWebp = await sharp(avatar)
         .resize({width: 240, height: 240})
-        .toFile(`./${runtimeOptions.publicFolder}/images/avatar.webp`);
+        .toBuffer();
 
-    await sharp(avatarImageBuffer)
+    const avatarPng = await sharp(avatar)
         .resize({width: 240, height: 240})
-        .toFile(`./${runtimeOptions.publicFolder}/images/avatar.png`);
+        .toBuffer();
 
     // Generate all the favicons
-    await sharp(avatarImageBuffer)
+    const androidChrome192 = await sharp(avatar)
         .resize({width: 192, height: 192})
-        .toFile(`./${runtimeOptions.publicFolder}/android-chrome-192x192.png`);
+        .toBuffer();
 
-    await sharp(avatarImageBuffer)
+    const androidChrome512 = await sharp(avatar)
         .resize({width: 512, height: 512})
-        .toFile(`./${runtimeOptions.publicFolder}/android-chrome-512x512.png`);
+        .toBuffer();
 
-    await sharp(avatarImageBuffer)
+    const appleTouchIcon = await sharp(avatar)
         .resize({width: 180, height: 180})
-        .toFile(`./${runtimeOptions.publicFolder}/apple-touch-icon.png`);
+        .toBuffer();
 
-    await sharp(avatarImageBuffer)
+    const favicon16 = await sharp(avatar)
         .resize({width: 16, height: 16})
-        .toFile(`./${runtimeOptions.publicFolder}/favicon-16x16.png`);
+        .toBuffer();
 
-    await sharp(avatarImageBuffer)
+    const favicon32 = await sharp(avatar)
         .resize({width: 32, height: 32})
-        .toFile(`./${runtimeOptions.publicFolder}/favicon-32x32.png`);
+        .toBuffer();
 
-    const icoBuffer = await pngToIco(avatarImageBuffer);
-    await fs.writeFile(`./${runtimeOptions.publicFolder}/favicon.ico`, icoBuffer);
+    const favicon = await pngToIco(avatar);
+
+    const avatarValues = {
+        avatar: avatar.toString('base64'),
+        avatarWebp: avatarWebp.toString('base64'),
+        avatarPng: avatarPng.toString('base64'),
+        androidChrome192: androidChrome192.toString('base64'),
+        androidChrome512: androidChrome512.toString('base64'),
+        appleTouchIcon: appleTouchIcon.toString('base64'),
+        favicon16: favicon16.toString('base64'),
+        favicon32: favicon32.toString('base64'),
+        favicon: favicon.toString('base64'),
+    };
+
+    await cachedConfigurationValues.setAvatar(avatarValues);
 
     res.status(201);
     res.end();
