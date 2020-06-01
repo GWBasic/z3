@@ -29,6 +29,8 @@ const redirectsRouter = require('./routes/redirects');
 const searchRouter = require('./routes/search');
 
 async function startApp() {
+	await cachedConfigurationValues.ensureConnected();
+	
 	const app = express();
 
 	const isDevelopment = app.get('env') === 'development';
