@@ -24,6 +24,7 @@
     "nedb-promises": "^4.0.3",
     "password-hash-and-salt": "^0.1.4",
     "pg": "^8.2.1",
+    "pg-format": "^1.0.4",
     "png-to-ico": "^2.1.0",
     "pogon.html": "^1.0.1",
     "sharp": "^0.25.3",
