@@ -17,6 +17,23 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: notify_configuration_changes(); Type: FUNCTION; Schema: public; Owner: andrewrondeau
+--
+
+CREATE FUNCTION public.notify_configuration_changes() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM pg_notify('config_updates', NEW.name);
+
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.notify_configuration_changes() OWNER TO andrewrondeau;
+
+--
 -- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: andrewrondeau
 --
 
@@ -287,6 +304,13 @@ CREATE INDEX idx_drafttopost ON public.drafts USING btree (post_id);
 --
 
 CREATE INDEX idx_static_group ON public.posts USING btree (static_group);
+
+
+--
+-- Name: configurations configuration_changed; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+--
+
+CREATE TRIGGER configuration_changed AFTER INSERT OR UPDATE ON public.configurations FOR EACH ROW EXECUTE FUNCTION public.notify_configuration_changes();
 
 
 --

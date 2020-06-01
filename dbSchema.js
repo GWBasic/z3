@@ -1,7 +1,8 @@
 const fs = require('fs-extra');
 
 const dbConnector = require('./dbConnector');
-const z3 = require('./z3');
+const runtimeOptions = require('./runtimeOptions');
+const sessionConfigLoader = require('./sessionConfigGenerator');
 
 const SCHEMA_VERSION = 1;
 
@@ -33,8 +34,17 @@ async function setupSchema() {
                     [SCHEMA_VERSION]);
 
                 await client.query(
-                    "INSERT INTO configurations (name, obj) VALUES ('config', $1)",
-                    [ z3.constructDefaultConfig() ]);
+                    "INSERT INTO public.configurations (name, obj) VALUES ('config', $1)",
+                    [ runtimeOptions.defaults.config ]);
+
+                if (!runtimeOptions.defaults.session.secret) {
+                    runtimeOptions.defaults.session.secret = sessionConfigLoader.generateSecret();
+                }
+
+                await client.query(
+                    "INSERT INTO public.configurations (name, obj) VALUES ('session', $1)",
+                    [ runtimeOptions.defaults.session ]);
+                
             } else {
                 const schemaVersionResult = await client.query("SELECT version FROM schema_version");
 
@@ -56,8 +66,11 @@ async function setupSchema() {
             await client.query('ROLLBACK');
             throw err;
         }
+    } catch (err) {
+        console.error(`Can not startup the schema: ${err}`);
+        throw err;
     } finally {
-        client.release();
+        client.end();
     }
 }
 

@@ -19,13 +19,13 @@ describe('Cached configuration values', () => {
     afterEach(testSetup.afterEach);
 
     it('Test get and update', async () => {
+        const name = 'yamo';
+        const expectedValue = {a:1, b:2, c:3};
 
         var reject = () => {};
         const timeout = setTimeout(() => reject(), 5000);
 
         try {
-            const name = 'yamo';
-            const expectedValue = {a:1, b:2, c:3};
             var value;
 
             // No value should be configured
@@ -58,6 +58,16 @@ describe('Cached configuration values', () => {
         } finally {
             cachedConfigurationValues.callOnEvent = null;
             clearTimeout(timeout);
+
+            const client = await dbConnector.connectToPool();
+
+            try {
+                await client.query(
+                    "DELETE FROM configurations WHERE name=$1",
+                    [name]);
+            } finally {
+                client.release();
+            }
         }
     });
 
@@ -67,7 +77,7 @@ describe('Cached configuration values', () => {
         config.author = 'Written author';
         await cachedConfigurationValues.setConfig(config);
 
-        const client = await dbConnector.connect();
+        const client = await dbConnector.connectToPool();
 
         try {
             const selectConfigQuery = await client.query("SELECT * FROM configurations WHERE name='config'");

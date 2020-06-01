@@ -33,7 +33,7 @@ describe('Database Connector', () => {
             resolve(message)
         });
 
-        const client = await dbConnector.connect();
+        const client = await dbConnector.connectToPool();
 
         try {
             await client.query(`NOTIFY ${format.ident(channel)}, ${format.literal(expectedMessage)}`);

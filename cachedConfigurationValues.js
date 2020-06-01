@@ -8,7 +8,7 @@ var cachedValues = {};
 var connectingPromise = null;
 
 async function update(name) {
-    const client = await dbConnector.connect();
+    const client = await dbConnector.connectToPool();
 
     try {
         const selectConfigurationResult = await client.query(
@@ -25,7 +25,7 @@ async function update(name) {
 
 async function connect() {
     try {
-        const client = await dbConnector.connect();
+        const client = await dbConnector.connectToPool();
 
         try {
             const selectConfigurationResult = await client.query("SELECT * FROM configurations;");
@@ -83,7 +83,7 @@ async function get (name) {
 }
 
 async function set (name, value) {
-    const client = await dbConnector.connect();
+    const client = await dbConnector.connectToPool();
 
     try {
         await client.query('BEGIN');
@@ -97,9 +97,6 @@ async function set (name, value) {
             if (upsertConfigurationResult.rowCount != 1) {
                 throw new Error(`Can not upsert ${name} into configurations`);
             }
-
-            // TODO: This should be a trigger
-            await client.query(`NOTIFY ${format.ident(channel)}, ${format.literal(name)}`);
     
             await client.query('COMMIT');    
         } catch (err) {
@@ -120,5 +117,8 @@ module.exports = {
     set,
 
     getConfig: async () => await module.exports.get('config'),
-    setConfig: async config => await module.exports.set('config', config)
+    setConfig: async config => await module.exports.set('config', config),
+
+    getSession: async () => await module.exports.get('session'),
+    setSession: async config => await module.exports.set('session', config)
 }

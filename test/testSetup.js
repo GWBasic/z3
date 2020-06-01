@@ -1,8 +1,22 @@
 require('use-strict');
 
 const runtimeOptions = require('../runtimeOptions');
-runtimeOptions.publicFolder = 'testpublic'
+
+runtimeOptions.defaults.config = {
+    title: 'title for tests',
+    author: 'author for tests',
+    private: false,
+    searchUrl: '',
+    forceDomain: '',
+    forceHttps: false,
+    redirects: {}
+};
+
+runtimeOptions.publicFolder = 'testpublic';
+
+// TODO: Get rid of this
 runtimeOptions.db.location = 'testdata';
+
 
 const assert  = require('chai').assert;
 const { Client } = require('pg');
@@ -14,6 +28,7 @@ const appFunction = require('../app');
 const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const dbConnector = require('../dbConnector');
+const sessionConfigGenerator = require('../sessionConfigGenerator');
 const z3 = require('../z3');
 
 const passwordInfo = {
@@ -27,43 +42,41 @@ const testSetup = {
     server: null,
 
     beforeEach: async () => {
-        await cachedConfigurationValues.set('config', {
-            title: 'title for tests',
-            author: 'author for tests',
-            private: false,
-            searchUrl: '',
-            forceDomain: '',
-            forceHttps: false,
-            redirects: {}
-        });
+        try {
+            if (testSetup.server == null) {
+                const app = await appFunction();
+                testSetup.server = supertest.agent(app);
+            }
 
-        if (testSetup.server == null) {
-            const app = await appFunction();
-            testSetup.server = supertest.agent(app);
+            process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
+
+            pogon.testMode = true;
+            await z3.changePassword(passwordInfo.password);
+            db.dep.newDate = () => new Date();
+
+            await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
+        } catch (err) {
+            console.error(`Can not start tests: ${err}`);
+            throw err;
         }
-
-        process.env.DEFAULT_PASSWORD = passwordInfo.defaultPassword;
-
-        pogon.testMode = true;
-        await z3.changePassword(passwordInfo.password);
-        db.dep.newDate = () => new Date();
-
-        await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);
     },
 
     afterEach: async () => {
+        await cachedConfigurationValues.setConfig(runtimeOptions.defaults.config);
+        runtimeOptions.defaults.session.secret = sessionConfigGenerator.generateSecret();
+        await cachedConfigurationValues.setSession(runtimeOptions.defaults.session);
+
         pogon.testMode = false;
         await module.exports.logout();
         await module.exports.deletePassword();
 
-        const client = await dbConnector.connect();
+        const client = await dbConnector.connectToPool();
 
         try {
             await client.query("DELETE FROM images");
             await client.query("UPDATE posts SET draft_id=NULL")
             await client.query("DELETE FROM drafts");
             await client.query("DELETE FROM posts");
-            await client.query("DELETE FROM configurations");
         } finally {
             await client.end();
         }

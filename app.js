@@ -11,7 +11,6 @@ const session = require('client-sessions');
 const cachedConfigurationValues = require('./cachedConfigurationValues');
 const db = require('./db');
 const dbSchema = require('./dbSchema');
-const sessionConfigPromise = require('./sessionConfig');
 const recentPosts = require('./recentPosts');
 const runtimeOptions = require('./runtimeOptions');
 const z3 = require('./z3');
@@ -29,6 +28,8 @@ const redirectsRouter = require('./routes/redirects');
 const searchRouter = require('./routes/search');
 
 async function startApp() {
+
+	await dbSchema.setupSchema();
 	await cachedConfigurationValues.ensureConnected();
 	
 	const app = express();
@@ -37,14 +38,15 @@ async function startApp() {
 
 	// Enable session keys on http in develop mode
 	// (Otherwise, they require https only)
-	const sessionConfig = await sessionConfigPromise;
+	const sessionConfig = await cachedConfigurationValues.getSession();
 	if (isDevelopment) {
 		sessionConfig.cookie.secure = false;
 	}
+	app.use(session(sessionConfig));
+
+
 
 	pogon.registerCustomTag('z3_recentPosts', recentPosts);
-
-	app.use(session(sessionConfig));
 
 	// Set up pogon as the view handler
 	app.set('views', './views') // specify the views directory
@@ -55,8 +57,6 @@ async function startApp() {
 	app.use(express.urlencoded({ extended: false }));
 	app.use(cookieParser());
 	app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
-
-	await dbSchema.setupSchema();
 
 	const config = await cachedConfigurationValues.getConfig();
 	pogon.defaultTemplate = config.overrideTemplate;

@@ -7,12 +7,19 @@ var pool = null;
 var clients = [];
 
 module.exports = {
-    connect: async () => {
+    connectToPool: async () => {
         if (pool == null) {
             pool = new Pool({connectionString});
         }
 
         return await pool.connect();
+    },
+
+    connect: async () => {
+        const client = new Client(connectionString);
+        await client.connect();
+
+        return client;
     },
 
     listen: async (channel, callback, done) => {

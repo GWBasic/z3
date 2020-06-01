@@ -42,7 +42,7 @@ const dep = {
 };
 
 async function runOnTransaction(callback) {
-    const client = await dbConnector.connect();
+    const client = await dbConnector.connectToPool();
 
     var toReturn;
 
@@ -65,7 +65,7 @@ async function runOnTransaction(callback) {
 }
 
 async function useClient(callback) {
-    const client = await dbConnector.connect();
+    const client = await dbConnector.connectToPool();
 
     var toReturn;
 

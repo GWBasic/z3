@@ -1,5 +1,4 @@
 const testSetup = require('./testSetup');
-const sessionConfigPromise = require('../sessionConfig');
 const cachedConfigurationValues = require('../cachedConfigurationValues');
 const z3 = require('../z3');
 
@@ -73,7 +72,7 @@ describe('Login and session handling', () => {
     it('logout', async () => {
         await testSetup.login();
 
-        const sessionConfig = await sessionConfigPromise;
+        const sessionConfig = await cachedConfigurationValues.getSession();
 
         // Log out
         await testSetup.server
