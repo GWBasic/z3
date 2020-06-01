@@ -7,6 +7,22 @@ var cachedValues = {};
 
 var connectingPromise = null;
 
+async function update(name) {
+    const client = await dbConnector.connect();
+
+    try {
+        const selectConfigurationResult = await client.query(
+            "SELECT obj FROM configurations WHERE name=$1;",
+            [name]);
+
+        if (selectConfigurationResult.rowCount > 0) {
+            cachedValues[name] = selectConfigurationResult.rows[0].obj;
+        }
+    } finally {
+        client.release();
+    }
+}
+
 async function connect() {
     try {
         const client = await dbConnector.connect();
@@ -23,12 +39,15 @@ async function connect() {
 
         await dbConnector.listen(
             channel,
-            messageJSON => {
-                const message = JSON.parse(messageJSON);
-                cachedValues[message.name] = message.value;
+            async name => {
+                try {
+                    await update(name);
 
-                if (module.exports.callOnEvent) {
-                    module.exports.callOnEvent();
+                    if (module.exports.callOnEvent) {
+                        module.exports.callOnEvent();
+                    }
+                } catch (err) {
+                    console.error(`Problem handling event for ${name}, :${err}`);
                 }
             },
             () => {
@@ -79,11 +98,8 @@ async function set (name, value) {
                 throw new Error(`Can not upsert ${name} into configurations`);
             }
 
-            const message = { name, value };
-            const messageJSON = JSON.stringify(message);
-
             // TODO: This should be a trigger
-            await client.query(`NOTIFY ${format.ident(channel)}, ${format.literal(messageJSON)}`);
+            await client.query(`NOTIFY ${format.ident(channel)}, ${format.literal(name)}`);
     
             await client.query('COMMIT');    
         } catch (err) {
