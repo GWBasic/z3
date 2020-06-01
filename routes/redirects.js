@@ -2,11 +2,12 @@ const router = require('express-promise-router')();
 
 const runtimeOptions = require('../runtimeOptions');
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const z3 = require('../z3');
 
 router.get('/*', async (req, res, next) => {
     const host = req.headers.host;
-    const config = await z3.getCachedConfig();
+    const config = await cachedConfigurationValues.getConfig();
 
     if ((config.forceDomain.length > 0) && (host != config.forceDomain)) {
         const scheme = `http${(req.secure || config.forceHttps) ? 's' : ''}://`;

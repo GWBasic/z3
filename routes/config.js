@@ -9,6 +9,7 @@ const sharp = require('sharp');
 
 const runtimeOptions = require('../runtimeOptions');
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const z3 = require('../z3');
 
 const dirname = path.dirname(__dirname);
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
         isAvatarConfigured = false;
     }
 
-    const config = await z3.getCachedConfig();
+    const config = await cachedConfigurationValues.getConfig();
 
     res.render('config', {
         isAvatarConfigured,
@@ -104,7 +105,7 @@ router.post('/', async (req, res) => {
         pogon.defaultTemplate = config.overrideTemplate;
     });
 
-    res.locals.config = await z3.getCachedConfig();;
+    res.locals.config = await cachedConfigurationValues.getConfig();;
     res.redirect('/config');
 });
 

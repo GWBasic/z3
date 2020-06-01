@@ -4,6 +4,7 @@ const chai = require('chai');
 const chaiFiles = require('chai-files');
 const fs = require('fs').promises;
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const z3 = require('../z3');
 
@@ -53,7 +54,7 @@ describe('Config', () => {
         const result = JSON.parse(response.text);
         const options = result.options;
 
-        const config = await z3.getCachedConfig();
+        const config = await cachedConfigurationValues.getConfig();
 
         assert.equal(options.config.title, config.title, 'Wrong title');
         assert.equal(options.config.author, config.author, 'Wrong author');
@@ -107,7 +108,7 @@ describe('Config', () => {
             assert.deepEqual(config.redirects, {'/foo':'/bar'});
         }
 
-        checkConfig(await z3.getCachedConfig());
+        checkConfig(await cachedConfigurationValues.getConfig());
         checkConfig(await db.getConfiguration('config'));
     });
 

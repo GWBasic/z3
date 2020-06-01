@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const router = require('express-promise-router')();
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const z3 = require('../z3');
 
@@ -16,7 +17,7 @@ router.get('/', async (req, res, next) => {
 
     const encodedHost = encodeURIComponent(host);
 
-    const config = await z3.getCachedConfig();
+    const config = await cachedConfigurationValues.getConfig();
 
     var searchUrl;
     if (config.searchUrl.length > 0) {

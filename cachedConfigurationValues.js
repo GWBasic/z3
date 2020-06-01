@@ -12,6 +12,18 @@ module.exports = {
 
     get: async name => {
         if (!isSubscribed) {
+            const client = await dbConnector.connect();
+
+            try {
+                const selectConfigurationResult = await client.query("SELECT * FROM configurations;");
+
+                for (var row of selectConfigurationResult.rows) {
+                    cachedValues[row.name] = row.obj;
+                }
+            } finally {
+                client.release();
+            }
+
             await dbConnector.listen(
                 channel,
                 messageJSON => {
@@ -36,26 +48,8 @@ module.exports = {
 
         if (name in cachedValues) {
             return cachedValues[name];
-        }
-
-        const client = await dbConnector.connect();
-
-        try {
-            const selectConfigurationResult = await client.query(
-                "SELECT obj FROM configurations WHERE name=$1",
-                [name]);
-        
-            var val;
-            if (selectConfigurationResult.rowCount == 0) {
-                val =  null;
-            } else {
-                val = selectConfigurationResult.rows[0].obj;
-            }
-        
-            cachedValues[name] = val;
-            return val;
-        } finally {
-            client.release();
+        } else {
+            return null;
         }
     },
 
@@ -88,5 +82,8 @@ module.exports = {
         } finally {
             client.release();
         }
-    }
+    },
+
+    getConfig: async () => await module.exports.get('config'),
+    setConfig: async config => await module.exports.set('config', config)
 }

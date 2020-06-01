@@ -3,6 +3,7 @@ const testSetup = require('./testSetup');
 const assert  = require('chai').assert;
 const fs  = require('fs').promises;
 
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const z3 = require('../z3');
 const runtimeOptions = require('../runtimeOptions');
@@ -250,7 +251,7 @@ describe('z3 module test', () => {
         z3.getNow = () => (new Date()).setMinutes(10);
 
         try {
-            const actualConfig = await z3.getCachedConfig();
+            const actualConfig = await cachedConfigurationValues.getConfig();
             assert.deepEqual(actualConfig, expectedConfig, 'Wrong configuration loaded');
         } finally {
             z3.getNow = getNow;

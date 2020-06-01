@@ -12,6 +12,7 @@ const pogon = require('pogon.html')
 const supertest = require('supertest');
 
 const app = require('../app');
+const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const dbConnector = require('../dbConnector');
 const z3 = require('../z3');
@@ -37,15 +38,14 @@ module.exports = {
         await z3.changePassword(passwordInfo.password);
         db.dep.newDate = () => new Date();
 
-        await z3.updateConfig(config => {
-            config.title = 'title for tests';
-            config.author = 'author for tests';
-            config.private = false;
-            config.searchUrl = '';
-            config.forceDomain = '';
-            config.forceHttps = false;
-            config.redirects = {};
-            config.redirectsJSON = JSON.stringify({});
+        await cachedConfigurationValues.set('config', {
+            title: 'title for tests',
+            author: 'author for tests',
+            private: false,
+            searchUrl: '',
+            forceDomain: '',
+            forceHttps: false,
+            redirects: {}
         });
 
         await fs.copy('./testpublic_template', `./${runtimeOptions.publicFolder}`);

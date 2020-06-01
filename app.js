@@ -8,6 +8,7 @@ const path = require('path');
 const pogon = require('pogon.html');
 const session = require('client-sessions');
 
+const cachedConfigurationValues = require('./cachedConfigurationValues');
 const db = require('./db');
 const dbSchema = require('./dbSchema');
 const sessionConfig = require('./sessionConfig');
@@ -54,7 +55,7 @@ app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
 async function startup() {
 	await dbSchema.setupSchema();
 
-	const config = await z3.getCachedConfig();
+	const config = await cachedConfigurationValues.getConfig();
 	pogon.defaultTemplate = config.overrideTemplate;
 }
 
@@ -75,7 +76,7 @@ app.use(async function(req, res, next) {
 
 		res.locals.staticPages = await db.getAllStaticPages();
 
-		const config = await z3.getCachedConfig();
+		const config = await cachedConfigurationValues.getConfig();
 		res.locals.config = config;
 
 		// Private mode

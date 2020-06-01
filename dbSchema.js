@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 
 const dbConnector = require('./dbConnector');
+const z3 = require('./z3');
 
 const SCHEMA_VERSION = 1;
 
@@ -26,9 +27,14 @@ async function setupSchema() {
             if (!exists) {
                 const schema = (await fs.readFile('./schema.pgsql')).toString();
                 await client.query(schema);
+
                 await client.query(
-                    'INSERT INTO public.schema_version (version) VALUES ($1)',
+                    "INSERT INTO public.schema_version (version) VALUES ($1)",
                     [SCHEMA_VERSION]);
+
+                await client.query(
+                    "INSERT INTO configurations (name, obj) VALUES ('config', $1)",
+                    [ z3.constructDefaultConfig() ]);
             } else {
                 const schemaVersionResult = await client.query("SELECT version FROM schema_version");
 
