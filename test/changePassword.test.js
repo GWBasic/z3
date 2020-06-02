@@ -24,16 +24,6 @@ describe('Change password', () => {
 
     afterEach(testSetup.afterEach);
 
-    it('Not authenticated', async() => {
-        await testSetup.server
-            .get('/changePassword')
-            .expect(401);
-
-        await testSetup.server
-            .post('/changePassword')
-            .expect(401);
-    });
-
     it('Wrong password', async() => {
         await testSetup.login();
 
@@ -53,8 +43,6 @@ describe('Change password', () => {
     });
 
     it('Password is changed', async() => {
-        await testSetup.login();
-
         const response = await testSetup.server
             .post('/changePassword')
             .send(`currentPassword=${testSetup.passwordInfo.password}&newPassword=secret`)
@@ -71,5 +59,17 @@ describe('Change password', () => {
 
         const newPasswordWorks = await z3.checkPassword('secret');
         assert.isTrue(newPasswordWorks, 'The new password doesnt work');
+    });
+
+    it('Redirect to changePassword when no password configured', async () => {
+        assert.fail('incomplete');
+    });
+
+    it('Do not allow using the default password', async () => {
+        assert.fail('incomplete');
+    });
+
+    it('Encouraged to change the default password', async () => {
+        assert.fail();
     });
 });

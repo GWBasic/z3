@@ -41,10 +41,6 @@ exports.checkPassword = async password => {
             const verified = await promisify(callback => passwordHashAndSalt(password).verifyAgainst(hashAndSalt, callback))();
             return verified;
         }
-    } else {
-        if (password == process.env.DEFAULT_PASSWORD) {
-            return true;
-        }
     }
 
     return false;

@@ -77,8 +77,16 @@ async function startApp() {
 			const config = await cachedConfigurationValues.getConfig();
 			res.locals.config = config;
 
+			const passwordRecord = await cachedConfigurationValues.getPassword();
+
 			// Private mode
-			if (config.private && !req.session.isLoggedIn) {
+			if (passwordRecord == null) {
+				if (req.url != '/changePassword') {
+					res.redirect('/changePassword');
+					res.end();
+					return;
+				}
+			} else if (config.private && !req.session.isLoggedIn) {
 				if (req.url != '/login') {
 					res.redirect('/login');
 					res.end();

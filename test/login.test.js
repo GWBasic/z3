@@ -17,7 +17,6 @@ describe('Login and session handling', () => {
     it('get login page', async () => {
 
         await testSetup.logout();
-        await testSetup.deletePassword();
 
         var result;
 
@@ -59,10 +58,6 @@ describe('Login and session handling', () => {
             var pageParameters = JSON.parse(result.text);
             assert.equal(pageParameters.options.isLoggedIn, true, 'Wrong isLoggedIn');
         }
-
-        await testLogin(testSetup.passwordInfo.defaultPassword);
-
-        await testSetup.logout();
 
         await z3.changePassword(testSetup.passwordInfo.password);
 

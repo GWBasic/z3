@@ -19,10 +19,6 @@ describe('z3 module test', () => {
         assert.isFalse(await z3.checkPassword('bad password'), 'Incorrect password accepted');
         assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.password), 'Correct password rejected');
         assert.isFalse(await z3.checkPassword(testSetup.passwordInfo.defaultPassword), 'Default password accepted');
-
-        await testSetup.deletePassword();
-
-        assert.isTrue(await z3.checkPassword(testSetup.passwordInfo.defaultPassword), 'Default password rejected');
     });
 
     it('Check changing the password', async () => {
