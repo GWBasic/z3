@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     const passwordRecord = await cachedConfigurationValues.getPassword();
 
     res.render('changePassword', {
-        isDefaultPassword: passwordRecord == null
+        changeDefaultPassword: passwordRecord == null
     });
 });
 
