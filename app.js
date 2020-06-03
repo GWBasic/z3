@@ -34,6 +34,11 @@ async function startApp() {
 	await cachedConfigurationValues.ensureConnected();
 	
 	const app = express();
+
+	app.use((req) => {
+		console.log(JSON.stringify(req));
+	});
+
 	//setExpressOptions(app);
 	app.enable('trust proxy');
 
