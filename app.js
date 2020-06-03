@@ -79,8 +79,6 @@ async function startApp() {
 	const staticPath = path.join(__dirname, runtimeOptions.publicFolder);
 	app.use(express.static(staticPath));
 
-	console.log(`Serving static files from ${staticPath}`);
-
 	const config = await cachedConfigurationValues.getConfig();
 	pogon.defaultTemplate = config.overrideTemplate;
 

@@ -21,21 +21,31 @@ router.get('/', async (req, res) => {
     const templates = [];
 
     async function scanFolder(folderToScan, templates, linkPathPrefix, isBuiltIn) {
-        const files = await fs.readdir(folderToScan);
-        for (var file of files) {
-            if (path.extname(file) == '.css') {
-                const fullPath = path.join(folderToScan, file);
-                templates.push({
-                    isBuiltIn,
-                    fullPath,
-                    shortName: path.basename(fullPath, '.css'),
-                    linkPath: fullPath.substring(linkPathPrefix.length + 1)
-                });
+        var exists;
+        try {
+            await fs.access(folderToScan);
+            exists = true;
+        } catch (error) {
+            exists = false;
+        }
+
+        if (exists) {
+            const files = await fs.readdir(folderToScan);
+            for (var file of files) {
+                if (path.extname(file) == '.css') {
+                    const fullPath = path.join(folderToScan, file);
+                    templates.push({
+                        isBuiltIn,
+                        fullPath,
+                        shortName: path.basename(fullPath, '.css'),
+                        linkPath: fullPath.substring(linkPathPrefix.length + 1)
+                    });
+                }
             }
         }
     }
 
-    //await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix, false);
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix, false);
     await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix, true);
 
     const isAvatarConfigured = (await cachedConfigurationValues.getAvatar()) != null;
