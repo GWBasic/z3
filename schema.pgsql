@@ -17,7 +17,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: notify_configuration_changes(); Type: FUNCTION; Schema: public; Owner: andrewrondeau
+-- Name: notify_configuration_changes(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.notify_configuration_changes() RETURNS trigger
@@ -31,10 +31,8 @@ END;
 $$;
 
 
-ALTER FUNCTION public.notify_configuration_changes() OWNER TO andrewrondeau;
-
 --
--- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: andrewrondeau
+-- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger
@@ -47,14 +45,12 @@ END;
 $$;
 
 
-ALTER FUNCTION public.trigger_set_timestamp() OWNER TO andrewrondeau;
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: configurations; Type: TABLE; Schema: public; Owner: andrewrondeau
+-- Name: configurations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.configurations (
@@ -63,10 +59,8 @@ CREATE TABLE public.configurations (
 );
 
 
-ALTER TABLE public.configurations OWNER TO andrewrondeau;
-
 --
--- Name: drafts; Type: TABLE; Schema: public; Owner: andrewrondeau
+-- Name: drafts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.drafts (
@@ -80,10 +74,8 @@ CREATE TABLE public.drafts (
 );
 
 
-ALTER TABLE public.drafts OWNER TO andrewrondeau;
-
 --
--- Name: drafts_id_seq; Type: SEQUENCE; Schema: public; Owner: andrewrondeau
+-- Name: drafts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.drafts_id_seq
@@ -95,17 +87,15 @@ CREATE SEQUENCE public.drafts_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.drafts_id_seq OWNER TO andrewrondeau;
-
 --
--- Name: drafts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: andrewrondeau
+-- Name: drafts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.drafts_id_seq OWNED BY public.drafts.id;
 
 
 --
--- Name: images; Type: TABLE; Schema: public; Owner: andrewrondeau
+-- Name: images; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.images (
@@ -127,10 +117,8 @@ CREATE TABLE public.images (
 );
 
 
-ALTER TABLE public.images OWNER TO andrewrondeau;
-
 --
--- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: andrewrondeau
+-- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.images_id_seq
@@ -142,17 +130,15 @@ CREATE SEQUENCE public.images_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.images_id_seq OWNER TO andrewrondeau;
-
 --
--- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: andrewrondeau
+-- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 
 --
--- Name: posts; Type: TABLE; Schema: public; Owner: andrewrondeau
+-- Name: posts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.posts (
@@ -173,10 +159,8 @@ CREATE TABLE public.posts (
 );
 
 
-ALTER TABLE public.posts OWNER TO andrewrondeau;
-
 --
--- Name: posts_id_seq; Type: SEQUENCE; Schema: public; Owner: andrewrondeau
+-- Name: posts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.posts_id_seq
@@ -188,17 +172,15 @@ CREATE SEQUENCE public.posts_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.posts_id_seq OWNER TO andrewrondeau;
-
 --
--- Name: posts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: andrewrondeau
+-- Name: posts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 
 
 --
--- Name: schema_version; Type: TABLE; Schema: public; Owner: andrewrondeau
+-- Name: schema_version; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.schema_version (
@@ -206,31 +188,29 @@ CREATE TABLE public.schema_version (
 );
 
 
-ALTER TABLE public.schema_version OWNER TO andrewrondeau;
-
 --
--- Name: drafts id; Type: DEFAULT; Schema: public; Owner: andrewrondeau
+-- Name: drafts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.drafts ALTER COLUMN id SET DEFAULT nextval('public.drafts_id_seq'::regclass);
 
 
 --
--- Name: images id; Type: DEFAULT; Schema: public; Owner: andrewrondeau
+-- Name: images id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.images ALTER COLUMN id SET DEFAULT nextval('public.images_id_seq'::regclass);
 
 
 --
--- Name: posts id; Type: DEFAULT; Schema: public; Owner: andrewrondeau
+-- Name: posts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.posts ALTER COLUMN id SET DEFAULT nextval('public.posts_id_seq'::regclass);
 
 
 --
--- Name: configurations configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: configurations configurations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.configurations
@@ -238,7 +218,7 @@ ALTER TABLE ONLY public.configurations
 
 
 --
--- Name: drafts drafts_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: drafts drafts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.drafts
@@ -246,7 +226,7 @@ ALTER TABLE ONLY public.drafts
 
 
 --
--- Name: images filename_post_unique; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: images filename_post_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.images
@@ -254,7 +234,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- Name: images hash_post_unique; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: images hash_post_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.images
@@ -262,7 +242,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.images
@@ -270,7 +250,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.posts
@@ -278,7 +258,7 @@ ALTER TABLE ONLY public.posts
 
 
 --
--- Name: posts posts_url_key; Type: CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: posts posts_url_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.posts
@@ -286,49 +266,49 @@ ALTER TABLE ONLY public.posts
 
 
 --
--- Name: idx_drafttoimage; Type: INDEX; Schema: public; Owner: andrewrondeau
+-- Name: idx_drafttoimage; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_drafttoimage ON public.images USING btree (post_id);
 
 
 --
--- Name: idx_drafttopost; Type: INDEX; Schema: public; Owner: andrewrondeau
+-- Name: idx_drafttopost; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_drafttopost ON public.drafts USING btree (post_id);
 
 
 --
--- Name: idx_static_group; Type: INDEX; Schema: public; Owner: andrewrondeau
+-- Name: idx_static_group; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_static_group ON public.posts USING btree (static_group);
 
 
 --
--- Name: configurations configuration_changed; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+-- Name: configurations configuration_changed; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER configuration_changed AFTER INSERT OR UPDATE ON public.configurations FOR EACH ROW EXECUTE FUNCTION public.notify_configuration_changes();
 
 
 --
--- Name: drafts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+-- Name: drafts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_timestamp_post BEFORE UPDATE ON public.drafts FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
 
 --
--- Name: posts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: andrewrondeau
+-- Name: posts set_timestamp_post; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER set_timestamp_post BEFORE UPDATE ON public.posts FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
 
 --
--- Name: drafts drafts_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: drafts drafts_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.drafts
@@ -336,7 +316,7 @@ ALTER TABLE ONLY public.drafts
 
 
 --
--- Name: images images_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: images images_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.images
@@ -344,18 +324,11 @@ ALTER TABLE ONLY public.images
 
 
 --
--- Name: posts posts_draft_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: andrewrondeau
+-- Name: posts posts_draft_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_draft_id_fkey FOREIGN KEY (draft_id) REFERENCES public.drafts(id);
-
-
---
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
---
-
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

@@ -8,7 +8,7 @@ const SCHEMA_VERSION = 1;
 
 // To dump the schema:
 // cd /Applications/Postgres.app/Contents/Versions/12/bin
-// ./pg_dump -s z3 > ~/git/z3/schema.pgsql
+// ./pg_dump -s -x -O z3 > ~/git/z3/schema.pgsql
 
 // To clear the schema:
 // drop schema public cascade; CREATE SCHEMA public AUTHORIZATION postgres; GRANT ALL ON SCHEMA public TO postgres; GRANT ALL ON SCHEMA public TO public; COMMENT ON SCHEMA public IS 'standard public schema';
