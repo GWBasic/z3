@@ -77,6 +77,8 @@ async function startApp() {
 	app.use(cookieParser());
 	app.use(express.static(path.join(__dirname, runtimeOptions.publicFolder)));
 
+	console.log(`Serving static files from ${express.static(path.join(__dirname, runtimeOptions.publicFolder))}`);
+
 	const config = await cachedConfigurationValues.getConfig();
 	pogon.defaultTemplate = config.overrideTemplate;
 

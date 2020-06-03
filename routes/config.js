@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser')
 const fs = require('fs').promises;
-const fsConstants = require('fs').constants;
 const path = require('path');
 const pogon = require('pogon.html');
 const pngToIco = require('png-to-ico');
@@ -21,9 +20,7 @@ router.get('/', async (req, res) => {
 
     const templates = [];
 
-    var isBuiltIn;
-
-    async function scanFolder(folderToScan, templates, linkPathPrefix) {
+    async function scanFolder(folderToScan, templates, linkPathPrefix, isBuiltIn) {
         const files = await fs.readdir(folderToScan);
         for (var file of files) {
             if (path.extname(file) == '.css') {
@@ -38,11 +35,8 @@ router.get('/', async (req, res) => {
         }
     }
 
-    isBuiltIn = false;
-    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix);
-
-    isBuiltIn = true;
-    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix);
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix, false);
+    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix, true);
 
     const isAvatarConfigured = (await cachedConfigurationValues.getAvatar()) != null;
 
