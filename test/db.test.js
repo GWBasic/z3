@@ -681,4 +681,62 @@ describe('Database', () => {
             assert.deepEqual(reloadedImage, imageFromDatabase);
         }
     });
+
+    it ('verify index, header, and footer pages do not show in scans of blog posts', async () => {
+        const postsAndDrafts = await testSetup.createPosts(3);
+
+        const indexPost = postsAndDrafts[0].post;
+        const indexDraft = postsAndDrafts[0].drafts[0];
+
+        await db.publishPost(
+            indexPost._id,
+            indexDraft._id,
+            new Date(),
+            null,
+            'index post',
+            'index content',
+            '',
+            'summary',
+            [],
+            null,
+            null);
+
+        const headerPost = postsAndDrafts[1].post;
+        const headerDraft = postsAndDrafts[1].drafts[0];
+
+        await db.publishPost(
+            headerPost._id,
+            headerDraft._id,
+            new Date(),
+            null,
+            'header post',
+            'header content',
+            'h',
+            'summary',
+            [],
+            'header',
+            null);
+
+        const footerPost = postsAndDrafts[2].post;
+        const footerDraft = postsAndDrafts[2].drafts[0];
+
+        await db.publishPost(
+            footerPost._id,
+            footerDraft._id,
+            new Date(),
+            null,
+            'footer post',
+            'footer content',
+            'h',
+            'summary',
+            [],
+            'footer',
+            null);
+    
+        const publishedPosts = await db.getPublishedPosts();
+        assert.equal(publishedPosts.length, 0, 'There should be no published posts')
+    
+        const numPublishedPosts = await db.countPublishedPosts();
+        assert.equal(numPublishedPosts, 0, 'There should be no published posts')
+    });
 });

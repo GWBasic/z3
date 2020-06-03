@@ -473,14 +473,14 @@ async function countAllPosts(client) {
 
 async function getPublishedPosts(client, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
     const selectPostsResult = await client.query(
-        "SELECT * FROM posts WHERE url IS NOT NULL AND static_group IS NULL LIMIT $2 OFFSET $1",
+        "SELECT * FROM posts WHERE url IS NOT NULL AND NOT(url='') AND static_group IS NULL LIMIT $2 OFFSET $1",
         [skip, limit]);
 
     return constructPostsFromRows(selectPostsResult.rows);
 }
 
 async function countPublishedPosts(client) {
-    const selectPostsResult = await client.query("SELECT count(id) as numPosts FROM posts WHERE url IS NOT NULL AND static_group IS NULL");
+    const selectPostsResult = await client.query("SELECT count(id) as numPosts FROM posts WHERE url IS NOT NULL AND NOT(url='') AND static_group IS NULL");
 
     return selectPostsResult.rows[0].numposts;
 }
