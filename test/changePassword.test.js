@@ -42,23 +42,48 @@ describe('Change password', () => {
         assert.isTrue(oldPasswordWorks, 'The password was changed when it wasnt supposed to be');
     });
 
+    async function checkThatPasswordIsChanged(oldPassword, newPassword, response) {
+        const result = JSON.parse(response.text);
+        const options = result.options;
+
+        assert.isUndefined(options.wrongPassword, 'wrongPassword should not set');
+        assert.isTrue(options.passwordUpdated, 'passwordUpdated should be set');
+
+        const oldPasswordWorks = await z3.checkPassword(oldPassword);
+        assert.isFalse(oldPasswordWorks, 'The password wasnt changed when it wasnt supposed to be');
+
+        const newPasswordWorks = await z3.checkPassword(newPassword);
+        assert.isTrue(newPasswordWorks, 'The new password doesnt work');
+    }
+    
     it('Password is changed', async() => {
         const response = await testSetup.server
             .post('/changePassword')
             .send(`currentPassword=${testSetup.passwordInfo.password}&newPassword=secret`)
             .expect(200);
 
-        const result = JSON.parse(response.text);
-        const options = result.options;
-    
-        assert.isUndefined(options.wrongPassword, 'wrongPassword should not set');
-        assert.isTrue(options.passwordUpdated, 'passwordUpdated should be set');
+        await checkThatPasswordIsChanged(testSetup.passwordInfo.password, 'secret', response);
+    });
 
-        const oldPasswordWorks = await z3.checkPassword(testSetup.passwordInfo.password);
-        assert.isFalse(oldPasswordWorks, 'The password wasnt changed when it wasnt supposed to be');
+    it('Change default password', async () => {
+        await testSetup.deletePassword();
 
-        const newPasswordWorks = await z3.checkPassword('secret');
-        assert.isTrue(newPasswordWorks, 'The new password doesnt work');
+        const response = await testSetup.server
+            .post('/changePassword')
+            .send(`currentPassword=${testSetup.passwordInfo.defaultPassword}&newPassword=secret2`)
+            .expect(200);
+
+        await checkThatPasswordIsChanged(testSetup.passwordInfo.defaultPassword, 'secret2', response);
+    });
+
+    it('Can not change default password when it is not set', async () => {
+        await testSetup.deletePassword();
+        delete process.env.DEFAULT_PASSWORD;
+
+        const response = await testSetup.server
+            .post('/changePassword')
+            .send(`currentPassword=${testSetup.passwordInfo.defaultPassword}&newPassword=secret2`)
+            .expect(500);
     });
 
     it('Redirect to changePassword when no password configured', async () => {
@@ -102,6 +127,5 @@ describe('Change password', () => {
         assert.isUndefined(options.defaultPassword, 'defaultPassword should not be set');
 
         assert.isTrue(options.changeDefaultPassword, 'changeDefaultPassword should be true');
-
     });
 });
