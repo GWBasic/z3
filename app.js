@@ -36,10 +36,25 @@ async function startApp() {
 	const app = express();
 	setExpressOptions(app);
 
-	app.use((req, res, next) => {
+/*	app.use((req, res, next) => {
 		console.log(JSON.stringify(req.headers));
 		next();
-	});
+	});*/
+
+	//if (process.env.TRUST_FORWARDED_PROTO == 'true') {
+		app.use((req, res, next) => {
+			//if (req.headers.x-forwarded-proto == 'https') {
+			//	req.connection.proxySecure;
+			//}
+
+			// https://github.com/mozilla/node-client-sessions/issues/101#issuecomment-165024320
+			if (req.secure) {
+				req.connection.proxySecure = true
+			}
+
+			next();
+		});
+	//}
 
 	const isDevelopment = app.get('env') === 'development';
 
