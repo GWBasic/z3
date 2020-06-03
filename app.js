@@ -13,7 +13,7 @@ const db = require('./db');
 const dbSchema = require('./dbSchema');
 const recentPosts = require('./recentPosts');
 const runtimeOptions = require('./runtimeOptions');
-const z3 = require('./z3');
+const setExpressOptions = require('./setExpressOptions');
 
 const blogRouter = require('./routes/blog');
 const changePasswordRouter = require('./routes/changePassword');
@@ -34,6 +34,7 @@ async function startApp() {
 	await cachedConfigurationValues.ensureConnected();
 	
 	const app = express();
+	setExpressOptions(app);
 
 	const isDevelopment = app.get('env') === 'development';
 
