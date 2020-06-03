@@ -35,8 +35,9 @@ async function startApp() {
 	
 	const app = express();
 
-	app.use((req) => {
+	app.use((req, res, next) => {
 		console.log(JSON.stringify(req));
+		next();
 	});
 
 	//setExpressOptions(app);
