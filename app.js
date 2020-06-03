@@ -177,7 +177,7 @@ async function startApp() {
 
 			const args = {};
 			// set locals, only providing error in development
-			args.message = err.message;
+			args.message = isDevelopment ? err.message : '';
 			args.error = isDevelopment ? err : {};
 			args.status = err.status || 500;
 			args.url = req.url;

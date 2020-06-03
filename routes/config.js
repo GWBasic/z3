@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
         }
     }
 
-    await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix, false);
+    //await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'custom'), templates, linkPathPrefix, false);
     await scanFolder(path.join(dirname, runtimeOptions.publicFolder, 'templates', 'built-in'), templates, linkPathPrefix, true);
 
     const isAvatarConfigured = (await cachedConfigurationValues.getAvatar()) != null;
