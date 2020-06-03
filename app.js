@@ -34,14 +34,12 @@ async function startApp() {
 	await cachedConfigurationValues.ensureConnected();
 	
 	const app = express();
+	setExpressOptions(app);
 
 	app.use((req, res, next) => {
-		console.log(JSON.stringify(req));
+		console.log(JSON.stringify(req.headers));
 		next();
 	});
-
-	//setExpressOptions(app);
-	app.enable('trust proxy');
 
 	const isDevelopment = app.get('env') === 'development';
 
