@@ -34,7 +34,8 @@ async function startApp() {
 	await cachedConfigurationValues.ensureConnected();
 	
 	const app = express();
-	setExpressOptions(app);
+	//setExpressOptions(app);
+	app.enable('trust proxy');
 
 	const isDevelopment = app.get('env') === 'development';
 
