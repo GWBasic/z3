@@ -1,0 +1,13 @@
+{
+    "name": "Z3 Blog Engine",
+    "description": "A Personal Blog Engine and CMS",
+    "repository": "https://github.com/GWBasic/z3",
+    "logo": "https://raw.githubusercontent.com/GWBasic/z3/master/z3.png",
+    "keywords": ["node", "express", "blog", "cms", "personal"],
+    "website": "https://z3-sample-blog.herokuapp.com/",
+    "success_url": "/changePassword",
+    "env": {
+        "EXPRESS_ENABLE": "trust proxy"
+    },
+    "addons": ["heroku-postgresql"]
+  }
