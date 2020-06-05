@@ -459,7 +459,7 @@ async function getPostFromUrl(client, url) {
 
 async function getPosts(client, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
     const selectPostsResult = await client.query(
-        "SELECT * FROM posts LIMIT $2 OFFSET $1",
+        "SELECT * FROM posts ORDER BY updated_at DESC LIMIT $2 OFFSET $1",
         [skip, limit]);
 
     return constructPostsFromRows(selectPostsResult.rows);
@@ -473,7 +473,7 @@ async function countAllPosts(client) {
 
 async function getPublishedPosts(client, skip = 0, limit = Number.MAX_SAFE_INTEGER) {
     const selectPostsResult = await client.query(
-        "SELECT * FROM posts WHERE url IS NOT NULL AND NOT(url='') AND static_group IS NULL LIMIT $2 OFFSET $1",
+        "SELECT * FROM posts WHERE url IS NOT NULL AND NOT(url='') AND static_group IS NULL ORDER BY published_at DESC LIMIT $2 OFFSET $1",
         [skip, limit]);
 
     return constructPostsFromRows(selectPostsResult.rows);
