@@ -15,16 +15,17 @@ const recentPosts = require('./recentPosts');
 const runtimeOptions = require('./runtimeOptions');
 const setExpressOptions = require('./setExpressOptions');
 
+const avatarRouter = require('./routes/avatar');
 const blogRouter = require('./routes/blog');
 const changePasswordRouter = require('./routes/changePassword');
 const configRouter = require('./routes/config');
 const dashboardRouter = require('./routes/dashboard');
 const draftsRouter = require('./routes/drafts');
 const editRouter = require('./routes/edit');
-const avatarRouter = require('./routes/avatar');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const publishRouter = require('./routes/publish');
+const previewRouter = require('./routes/preview');
 const redirectsRouter = require('./routes/redirects');
 const searchRouter = require('./routes/search');
 
@@ -133,6 +134,7 @@ async function startApp() {
 	app.use('/', redirectsRouter);
 	app.use('/', avatarRouter);
 	app.use('/blog/', blogRouter);
+	app.use('/preview/', previewRouter);
 	app.use('/search/', searchRouter);
 	app.use('/', indexRouter);
 

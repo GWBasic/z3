@@ -12,9 +12,11 @@
                 <a href="/publish/{{postId}}">Publish \ Un-publish \ Delete...</a>
                 &nbsp;&nbsp;&nbsp;
                 <a href="/drafts/{{postId}}">Manage Drafts...</a>
+                &nbsp;&nbsp;&nbsp;
                 {{#if publishedAt}}
-                    &nbsp;&nbsp;&nbsp;
                     <a href="/{{url}}">View: {{title}}</a>
+                {{else}}
+                    <a href="/preview/{{postId}}">Preview...</a>
                 {{/if}}
             </z3-postadminbar>
         {{/if}}
