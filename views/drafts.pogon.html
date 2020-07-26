@@ -14,6 +14,7 @@
             Updated: <z3-date>{{updated}}</z3-date><br />
             Title: {{title}}<br />
             Content: {{content}}<br />
+            <a href="/preview/{{../postId}}/{{draftId}}">View</a>
             <form
                 method="post"
                 onsubmit="return confirm('Do you really want to restore the draft from {{updated}}?');"

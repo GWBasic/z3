@@ -659,6 +659,8 @@ module.exports = {
     appendDraft: async (postId, title, content, suggestedLocation) => 
         await runOnTransaction(async client => appendDraft(client, postId, title, content, suggestedLocation)),
 
+    getDraft: async draftId => await useClient(client => getDraft(client, draftId)),
+
     restoreDraft: async draftId => await runOnTransaction(client => restoreDraft(client, draftId)),
 
     publishPost: async (postId, draftId, publishedAt, republishedAt, title, content, url, summary, imageIdsToPublish, staticGroup, afterPageId) =>

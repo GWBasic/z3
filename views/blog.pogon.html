@@ -10,7 +10,11 @@
 		<pogon_component name="postTopBar.component.html"></pogon_component>
 		<h1>{{title}}</h1>
 		{{#if isPreview}}
-			<em>Preview: Not published</em>
+			{{#if isCurrent}}
+				<em>Preview, last edited at: <z3-date>{{updated}}</z3-date></em>
+			{{else}}
+				<em>Old version edited at: <z3-date>{{updated}}</z3-date></em>
+			{{/if}}
 		{{else}}
 			{{#if isBlogPost}}
 				<em>
