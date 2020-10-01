@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 
 const dbConnector = require('./dbConnector');
 const runtimeOptions = require('./runtimeOptions');
-const sessionConfigLoader = require('./sessionConfigGenerator');
+const sessionConfigGenerator = require('./sessionConfigGenerator');
 
 const SCHEMA_VERSION = 1;
 
@@ -38,7 +38,7 @@ async function setupSchema() {
                     [ runtimeOptions.defaults.config ]);
 
                 if (!runtimeOptions.defaults.session.secret) {
-                    runtimeOptions.defaults.session.secret = sessionConfigLoader.generateSecret();
+                    runtimeOptions.defaults.session.secret = sessionConfigGenerator.generateSecret();
                 }
 
                 await client.query(
