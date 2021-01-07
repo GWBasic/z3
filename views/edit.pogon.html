@@ -37,7 +37,7 @@
                     value="{{this}}"
                     pogon-checked="{{../suggestedLocation}}"
                     onchange="onContentChanged()">
-                <label for="blog">{{this}}</label>
+                <label for="{{this}}">{{this}}</label>
             {{/each}}
             <input
                 type="radio"
@@ -46,7 +46,7 @@
                 value="index"
                 pogon-checked="{{suggestedLocation}}"
                 onchange="onContentChanged()">
-            <label for="blog">Index / Landing page</label>
+            <label for="index">Index / Landing page</label>
         
         <span id="oldVersionPublished"{{#unless draftIsOutdated}} hidden{{/unless}}>WARNING: An older version is published</span>
 
