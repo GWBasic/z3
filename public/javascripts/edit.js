@@ -21,7 +21,7 @@ async function runEditor() {
         }
     }
 
-    onWindowResize();
+    //onWindowResize();
     await setUpEditor();
 
     var sending = false;
@@ -111,12 +111,13 @@ async function runEditor() {
         }
     }
 
+    /*
     function onWindowResize() {
         const location = contentElement.getBoundingClientRect();
         contentElement.style.height = `${window.innerHeight - location.top - 150}px`;
     }
 
-    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('resize', onWindowResize);*/
 }
 
 if (document.readyState === "complete" ||
