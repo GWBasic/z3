@@ -6,7 +6,45 @@
 	</head>
 
 	<body>
-		<h1>Dashboard: Existing posts and drafts</h1>
+        <h1>Dashboard: Existing posts and drafts</h1>
+        
+        <h2>Create a post</h2>
+
+        <form method="post" action="/edit">
+            <label>
+                Title: &nbsp;<input name="title" type="text" size="100"><br />
+            </label>
+
+            This is a:<br />
+            <input
+                type="radio"
+                class="suggestedLocationInput"
+                name="suggestedLocation"
+                value="blog"
+                checked>
+            <label for="blog">Blog entry</label>
+            <br />
+            {{#each staticPages}}
+                <input
+                    type="radio"
+                    class="suggestedLocationInput"
+                    name="suggestedLocation"
+                    value="{{this}}">
+                <label for="{{this}}">{{this}}</label>
+                <br />
+            {{/each}}
+            <input
+                type="radio"
+                class="suggestedLocationInput"
+                name="suggestedLocation"
+                value="index">
+            <label for="index">Index / Landing page</label><br />
+            <input type="submit" value="Create">
+        </form>
+
+        <pogon_component name="hr.component.html"></pogon_component><br />
+
+        <h2>Existing posts and drafts</h2>
 
         <pogon_component name="iterator_range.component.html"></pogon_component>
 

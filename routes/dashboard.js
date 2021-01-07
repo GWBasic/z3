@@ -14,15 +14,18 @@ router.get('/', async (req, res) => {
 
     var { nextStart, nextStartMax, previousStart, previousStartMax } = z3.calculateNextSkipLimits(skip, posts, numPosts, limit);
 
+    const staticPages = Object.keys(await db.getAllStaticPages());
+
     res.render('dashboard', {
-        posts: posts,
+        staticPages,
+        posts,
         start: skip + 1,
         end: skip + posts.length,
-        nextStart: nextStart,
-        nextStartMax: nextStartMax,
-        previousStart: previousStart,
-        previousStartMax: previousStartMax,
-        limit: limit
+        nextStart,
+        nextStartMax,
+        previousStart,
+        previousStartMax,
+        limit
     });
 });
 
