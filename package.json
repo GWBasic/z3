@@ -21,7 +21,7 @@
     "morgan": "~1.9.1",
     "multer": "^1.4.2",
     "password-hash-and-salt": "^0.1.4",
-    "pg": "^8.4.1",
+    "pg": "^8.5.1",
     "pg-format": "^1.0.4",
     "png-to-ico": "^2.1.1",
     "pogon.html": "^1.0.1",
