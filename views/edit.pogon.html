@@ -5,7 +5,7 @@
         <script>
             const postId = '{{postId}}';
         </script>
-        <script src="https://cdn.ckeditor.com/ckeditor5/18.0.0/balloon-block/ckeditor.js"></script>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.css">
         <script src="/javascripts/edit.js"></script>
         <link rel="stylesheet" href="/stylesheets/edit.css">
     </head>
@@ -53,21 +53,10 @@
         <hr >
 
         <div id="content">{{{content}}}</div>
-        <textarea id="contentHtml" hidden></textarea>
-
-        <form>
-            <label>
-                <input type="radio" name="editorType" value="wysiwyg" id="editorType_wysiwyg" checked>
-                WYSIWYG
-            </label>
-            <label>
-                <input type="radio" name="editorType" value="html" id="editorType_HTML">
-                HTML
-            </label>
-        </form>
 
         <div id="saved">Saved</div>
         <div id="saving" hidden>Saving...</div>
         <div id="error" hidden></div>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.js"></script>
     </body>
 </html>
