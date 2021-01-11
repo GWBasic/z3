@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html pogon-template="templateHeaderless.html">
     <head>
         <title>Editing: {{title}}</title>
         <script>
@@ -11,44 +11,28 @@
     </head>
 
     <body>
-        <pogon_component name="postTopBar.component.html"></pogon_component>
-
-        <h1>Editing...</h1>
-        <br />
+        <pogon_component name="postTopBar.component.html"></pogon_component><br />
 
         <label>
-            Title: &nbsp;<input id="post_title" type="text" value="{{title}}" size="100" oninput="onContentChanged()"><br />
+            Title: &nbsp;<input id="post_title" type="text" value="{{title}}" size="50" oninput="onContentChanged()">
         </label>
         
-        This is a:<br />
-            <input
-                type="radio"
-                class="suggestedLocationInput"
-                name="suggestedLocation"
+        This is a:
+        <select name="suggestedLocation">
+            <option
                 value="blog"
-                pogon-checked="{{suggestedLocation}}"
-                onchange="onContentChanged()">
-            <label for="blog">Blog entry</label>
+                pogon-selected="{{suggestedLocation}}">Blog Entry</option>
             {{#each staticPages}}
-                <input
-                    type="radio"
-                    class="suggestedLocationInput"
-                    name="suggestedLocation"
+                <option
                     value="{{this}}"
-                    pogon-checked="{{../suggestedLocation}}"
-                    onchange="onContentChanged()">
-                <label for="{{this}}">{{this}}</label>
+                    pogon-selected="{{../suggestedLocation}}">{{this}}</option>
             {{/each}}
-            <input
-                type="radio"
-                class="suggestedLocationInput"
-                name="suggestedLocation"
+            <option
                 value="index"
-                pogon-checked="{{suggestedLocation}}"
-                onchange="onContentChanged()">
-            <label for="index">Index / Landing page</label>
+                pogon-selected="{{suggestedLocation}}">Index / Landing page</option>
+        </select>
         
-        <span id="oldVersionPublished"{{#unless draftIsOutdated}} hidden{{/unless}}>WARNING: An older version is published</span>
+        <span id="oldVersionPublished"{{#unless draftIsOutdated}} hidden{{/unless}}><br />WARNING: An older version is published</span>
 
         <hr >
 
