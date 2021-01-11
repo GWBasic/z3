@@ -1,13 +1,13 @@
 "use strict";
 
 async function runEditor() {
-    const contentElement = document.getElementById('content');
+    //const contentElement = document.getElementById('content');
     const titleElement = document.getElementById('post_title');
     const savedElement = document.getElementById('saved');
     const savingElement = document.getElementById('saving');
     const errorElement = document.getElementById('error');
     const oldVersionPublishedElement = document.getElementById('oldVersionPublished');
-    const suggestedLocationInputElements = document.getElementsByClassName('suggestedLocationInput');
+    const suggestedLocationElement = document.getElementById('suggestedLocation');
 
     var editor = null;
 
@@ -66,11 +66,7 @@ async function runEditor() {
                 content: getContent()
             };
 
-            for (var suggestedLocationInputElement of suggestedLocationInputElements) {
-                if (suggestedLocationInputElement.checked) {
-                    draft.suggestedLocation = suggestedLocationInputElement.value;
-                }
-            }
+            draft.suggestedLocation = suggestedLocationElement.value;
 
             updateDocumentTitle();
 
@@ -118,6 +114,8 @@ async function runEditor() {
     }
 
     window.addEventListener('resize', onWindowResize);*/
+
+    suggestedLocationElement.onchange = onContentChanged;
 }
 
 if (document.readyState === "complete" ||
