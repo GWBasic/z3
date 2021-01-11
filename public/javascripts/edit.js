@@ -21,8 +21,8 @@ async function runEditor() {
         }
     }
 
-    //onWindowResize();
     await setUpEditor();
+    onWindowResize();
 
     var sending = false;
     var contentChanged = false;
@@ -31,6 +31,9 @@ async function runEditor() {
         document.title = `Editing: ${titleElement.value}`;
     }
     updateDocumentTitle();
+
+    suggestedLocationElement.onchange = onContentChanged;
+
 
     async function onContentChanged() {
         try {
@@ -57,6 +60,7 @@ async function runEditor() {
         return true;
 
         async function sendChangedContent() {
+
             function getContent() {
                 return editor.value;
             }
@@ -107,15 +111,17 @@ async function runEditor() {
         }
     }
 
-    /*
+    
     function onWindowResize() {
-        const location = contentElement.getBoundingClientRect();
-        contentElement.style.height = `${window.innerHeight - location.top - 150}px`;
+        /*const location = contentElement.getBoundingClientRect();
+        contentElement.style.height = `${window.innerHeight - location.top - 150}px`;*/
+
+        editor.initOptions({
+            "maxHeight": `${window.innerHeight - location.top - 150}px`
+        });
     }
 
-    window.addEventListener('resize', onWindowResize);*/
-
-    suggestedLocationElement.onchange = onContentChanged;
+    window.addEventListener('resize', onWindowResize);
 }
 
 if (document.readyState === "complete" ||
