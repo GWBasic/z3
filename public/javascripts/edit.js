@@ -1,7 +1,7 @@
 "use strict";
 
 async function runEditor() {
-    //const contentElement = document.getElementById('content');
+    const contentElement = document.getElementById('content');
     const titleElement = document.getElementById('post_title');
     const savedElement = document.getElementById('saved');
     const savingElement = document.getElementById('saving');
@@ -113,12 +113,10 @@ async function runEditor() {
 
     
     function onWindowResize() {
-        /*const location = contentElement.getBoundingClientRect();
-        contentElement.style.height = `${window.innerHeight - location.top - 150}px`;*/
-
-        editor.initOptions({
-            "maxHeight": `${window.innerHeight - location.top - 150}px`
-        });
+        // TODO: Is there a better way to do this in css?
+        const location = contentElement.getBoundingClientRect();
+        const maxHeight = window.innerHeight - location.top - 200;
+        editor.initOptions({ maxHeight });
     }
 
     window.addEventListener('resize', onWindowResize);
