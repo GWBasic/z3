@@ -101,7 +101,7 @@ router.get('/image/:postId/:imageId', async (req, res) => {
       res.end(imageRecord.imageData); 
 });
 
-router.post('/image/:postId', upload.single('upload'), async (req, res) => {
+router.post('/image/:postId', upload.single('files[0]'), async (req, res) => {
     // See 
     // - https://www.npmjs.com/package/multer
     // - https://stackoverflow.com/questions/49385792/how-to-do-ckeditor-5-image-uploading/49833278#49833278
@@ -159,9 +159,14 @@ router.post('/image/:postId', upload.single('upload'), async (req, res) => {
 
     res.status(200);
     res.json({
+        msg: 'Upload successful',
         uploaded: true,
         url: `/edit/image/${post._id}/${imageRecord._id}`
-    });
+    }/*{
+        msg: 'File was uploaded',
+        error: 0,
+        images: [`/edit/image/${post._id}/${imageRecord._id}`]
+    }*/);
 });
 
 module.exports = router;
