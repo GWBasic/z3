@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+	{{#with _locals}}
+		<head>
+			<title>{{config.title}}</title>
+			<meta name="author" content="{{config.author}}">
+			{{#if ../overrideTemplate}}
+				<link rel="stylesheet" href="{{../linkPath}}">
+			{{else}}
+				<link rel="stylesheet" href="/{{config.template}}">
+			{{/if}}
+			<link rel="stylesheet" href="/stylesheets/style.css">
+			{{#if isLoggedIn}}
+				<link rel="stylesheet" href="/stylesheets/admin_style.css">
+			{{/if}}
+			<script src="/javascripts/z3.js"></script>
+			<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+			<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+			<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+			<link rel="manifest" href="/site.webmanifest">
+			{{{config.headHtml}}}
+		</head>
+
+		<body>
+			{{#if isLoggedIn}}
+				<z3-admin_nav_lite>
+					<a href="/dashboard">Dashboard</a>&nbsp;&nbsp;&nbsp;
+					<a href="/config">Config</a>&nbsp;&nbsp;&nbsp;
+					<a href="/changePassword">Change Password</a>&nbsp;&nbsp;&nbsp;
+					<form method="post" action="/login/logout">
+						<input type="submit" value="Logout">
+					</form>
+								
+				</z3-admin_nav_lite>
+			{{/if}}
+
+			<br />
+			<div class="row">
+				<main>
+					<pogon_outlet> </pogon_outlet>
+				</main>
+			</div>
+
+		</body>
+	{{/with}}
+
+</html>

@@ -2,39 +2,46 @@
 
 async function runEditor() {
     const contentElement = document.getElementById('content');
-    const contentHtmlElement = document.getElementById('contentHtml');
     const titleElement = document.getElementById('post_title');
     const savedElement = document.getElementById('saved');
     const savingElement = document.getElementById('saving');
     const errorElement = document.getElementById('error');
     const oldVersionPublishedElement = document.getElementById('oldVersionPublished');
-    const suggestedLocationInputElements = document.getElementsByClassName('suggestedLocationInput');
-
-    const editorType_wysiwygElement = document.getElementById("editorType_wysiwyg");
-    const editorType_HTMLElement = document.getElementById("editorType_HTML");
+    const suggestedLocationElement = document.getElementById('suggestedLocation');
 
     var editor = null;
 
     async function setUpEditor() {
         try {
-            editor = await BalloonEditor.create(contentElement, {
-                ckfinder: {
-                    uploadUrl: `/edit/image/${postId}`
+            editor = new Jodit('#content', {
+                enableDragAndDropFileToEditor: true,
+                uploader: {
+                    url: `/edit/image/${postId}`,
+                    format: 'json',
+                    pathVariableName: 'path',
+                    filesVariableName: () => 'image',
+                    isSuccess: (resp) => resp.uploaded,
+                    getMsg: (resp) => resp.msg,
+                    process: (resp) => resp,
+                    defaultHandlerSuccess: (resp) => {
+                        for (const url of resp.urls) {
+                            editor.selection.insertImage(url);
+                        }
+                    },
+                    error: (e) => {
+                        editor.events.fire('errorPopap', [e.message, 'error', 4000]);
+                    }
                 }
             });
 
-            editor.model.document.on('change:data', () => {
-                onContentChanged();
-            });
-
-            editor.editing.view.focus();
+            editor.events.on('change', onContentChanged);
         } catch (err) {
             document.body.textContent = `Can not set up the editor: ${err}`;
         }
     }
 
-    onWindowResize();
     await setUpEditor();
+    onWindowResize();
 
     var sending = false;
     var contentChanged = false;
@@ -43,6 +50,9 @@ async function runEditor() {
         document.title = `Editing: ${titleElement.value}`;
     }
     updateDocumentTitle();
+
+    suggestedLocationElement.onchange = onContentChanged;
+
 
     async function onContentChanged() {
         try {
@@ -69,12 +79,9 @@ async function runEditor() {
         return true;
 
         async function sendChangedContent() {
+
             function getContent() {
-                if (editor) {
-                    return editor.getData();
-                } else {
-                    return contentHtmlElement.value;
-                }
+                return editor.value;
             }
 
             const draft = {
@@ -82,11 +89,7 @@ async function runEditor() {
                 content: getContent()
             };
 
-            for (var suggestedLocationInputElement of suggestedLocationInputElements) {
-                if (suggestedLocationInputElement.checked) {
-                    draft.suggestedLocation = suggestedLocationInputElement.value;
-                }
-            }
+            draft.suggestedLocation = suggestedLocationElement.value;
 
             updateDocumentTitle();
 
@@ -127,59 +130,15 @@ async function runEditor() {
         }
     }
 
-    contentHtmlElement.addEventListener('input', onContentChanged);
-
-    async function switchEditor() {
-        if (editorType_wysiwygElement.checked) {
-            await switchToWysiwyg();
-        } else if (editorType_HTMLElement.checked) {
-            switchToHtml();
-        }
-    }
-
-    async function switchToWysiwyg() {
-        const data = contentHtmlElement.value;
-
-        contentElement.hidden = false;
-        contentHtmlElement.hidden = true;
-
-        contentElement.innerHTML = data;
-
-        await setUpEditor();
-    }
-
-    function switchToHtml() {
-        const data = editor.getData();
-        editor.destroy();
-        editor = null;
-
-        contentElement.hidden = true;
-        contentHtmlElement.hidden = false;
-
-        var dataCleaned = data;
-        dataCleaned = dataCleaned.replace(/<\/p></g, '</p>\n<');
-        dataCleaned = dataCleaned.replace(/<\/figure></g, '</figure>\n<');
-        dataCleaned = dataCleaned.replace(/<\/h2></g, '</h2\n<');
-        dataCleaned = dataCleaned.replace(/<\/h3></g, '</h3\n<');
-        dataCleaned = dataCleaned.replace(/<\/h4></g, '</h4\n<');
-        contentHtmlElement.value = dataCleaned;
-
-        onWindowResize();
-    }
-
-    editorType_wysiwygElement.addEventListener('change', switchEditor);
-    editorType_HTMLElement.addEventListener('change', switchEditor);
-
+    
     function onWindowResize() {
-        var toResize;
-        if (contentHtmlElement.hidden) {
-            toResize = contentElement;
-        } else {
-            toResize = contentHtmlElement;
-        }
-
-        const location = toResize.getBoundingClientRect();
-        toResize.style.height = `${window.innerHeight - location.top - 150}px`;
+        // TODO: Is there a better way to do this in css?
+        const location = contentElement.getBoundingClientRect();
+        const height = window.innerHeight - location.top - 200;
+        editor.initOptions({
+            maxHeight: height,
+            minHeight: height
+        });
     }
 
     window.addEventListener('resize', onWindowResize);

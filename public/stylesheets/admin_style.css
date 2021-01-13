@@ -14,7 +14,7 @@ z3-admin_nav > a:visited {
 z3-postadminbar {
      background: var(--main-bg-color);
      padding: 5px;
-     float: right;
+     text-align: right;
 }
 
 /* Post admin bar links don't change color after they are visited */
@@ -23,6 +23,16 @@ z3-postadminbar > a:visited {
 }
 
 footer > form {
+     display:inline;
+     margin:0px;
+     padding:0px;
+}
+
+z3-admin_nav_lite {
+     background: var(--main-bg-color);
+}
+
+z3-admin_nav_lite > form {
      display:inline;
      margin:0px;
      padding:0px;

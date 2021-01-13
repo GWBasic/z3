@@ -10,10 +10,10 @@ const z3 = require('../z3.js');
 
 const storage = multer.memoryStorage()
 const upload = multer({
-    storage: storage,
+    storage,
     limits: {
         fileSize: 1024 * 1024 * 20, // Max file size is 20MB, TODO: Make this configurable
-        files: 1
+        files: 10
     }});
 
 // All calls on the edit route must be authenticated
@@ -101,66 +101,71 @@ router.get('/image/:postId/:imageId', async (req, res) => {
       res.end(imageRecord.imageData); 
 });
 
-router.post('/image/:postId', upload.single('upload'), async (req, res) => {
+router.post('/image/:postId', upload.array('image'), async (req, res) => {
     // See 
     // - https://www.npmjs.com/package/multer
     // - https://stackoverflow.com/questions/49385792/how-to-do-ckeditor-5-image-uploading/49833278#49833278
     // for instructions on how to handle an upload
     const post = req.post;
 
-    const uploadedImage = req.file;
+    const urls = [];
 
-    const hash = await hasha.async(uploadedImage.buffer, {
-        encoding: 'base64',
-        algorithm: 'sha256'
-    });
+    for (const uploadedImage of req.files) {
+        const hash = await hasha.async(uploadedImage.buffer, {
+            encoding: 'base64',
+            algorithm: 'sha256'
+        });
 
-    const originalDimensions = imageSize(uploadedImage.buffer);
+        const originalDimensions = imageSize(uploadedImage.buffer);
 
-    var normalSizeBuffer = uploadedImage.buffer;
-    if (originalDimensions.width > z3.MAX_IMAGE_WIDTH_HD) {
-        normalSizeBuffer = await sharp(uploadedImage.buffer)
-            .resize(z3.MAX_IMAGE_WIDTH_HD)
-            .jpeg()
-            .toBuffer();
-    } else if (uploadedImage.mimetype != 'image/jpeg') {
-        normalSizeBuffer = await sharp(uploadedImage.buffer)
-            .jpeg()
-            .toBuffer();
+        var normalSizeBuffer = uploadedImage.buffer;
+        if (originalDimensions.width > z3.MAX_IMAGE_WIDTH_HD) {
+            normalSizeBuffer = await sharp(uploadedImage.buffer)
+                .resize(z3.MAX_IMAGE_WIDTH_HD)
+                .jpeg()
+                .toBuffer();
+        } else if (uploadedImage.mimetype != 'image/jpeg') {
+            normalSizeBuffer = await sharp(uploadedImage.buffer)
+                .jpeg()
+                .toBuffer();
+        }
+
+        const normalDimensions = imageSize(normalSizeBuffer);
+
+        var thumbnailBuffer = uploadedImage.buffer;
+        if (originalDimensions.height > z3.MAX_THUMBNAIL_HEIGHT_HD) {
+            thumbnailBuffer = await sharp(uploadedImage.buffer)
+                .resize(null, z3.MAX_THUMBNAIL_HEIGHT_HD)
+                .jpeg()
+                .toBuffer();
+        } else if (uploadedImage.mimetype != 'image/jpeg') {
+            thumbnailBuffer = await sharp(uploadedImage.buffer)
+                .jpeg()
+                .toBuffer();
+        }
+        
+        const thumbnailDimensions = imageSize(thumbnailBuffer);
+
+        const imageRecord = await db.insertImage(
+            post._id,
+            hash,
+            uploadedImage.originalname,
+            uploadedImage.mimetype,
+            uploadedImage.buffer,
+            originalDimensions,
+            normalSizeBuffer,
+            normalDimensions,
+            thumbnailBuffer,
+            thumbnailDimensions);
+
+        urls.push(`/edit/image/${post._id}/${imageRecord._id}`);
     }
-
-    const normalDimensions = imageSize(normalSizeBuffer);
-
-    var thumbnailBuffer = uploadedImage.buffer;
-    if (originalDimensions.height > z3.MAX_THUMBNAIL_HEIGHT_HD) {
-        thumbnailBuffer = await sharp(uploadedImage.buffer)
-            .resize(null, z3.MAX_THUMBNAIL_HEIGHT_HD)
-            .jpeg()
-            .toBuffer();
-    } else if (uploadedImage.mimetype != 'image/jpeg') {
-        thumbnailBuffer = await sharp(uploadedImage.buffer)
-            .jpeg()
-            .toBuffer();
-    }
-    
-    const thumbnailDimensions = imageSize(thumbnailBuffer);
-
-    const imageRecord = await db.insertImage(
-        post._id,
-        hash,
-        uploadedImage.originalname,
-        uploadedImage.mimetype,
-        uploadedImage.buffer,
-        originalDimensions,
-        normalSizeBuffer,
-        normalDimensions,
-        thumbnailBuffer,
-        thumbnailDimensions);
 
     res.status(200);
     res.json({
+        msg: 'Upload successful',
         uploaded: true,
-        url: `/edit/image/${post._id}/${imageRecord._id}`
+        urls
     });
 });
 
