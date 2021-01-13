@@ -80,6 +80,7 @@ router.post('/', async (req, res) => {
     config.template = req.body.template;
 
     config.private = req.body.publish ? false : true;
+    config.hide_login = req.body.hide_login ? true : false;
     
     config.z3_cr_in_footer = req.body.z3_cr_in_footer ? true : false;
 
