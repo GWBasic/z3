@@ -134,8 +134,11 @@ async function runEditor() {
     function onWindowResize() {
         // TODO: Is there a better way to do this in css?
         const location = contentElement.getBoundingClientRect();
-        const maxHeight = window.innerHeight - location.top - 200;
-        editor.initOptions({ maxHeight });
+        const height = window.innerHeight - location.top - 200;
+        editor.initOptions({
+            maxHeight: height,
+            minHeight: height
+        });
     }
 
     window.addEventListener('resize', onWindowResize);
