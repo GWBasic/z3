@@ -19,38 +19,17 @@ async function runEditor() {
                     url: `/edit/image/${postId}`,
                     format: 'json',
                     pathVariableName: 'path',
-                    //filesVariableName: 'files',
-                    /*prepareData: function (data) {
-                        data.append('id', 24); // 
-                    },*/
-                    isSuccess: function (resp) {
-                        return resp.uploaded;
+                    filesVariableName: () => 'image',
+                    isSuccess: (resp) => resp.uploaded,
+                    getMsg: (resp) => resp.msg,
+                    process: (resp) => resp,
+                    defaultHandlerSuccess: (resp) => {
+                        for (const url of resp.urls) {
+                            editor.selection.insertImage(url);
+                        }
                     },
-                    getMsg: function (resp) {
-                        return resp.msg;
-                    },
-                    process: function (resp) {
-                        /*return {
-                            files: [resp.url],
-                            path: resp.url,
-                            baseurl: resp.url,
-                            error: '',
-                            msg: resp.msg
-                        };*/
-
-                        return resp;
-                    },
-                    defaultHandlerSuccess: function (/*data, */resp) {
-                        /*var i, field = this.options.uploader.filesVariableName;
-                        if (data[field] && data[field].length) {
-                            for (i = 0; i < data[field].length; i += 1) {
-                                this.selection.insertImage(data.baseurl + data[field][i]);
-                            }
-                        }*/
-                        editor.selection.insertImage(resp.url);
-                    },
-                    error: function (e) {
-                        this.events.fire('errorPopap', [e.getMessage(), 'error', 4000])
+                    error: (e) => {
+                        editor.events.fire('errorPopap', [e.message, 'error', 4000]);
                     }
                 }
             });
