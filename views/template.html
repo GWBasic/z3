@@ -32,6 +32,11 @@
 				<span id="header_label"> <a href="/" class="header_title">{{config.title}}</a><br />
 					{{config.author}}
 				</span>
+				{{#unless isLoggedIn}}
+					{{#unless config.hide_login}}
+						<a href="/login" class="header_login">Login</a>
+					{{/unless}}
+				{{/unless}}
 				
 				<nav>
 					<a href="/blog">Blog</a>

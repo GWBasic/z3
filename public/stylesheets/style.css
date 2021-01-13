@@ -47,6 +47,13 @@ header > img {
      padding-bottom: 0px;
 }
 
+.header_login {
+     background-color: var(--main-bg-color);
+     position: absolute;
+     right: 0px;
+     padding: 3px;
+}
+
 /* Nav bar */
 
 nav {

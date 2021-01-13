@@ -78,6 +78,8 @@
                 <z3-unpublished id="publishRequirements">Before publishing your blog, you must set the title, author, profile picture, and template</z3-unpublished>
                 <z3-unpublish id="unpublishWarning">Warning: Unchecking this will disable your blog!</z3-unpublish><br />
 
+                <label>Hide login link: <input type="checkbox" id="hide_login" name="hide_login" {{#if config.hide_login}}checked{{/if}}></label>
+
                 <pogon_component name="hr.component.html"></pogon_component><br />
 
                 <label>Show Z3 copyirght in footer: <input type="checkbox" id="z3_cr_in_footer" name="z3_cr_in_footer" {{#if config.z3_cr_in_footer}}checked{{/if}}></label><br />
