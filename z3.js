@@ -28,7 +28,7 @@ exports.MAX_IMAGE_WIDTH_HD = MAX_IMAGE_WIDTH_HD;
 exports.MAX_THUMBNAIL_HEIGHT = MAX_THUMBNAIL_HEIGHT;
 exports.MAX_THUMBNAIL_HEIGHT_HD = MAX_THUMBNAIL_HEIGHT_HD;
 
-const DEFAULT_SEARCH_URL = 'https://www.google.com/search?q=%query%&as_sitesearch=%host%';
+const DEFAULT_SEARCH_URL = 'https://www.startpage.com/do/search?q=%query%+site%3A%host%';
 exports.DEFAULT_SEARCH_URL = DEFAULT_SEARCH_URL;
 
 exports.checkPassword = async password => {
