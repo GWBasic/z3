@@ -26,7 +26,7 @@ router.param('draftId', async (req, res, next, draftId) => {
     next();
 });
 
-function renderDraft(draft, req, res) {
+async function renderDraft(draft, req, res) {
     const postModel = z3.constructPostModel(draft);
 
     postModel.postId = req.post._id;
@@ -34,11 +34,19 @@ function renderDraft(draft, req, res) {
     postModel.updated = draft.updatedAt;
     postModel.isCurrent = req.currentDraft._id == draft._id;
 
+    // Update image tags to resize
+    const extractedImages = await z3.extractImages(postModel.content, `/xyz/${postModel.postId}`, postModel.postId);
+    postModel.content = extractedImages.content;
+
+    //postModel.content
+    //postModel.url is undefined
+    //exports.extractImages = async (content, url, postId)
+
     res.render('blog', postModel);
 }
 
 router.get('/:postId', async (req, res) => {
-    renderDraft(req.currentDraft, req, res, true);
+    await renderDraft(req.currentDraft, req, res, true);
 });
 
 router.get('/:postId/:draftId', async (req, res) => {
@@ -47,7 +55,7 @@ router.get('/:postId/:draftId', async (req, res) => {
         throw createError(400, 'The draft is not part of the post');
     }
 
-    renderDraft(req.draft, req, res);
+    await renderDraft(req.draft, req, res);
 });
 
 module.exports = router;
