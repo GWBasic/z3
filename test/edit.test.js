@@ -173,38 +173,51 @@ describe('Editor operations', () => {
         await verifySendNewEdit(true);
     });
 
-    it('Upload and retrieve an image', async () => {
+    it('Upload and retrieve images', async () => {
         await testSetup.login();
         var { post, workingTitle, content } = await testSetup.preparePost();
 
-        const imageStats = await fs.stat('test/data/img1.jpg');
-
         var result = await testSetup.server
             .post(`/edit/image/${post._id}`)
-            .attach('upload', 'test/data/img1.jpg')
+            .attach('image', 'test/data/img1.jpg')
+            .attach('image', 'test/data/img2.jpg')
             .expect(200);
 
         const imageRecords = await db.getImagesForPost(post._id);
-        assert.equal(imageRecords.length, 1, "Unexpected number of images");
+        assert.equal(imageRecords.length, 2, "Unexpected number of images");
 
-        const imageRecord = imageRecords[0];
-        assert.equal(imageRecord.filename, 'img1.jpg');
-        assert.equal(imageRecord.mimetype, 'image/jpeg');
-        assert.isNotNull(imageRecord.hash, 'Hash not specified');
-        assert.isNotNull(imageRecord.data, 'Data not specified');
+        const imageRecord1 = imageRecords[0];
+        assert.equal(imageRecord1.filename, 'img1.jpg');
+        assert.equal(imageRecord1.mimetype, 'image/jpeg');
+        assert.isNotNull(imageRecord1.hash, 'Hash not specified');
+        assert.isNotNull(imageRecord1.data, 'Data not specified');
+
+        const imageRecord2 = imageRecords[1];
+        assert.equal(imageRecord2.filename, 'img2.jpg');
+        assert.equal(imageRecord2.mimetype, 'image/jpeg');
+        assert.isNotNull(imageRecord2.hash, 'Hash not specified');
+        assert.isNotNull(imageRecord2.data, 'Data not specified');
 
         const response = JSON.parse(result.text);
         assert.isTrue(response.uploaded, 'Uploaded not true');
-        assert.equal(response.url, `/edit/image/${post._id}/${imageRecord._id}`);
+        assert.equal(response.urls.length, 2);
 
-        var result = await testSetup.server
-            .get(`/edit/image/${post._id}/${imageRecord._id}`)
-            .expect('Content-Type', 'image/jpeg')
-            .expect('Content-Length', `${imageStats.size}`)
-            .expect(200);
+        for (const ctr of [0,1]) {
+            assert.equal(response.urls[ctr], `/edit/image/${post._id}/${imageRecords[ctr]._id}`);
+        }
 
-        const expectedBody = await fs.readFile('test/data/img1.jpg');
-        assert.isTrue(expectedBody.equals(result.body), 'Wrong contents sent');
+        for (const imageRecord of imageRecords) {
+            const imageStats = await fs.stat(`test/data/${imageRecord.filename}`);
+
+            var result = await testSetup.server
+                .get(`/edit/image/${post._id}/${imageRecord._id}`)
+                .expect('Content-Type', 'image/jpeg')
+                .expect('Content-Length', `${imageStats.size}`)
+                .expect(200);
+
+            const expectedBody = await fs.readFile(`test/data/${imageRecord.filename}`);
+            assert.isTrue(expectedBody.equals(result.body), 'Wrong contents sent');
+        }
     });
 
     it('Upload and retrieve an image, 401', async () => {
@@ -224,7 +237,7 @@ describe('Editor operations', () => {
         try {
             const result = await testSetup.server
                 .post(`/edit/image/${post._id}`)
-                .attach('upload', 'test/data/img.jpg')
+                .attach('image', 'test/data/img.jpg')
                 .expect(200);
 
             const response = JSON.parse(result.text);
@@ -237,7 +250,7 @@ describe('Editor operations', () => {
         try {
             const result = await testSetup.server
                 .post(`/edit/image/${post._id}`)
-                .attach('upload', 'test/data/img.jpg')
+                .attach('image', 'test/data/img.jpg')
                 .expect(200);
 
             const response = JSON.parse(result.text);
