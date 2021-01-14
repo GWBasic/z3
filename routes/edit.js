@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const hasha = require('hasha');
-const imageSize = require('image-size');;
+const imageSize = require('image-size');
+const isAnimated = require('is-animated')
 const multer  = require('multer')
 const router = require('express-promise-router')();
 const sharp = require('sharp');
@@ -119,15 +120,17 @@ router.post('/image/:postId', upload.array('image'), async (req, res) => {
         const originalDimensions = imageSize(uploadedImage.buffer);
 
         var normalSizeBuffer = uploadedImage.buffer;
-        if (originalDimensions.width > z3.MAX_IMAGE_WIDTH_HD) {
-            normalSizeBuffer = await sharp(uploadedImage.buffer)
-                .resize(z3.MAX_IMAGE_WIDTH_HD)
-                .jpeg()
-                .toBuffer();
-        } else if (uploadedImage.mimetype != 'image/jpeg') {
-            normalSizeBuffer = await sharp(uploadedImage.buffer)
-                .jpeg()
-                .toBuffer();
+        if (!isAnimated(uploadedImage.buffer)) {
+            if (originalDimensions.width > z3.MAX_IMAGE_WIDTH_HD) {
+                normalSizeBuffer = await sharp(uploadedImage.buffer)
+                    .resize(z3.MAX_IMAGE_WIDTH_HD)
+                    .jpeg()
+                    .toBuffer();
+            } else if (uploadedImage.mimetype != 'image/jpeg') {
+                normalSizeBuffer = await sharp(uploadedImage.buffer)
+                    .jpeg()
+                    .toBuffer();
+            }
         }
 
         const normalDimensions = imageSize(normalSizeBuffer);
