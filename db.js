@@ -620,6 +620,19 @@ async function getImagesForPost(client, postId) {
     return constructImagesFromRows(selectImagesResult.rows);
 }
 
+async function getImageForPostByFilename(client, postId, filename) {
+
+    const selectImageResult = await client.query(
+        "SELECT * FROM images WHERE post_id=$1 AND images.filename=$2",
+        [postId, filename]);
+
+    if (selectImageResult.rows.length == 0) {
+        throw new ImageNotFoundError(`No image with postId: ${postId} and filename ${filename}`);
+    }
+    
+    return constructImageFromRow(selectImageResult.rows[0]);
+}
+
 async function deleteImage(client, imageId) {
 
     await client.query(
@@ -698,6 +711,8 @@ module.exports = {
     getImage: async imageId => useClient(async client => await getImage(client, imageId)),
 
     getImagesForPost: async postId => useClient(async client => await getImagesForPost(client, postId)),
+
+    getImageForPostByFilename: async (postId, filename) => useClient(async client => await getImageForPostByFilename(client, postId, filename)),
 
     deleteImage: async imageId => useClient(async client => await deleteImage(client, imageId)),
 

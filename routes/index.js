@@ -39,7 +39,7 @@ async function renderImage(req, res, next, url, imageFilename, imageSize) {
 		return;
 	}
 
-	if (imageSize == 'original') {
+	/*if (imageSize == 'original') {
 		res.writeHead(200, {
 			'Content-Type': imageRecord.mimetype,
 			'Content-Length': imageRecord.imageData.length});
@@ -54,7 +54,9 @@ async function renderImage(req, res, next, url, imageFilename, imageSize) {
 			'Content-Type': 'image/jpeg',
 			'Content-Length': imageRecord.normalSizeImageData.length});
 			res.end(imageRecord.normalSizeImageData);
-	}
+	}*/
+
+	z3.returnImageResult(res, imageRecord, imageSize);
 }
 
 

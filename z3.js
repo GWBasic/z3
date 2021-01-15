@@ -10,6 +10,7 @@ const striptags = require('striptags');
 
 const db = require('./db');
 const cachedConfigurationValues = require('./cachedConfigurationValues');
+const { imageSize } = require('image-size');
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 25;
@@ -261,4 +262,23 @@ exports.constructDefaultConfig = () => {
         forceHttps: false,
         redirects: {}
     };
-}
+};
+
+exports.returnImageResult = (res, imageRecord, imageSize) => {
+	if (imageSize == 'original') {
+		res.writeHead(200, {
+			'Content-Type': imageRecord.mimetype,
+			'Content-Length': imageRecord.imageData.length});
+			res.end(imageRecord.imageData);
+	} else if (imageSize == 'thumbnail') {
+		res.writeHead(200, {
+			'Content-Type': 'image/jpeg',
+			'Content-Length': imageRecord.thumbnailImageData.length});
+			res.end(imageRecord.thumbnailImageData);
+	} else {
+		res.writeHead(200, {
+			'Content-Type': 'image/jpeg',
+			'Content-Length': imageRecord.normalSizeImageData.length});
+			res.end(imageRecord.normalSizeImageData);
+	}
+};
