@@ -34,7 +34,7 @@ describe('Search', () => {
         await testSetup.server
             .get('/search?q=bloop')
             .expect(302)
-            .expect('Location', 'https://www.google.com/search?q=bloop&as_sitesearch=127.0.0.1');
+            .expect('Location', 'https://www.startpage.com/do/search?q=bloop+site%3A127.0.0.1');
     });
 
     it('search engine configured', async () => {
