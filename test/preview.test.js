@@ -2,6 +2,7 @@ const testSetup = require('./testSetup');
 
 const assert  = require('chai').assert;
 const db = require('../db');
+const z3 = require('../z3');
 
 const server = testSetup.server;
 
@@ -20,44 +21,66 @@ describe('Preview post', () => {
 
         const post = (await db.getPosts())[0];
 
-        var result = await testSetup.server
+        await testSetup.server
             .get(`/preview/${post._id}`)
             .expect(401);
     });
 
     it('Preview post', async () => {
-        await testSetup.createPostsAndPublishedPosts(1, 2);
-        await testSetup.login();
+        const extractImages = z3.extractImages;
 
-        const post = (await db.getPosts())[0];
-        const draft = await db.getNewestDraft(post._id);
+        try {
+            await testSetup.createPostsAndPublishedPosts(1, 2);
+            await testSetup.login();
 
-        function checkPost(postTemplate) {
-            assert.equal(postTemplate.options.postId, post._id, 'Wrong post id');
-            assert.equal(postTemplate.options.title, draft.title, 'Wrong title');
-            assert.equal(postTemplate.options.content, draft.content, 'Wrong content');
-            assert.isUndefined(postTemplate.options.url, 'Wrong url');
-            assert.isUndefined(postTemplate.options.summary, 'Wrong summary');
-            assert.isTrue(postTemplate.options.isBlogPost, 'Wrong isBlogPost');
-            assert.isTrue(postTemplate.options.isPreview, 'Wrong isPreview');
-            assert.isTrue(postTemplate.options.isCurrent, 'Wrong isCurrent');
-            assert.isUndefined(postTemplate.options.publishedAt, 'Wrong publishedAt');
-            assert.equal(`"${postTemplate.options.updated}"`, JSON.stringify(draft.updatedAt), 'Wrong updated');
+            const post = (await db.getPosts())[0];
+            const draft = await db.getNewestDraft(post._id);
+
+            var extractImagesCalled = false;
+
+            z3.extractImages = (originalContent, url, postId) => {
+                assert.equal(post._id, postId, 'Wront post ID', 'Wrong postId');
+                assert.equal(`preview/image/${post._id}`, url, 'Wrong url');
+                
+                extractImagesCalled = true;
+
+                return {
+                    imageIdsToPublish: [],
+                    content: originalContent
+                };
+            };
+    
+            function checkPost(postTemplate) {
+                assert.equal(postTemplate.options.postId, post._id, 'Wrong post id');
+                assert.equal(postTemplate.options.title, draft.title, 'Wrong title');
+                assert.equal(postTemplate.options.content, draft.content, 'Wrong content');
+                assert.isUndefined(postTemplate.options.url, 'Wrong url');
+                assert.isUndefined(postTemplate.options.summary, 'Wrong summary');
+                assert.isTrue(postTemplate.options.isBlogPost, 'Wrong isBlogPost');
+                assert.isTrue(postTemplate.options.isPreview, 'Wrong isPreview');
+                assert.isTrue(postTemplate.options.isCurrent, 'Wrong isCurrent');
+                assert.isUndefined(postTemplate.options.publishedAt, 'Wrong publishedAt');
+                assert.equal(`"${postTemplate.options.updated}"`, JSON.stringify(draft.updatedAt), 'Wrong updated');
+            }
+
+            var result = await testSetup.server
+                .get(`/preview/${post._id}`)
+                .expect(200);
+
+            var postTemplate = JSON.parse(result.text);
+            checkPost(postTemplate);
+
+            result = await testSetup.server
+                .get(`/preview/${post._id}/${draft._id}`)
+                .expect(200);
+
+            postTemplate = JSON.parse(result.text);
+            checkPost(postTemplate);
+
+            assert.isTrue(extractImagesCalled, 'z3.extractImages not called');
+        } finally {
+            z3.extractImages = extractImages;
         }
-
-        var result = await testSetup.server
-            .get(`/preview/${post._id}`)
-            .expect(200);
-
-        var postTemplate = JSON.parse(result.text);
-        checkPost(postTemplate);
-
-        result = await testSetup.server
-            .get(`/preview/${post._id}/${draft._id}`)
-            .expect(200);
-
-        postTemplate = JSON.parse(result.text);
-        checkPost(postTemplate);
     });
 
     it ('DraftId is not part of post', async () => {
@@ -107,5 +130,5 @@ describe('Preview post', () => {
         assert.isFalse(postTemplate.options.isCurrent, 'Wrong isCurrent');
         assert.isUndefined(postTemplate.options.publishedAt, 'Wrong publishedAt');
         assert.equal(`"${postTemplate.options.updated}"`, JSON.stringify(draft.updatedAt), 'Wrong updated');
-});
+    });
 });

@@ -97,9 +97,9 @@ router.get('/image/:postId/:imageId', async (req, res) => {
 
     res.writeHead(200, {
         'Content-Type': imageRecord.mimetype,
-        'Content-Length': imageRecord.imageData.length
+        'Content-Length': imageRecord.normalSizeImageData.length
       });
-      res.end(imageRecord.imageData); 
+      res.end(imageRecord.normalSizeImageData);
 });
 
 router.post('/image/:postId', upload.array('image'), async (req, res) => {
