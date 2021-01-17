@@ -6,7 +6,6 @@ const fs  = require('fs').promises;
 const cachedConfigurationValues = require('../cachedConfigurationValues');
 const db = require('../db');
 const z3 = require('../z3');
-const runtimeOptions = require('../runtimeOptions');
 
 describe('z3 module test', () => {
 
