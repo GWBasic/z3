@@ -39,23 +39,6 @@ async function renderImage(req, res, next, url, imageFilename, imageSize) {
 		return;
 	}
 
-	/*if (imageSize == 'original') {
-		res.writeHead(200, {
-			'Content-Type': imageRecord.mimetype,
-			'Content-Length': imageRecord.imageData.length});
-			res.end(imageRecord.imageData);
-	} else if (imageSize == 'thumbnail') {
-		res.writeHead(200, {
-			'Content-Type': 'image/jpeg',
-			'Content-Length': imageRecord.thumbnailImageData.length});
-			res.end(imageRecord.thumbnailImageData);
-	} else {
-		res.writeHead(200, {
-			'Content-Type': 'image/jpeg',
-			'Content-Length': imageRecord.normalSizeImageData.length});
-			res.end(imageRecord.normalSizeImageData);
-	}*/
-
 	z3.returnImageResult(res, imageRecord, imageSize);
 }
 
