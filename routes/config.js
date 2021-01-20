@@ -101,6 +101,8 @@ router.post('/', async (req, res) => {
     config.forceHttps = req.body.forceHttps ? true : false;
     config.redirects = JSON.parse(req.body.redirects || '{}');
 
+    config.shareBar = req.body.shareBar ? true : false;
+
     pogon.defaultTemplate = config.overrideTemplate;
 
     await cachedConfigurationValues.setConfig(config);

@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
+    {{#if config.shareBar}}
+        <head>
+            <link rel="stylesheet" href="https://unpkg.com/ilyabirman-likely@2/release/likely.min.css">
+            <script src="https://unpkg.com/ilyabirman-likely@2/release/likely.min.js"></script>
+        </head>
 
-	<head>
-        <link rel="stylesheet" href="https://unpkg.com/ilyabirman-likely@2/release/likely.min.css">
-        <script src="https://unpkg.com/ilyabirman-likely@2/release/likely.min.js"></script>
-    </head>
-
-	<body>
-        <!-- https://ilyabirman.net/projects/likely/ https://github.com/NikolayRys/Likely -->
-        <div class="likely">
-            <div class="facebook">Share</div>
-            <div class="twitter">Tweet</div>
-            <div class="linkedin">Share</div>
-            <div class="reddit">Share</div>
-        </div>
-    </body>
-
+        <body>
+            <!-- https://ilyabirman.net/projects/likely/ https://github.com/NikolayRys/Likely -->
+            <div class="likely">
+                <div class="facebook">Share</div>
+                <div class="twitter">Tweet</div>
+                <div class="linkedin">Share</div>
+                <div class="reddit">Share</div>
+            </div>
+        </body>
+    {{/if}}
 </html>

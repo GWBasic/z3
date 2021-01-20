@@ -33,7 +33,8 @@ module.exports = {
             searchUrl: '',
             forceDomain: '',
             forceHttps: false,
-            redirects: {}
+            redirects: {},
+            shareBar: true
         },
 
         session: {
