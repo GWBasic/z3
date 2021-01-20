@@ -64,6 +64,16 @@ exports.checkIsAuthenticated = (req, res, next) => {
     next(createError(401));
 };
 
+exports.isLoggedIn = req => {
+    if (req.session) {
+        if (req.session.isLoggedIn) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 exports.calculateSkipLimit = req => {
     const skip = (('start' in req.query) ? Math.max(0, Number(req.query.start) - 1) : 0) || 0;
     const limit = (('limit' in req.query) ? Math.max(1, Math.min(MAX_LIMIT, Number(req.query.limit))) : DEFAULT_LIMIT) || DEFAULT_LIMIT;
@@ -120,6 +130,7 @@ exports.constructPostModel = post => {
         publishedAt: post.publishedAt,
         republishedAt: post.republishedAt,
         staticGroup: post.staticGroup,
+        previewPassword: post.previewPassword,
         isBlogPost
     };
 }

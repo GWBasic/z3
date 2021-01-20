@@ -40,6 +40,7 @@ async function renderDraft(draft, req, res) {
     postModel.isPreview = true;
     postModel.updated = draft.updatedAt;
     postModel.isCurrent = req.currentDraft._id == draft._id;
+    postModel.previewPassword = req.post.previewPassword;
 
     // Update image tags to resize
     const extractedImages = await z3.extractImages(postModel.content, `preview/image/${postModel.postId}`, postModel.postId);
@@ -49,16 +50,47 @@ async function renderDraft(draft, req, res) {
 }
 
 router.get('/:postId', async (req, res) => {
-    await renderDraft(req.currentDraft, req, res, true);
+    if (z3.isLoggedIn(req)) {
+        await renderDraft(req.currentDraft, req, res, true);
+    } else {
+        // TODO: Render form
+    }
+});
+
+router.post('/:postId', async (req, res) => {
+    const previewPassword = req.body.previewPassword;
+
+    if (z3.isLoggedIn(req)) {
+        await db.setPostPreviewPassword(req.post._id, previewPassword);
+        res.redirect(`/preview/${req.post._id}`);
+    } else {
+        // TODO: Compare password and render
+    }
 });
 
 router.get('/:postId/:draftId', async (req, res) => {
 
-    if (req.draft.postId != req.post._id) {
-        throw createError(400, 'The draft is not part of the post');
-    }
+    if (z3.isLoggedIn(req)) {
+        // TODO: Move this to the param processor
+        if (req.draft.postId != req.post._id) {
+            throw createError(400, 'The draft is not part of the post');
+        }
 
-    await renderDraft(req.draft, req, res);
+        await renderDraft(req.draft, req, res);
+    } else {
+        // TODO: Render form
+    }
+});
+
+router.post('/:postId/:draftId', async (req, res) => {
+    const previewPassword = req.body.previewPassword;
+
+    if (z3.isLoggedIn(req)) {
+        await db.setPostPreviewPassword(req.post._id, previewPassword);
+        res.redirect(`/preview/${req.post._id}/${req.draft._id}`);
+    } else {
+        // TODO: Compare password and render
+    }
 });
 
 router.get('/image/:postId/:imageFilename', async (req, res) => {

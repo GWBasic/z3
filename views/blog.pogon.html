@@ -15,6 +15,12 @@
 			{{else}}
 				<em>Old version edited at: <z3-date>{{updated}}</z3-date></em>
 			{{/if}}
+			<form method="POST">
+				<label>Preview password:</label>
+				<input type="password" id="previewPassword" name="previewPassword" value="{{previewPassword}}">
+				<!-- TODO: link to show password -->
+				<input type="submit">
+			</form>
 		{{else}}
 			{{#if isBlogPost}}
 				<em>

@@ -4,7 +4,7 @@ const dbConnector = require('./dbConnector');
 const runtimeOptions = require('./runtimeOptions');
 const sessionConfigGenerator = require('./sessionConfigGenerator');
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 // To dump the schema:
 // cd /Applications/Postgres.app/Contents/Versions/12/bin
@@ -52,7 +52,17 @@ async function setupSchema() {
                     throw new Error('No schema version');
                 }
 
-                const schemaVersion = schemaVersionResult.rows[0].version;
+                var schemaVersion = schemaVersionResult.rows[0].version;
+
+                if (schemaVersion == 1) {
+                    await client.query(
+                        "ALTER TABLE public.posts ADD COLUMN preview_password character varying;");
+
+                    await client.query(
+                        "UPDATE public.schema_version SET version=2");
+
+                    schemaVersion = 2;
+                }
 
                 if (SCHEMA_VERSION != schemaVersion) {
                     throw new Error(`Unsupported schema version: ${schemaVersion}`);
