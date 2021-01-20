@@ -86,7 +86,13 @@
                 <label>
                     <input type="checkbox" id="shareBar" name="shareBar" {{#if config.shareBar}}checked{{/if}}>
                     Enable share buttons
-                </label>
+                </label><br />
+                &nbsp;<label><input type="checkbox" id="shareFacebook" name="shareFacebook" {{#if config.shareFacebook}}checked{{/if}}> Facebook</label><br />
+                &nbsp;<label><input type="checkbox" id="shareTwitter" name="shareTwitter" {{#if config.shareTwitter}}checked{{/if}}> Twitter</label><br />
+                &nbsp;<label><input type="checkbox" id="shareLinkedIn" name="shareLinkedIn" {{#if config.shareLinkedIn}}checked{{/if}}> LinkedIn</label><br />
+                &nbsp;<label><input type="checkbox" id="shareReddit" name="shareReddit" {{#if config.shareReddit}}checked{{/if}}> Reddit</label><br />
+
+                <input id="submit" type="submit" value="Update">
 
                 <pogon_component name="hr.component.html"></pogon_component><br />
 

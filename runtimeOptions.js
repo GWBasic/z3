@@ -34,7 +34,11 @@ module.exports = {
             forceDomain: '',
             forceHttps: false,
             redirects: {},
-            shareBar: true
+            shareBar: true,
+            shareFacebook: true,
+            shareTwitter: true,
+            shareLinkedIn: true,
+            shareReddit: true
         },
 
         session: {

@@ -9,10 +9,10 @@
         <body>
             <!-- https://ilyabirman.net/projects/likely/ https://github.com/NikolayRys/Likely -->
             <div class="likely">
-                <div class="facebook">Share</div>
-                <div class="twitter">Tweet</div>
-                <div class="linkedin">Share</div>
-                <div class="reddit">Share</div>
+                {{#if config.shareFacebook}}<div class="facebook">Share</div>{{/if}}
+                {{#if config.shareTwitter}}<div class="twitter">Tweet</div>{{/if}}
+                {{#if config.shareLinkedIn}}<div class="linkedin">Share</div>{{/if}}
+                {{#if config.shareReddit}}<div class="reddit">Share</div>{{/if}}
             </div>
         </body>
     {{/if}}
