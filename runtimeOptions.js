@@ -33,7 +33,12 @@ module.exports = {
             searchUrl: '',
             forceDomain: '',
             forceHttps: false,
-            redirects: {}
+            redirects: {},
+            shareBar: true,
+            shareFacebook: true,
+            shareTwitter: true,
+            shareLinkedIn: true,
+            shareReddit: true
         },
 
         session: {

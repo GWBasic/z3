@@ -23,9 +23,11 @@
 						<small>(Updated: <z3-date>{{republishedAt}}</z3-date>)</small>
 					{{/if}}
 				</em>
+				<pogon_component name="sharing.component.html"></pogon_component>
 			{{/if}}
 		{{/if}}
 		<div id="blogcontent">{{{content}}}</div>
+		<pogon_component name="sharing.component.html"></pogon_component>
 		{{#unless isBlogPost}}
 			<hr />
 			<em>
