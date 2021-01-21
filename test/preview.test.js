@@ -26,15 +26,26 @@ describe('Preview post', () => {
             .expect(404);
     });
 
-    it('Preview post', async () => {
+    async function testLoginViaPassword(url, password) {
+        const result = await testSetup.server
+            .post(url)
+            .send(`previewPassword=${password}`)
+            .expect(302)
+            .expect('Location', url);
+
+        assert.isNotNull(result.text);
+    }
+
+    async function testPreviewPost(login) {
         const extractImages = z3.extractImages;
 
         try {
             await testSetup.createPostsAndPublishedPosts(1, 2);
-            await testSetup.login();
 
             const post = (await db.getPosts())[0];
             const draft = await db.getNewestDraft(post._id);
+
+            await login(post);
 
             var extractImagesCalled = false;
 
@@ -81,6 +92,18 @@ describe('Preview post', () => {
         } finally {
             z3.extractImages = extractImages;
         }
+    }
+
+    it('Preview post', async () => {
+        await testPreviewPost(async _ => await testSetup.login());
+    });
+
+    it ('Preview post via password', async () => {
+        await testPreviewPost(async post => {
+            await db.setPostPreviewPassword(post._id, 'thepassword');
+
+            await testLoginViaPassword(`/preview/${post._id}`, 'thepassword');
+        });
     });
 
     it ('DraftId is not part of post', async () => {
@@ -101,9 +124,8 @@ describe('Preview post', () => {
             .expect(400);
     });
 
-    it ('Preview old draft', async () => {
+    async function testPreviewOldDraft(login) {
         await testSetup.createPostsAndPublishedPosts(1, 2);
-        await testSetup.login();
 
         const post = (await db.getPosts())[0];
 
@@ -113,6 +135,8 @@ describe('Preview post', () => {
 
         const drafts = postAndDrafts.drafts;
         const draft = drafts[1];
+
+        await login(post, draft);
 
         var result = await testSetup.server
             .get(`/preview/${post._id}/${draft._id}`)
@@ -130,5 +154,69 @@ describe('Preview post', () => {
         assert.isFalse(postTemplate.options.isCurrent, 'Wrong isCurrent');
         assert.isUndefined(postTemplate.options.publishedAt, 'Wrong publishedAt');
         assert.equal(`"${postTemplate.options.updated}"`, JSON.stringify(draft.updatedAt), 'Wrong updated');
+    }
+
+    it ('Preview old draft', async () => {
+        await testPreviewOldDraft(async (_, __) => await testSetup.login());
+    });
+
+    it ('Preview draft via password', async () => {
+        await testPreviewOldDraft(async (post, draft) => {
+            await db.setPostPreviewPassword(post._id, 'thepasswordYYY');
+
+            await testLoginViaPassword(`/preview/${post._id}/${draft._id}`, 'thepasswordYYY');
+        });
+    });
+
+    async function testWrongPassword(generateUrl) {
+        await testSetup.createPostsAndPublishedPosts(1, 2);
+
+        const post = (await db.getPosts())[0];
+
+        await db.appendDraft(post._id, 'New draft', 'New content');
+
+        const postAndDrafts = await db.getPostAndDrafts(post._id);
+
+        const drafts = postAndDrafts.drafts;
+        const draft = drafts[1];
+
+        await db.setPostPreviewPassword(post._id, 'thepassword');
+
+        const url = generateUrl(post, draft);
+
+        const result = await testSetup.server
+            .post(url)
+            .send(`previewPassword=bad`)
+            .expect(401);
+
+        assert.isNotNull(result.text);
+
+        let contents = JSON.parse(result.text);
+        assert.isTrue(contents.options.wrongPassword, "WrongPassword not set");
+
+    }
+
+    it ('Preview post wrong password', async () => {
+        testWrongPassword((post, _) => `/preview/${post._id}`);
+    });
+
+    it ('Preview draft wrong password', async () => {
+        testWrongPassword((post, draft) => `/preview/${post._id}/${draft._id}`);
+    });
+
+    it ('Redirected to enter password', async () => {
+        assert.fail('incomplete');
+    });
+
+    it ('Redirected to enter password for draft', async () => {
+        assert.fail('incomplete');
+    });
+
+    it ('Set password via preview', async () => {
+        assert.fail('incomplete');
+    });
+
+    it ('Set password via draft', async () => {
+        assert.fail('incomplete');
     });
 });

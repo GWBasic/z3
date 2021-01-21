@@ -77,6 +77,8 @@ async function handlePassword(req, res) {
         if (req.post.previewPassword == previewPassword) {
             req.session[`post_${req.post._id}`] = previewPassword;
         } else {
+            res.status(401);
+
             res.render('previewPassword', {
                 wrongPassword: true
             });
