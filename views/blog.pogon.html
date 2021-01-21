@@ -18,12 +18,13 @@
 			{{#if isLoggedIn}}
 				<form method="POST">
 					<label>Preview password:
-						<input type="password" id="previewPassword" name="previewPassword" value="{{previewPassword}}">
+						<input type="password" id="previewPassword" name="previewPassword" value="{{previewPassword}}" class="showHidePasswordInput">
 					</label>
 					<input type="hidden" name="setPassword" value="true">
-					<!-- TODO: link to show password -->
 					<input type="submit">
+					(<a class="showHidePasswordLink">Show / Hide Password</a>)
 				</form>
+				<script src="/javascripts/showHidePassword.js"></script>
 			{{/if}}
 		{{else}}
 			{{#if isBlogPost}}
