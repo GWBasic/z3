@@ -23,7 +23,7 @@ describe('Preview post', () => {
 
         await testSetup.server
             .get(`/preview/${post._id}`)
-            .expect(401);
+            .expect(404);
     });
 
     it('Preview post', async () => {
