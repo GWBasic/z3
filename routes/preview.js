@@ -12,8 +12,10 @@ router.param('postId', async (req, res, next, postId) => {
     if (!z3.isLoggedIn(req)) {
         if (post.previewPassword === null) {
             next(createError(404));
+            return;
         } else if (post.previewPassword.length == 0) {
             next(createError(404));
+            return;
         }
     }
 
@@ -106,6 +108,7 @@ router.get('/:postId', async (req, res) => {
     if (canViewPost(req)) {
         await renderDraft(req.currentDraft, req, res, true);
     } else {
+        res.status(401);
         res.render('previewPassword');
     }
 });
@@ -119,6 +122,7 @@ router.get('/:postId/:draftId', async (req, res) => {
     if (canViewPost(req)) {
         await renderDraft(req.draft, req, res);
     } else {
+        res.status(401);
         res.render('previewPassword');
     }
 });

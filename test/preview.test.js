@@ -24,6 +24,40 @@ describe('Preview post', () => {
         await testSetup.server
             .get(`/preview/${post._id}`)
             .expect(404);
+
+        const postAndDrafts = await db.getPostAndDrafts(post._id);
+        const draft = postAndDrafts.drafts[0];
+
+        await testSetup.server
+            .get(`/preview/${post._id}/${draft._id}`)
+            .expect(404);
+    });
+
+    async function testPromptForPassword(generateUrl) {
+        await testSetup.createPostsAndPublishedPosts(1, 2);
+
+        const post = (await db.getPosts())[0];
+        const postAndDrafts = await db.getPostAndDrafts(post._id);
+        const draft = postAndDrafts.drafts[0];
+
+        await db.setPostPreviewPassword(post._id, 'thepassword');
+
+        const result = await testSetup.server
+            .get(generateUrl(post, draft))
+            .expect(401);
+
+        assert.isNotNull(result.text);
+        const contents = JSON.parse(result.text);
+        
+        assert.equal(contents.fileName, 'previewPassword.pogon.html');
+    }
+
+    it ('Redirected to enter password', async () => {
+        await testPromptForPassword((post, _) => `/preview/${post._id}`);
+    });
+
+    it ('Redirected to enter password for draft', async () => {
+        await testPromptForPassword((post, draft) => `/preview/${post._id}/${draft._id}`);
     });
 
     async function testLoginViaPassword(url, password) {
@@ -197,26 +231,41 @@ describe('Preview post', () => {
     }
 
     it ('Preview post wrong password', async () => {
-        testWrongPassword((post, _) => `/preview/${post._id}`);
+        await testWrongPassword((post, _) => `/preview/${post._id}`);
     });
 
     it ('Preview draft wrong password', async () => {
-        testWrongPassword((post, draft) => `/preview/${post._id}/${draft._id}`);
+        await testWrongPassword((post, draft) => `/preview/${post._id}/${draft._id}`);
     });
 
-    it ('Redirected to enter password', async () => {
-        assert.fail('incomplete');
-    });
+    async function testSetPassword(generateUrl) {
+        await testSetup.createPostsAndPublishedPosts(1, 2);
 
-    it ('Redirected to enter password for draft', async () => {
-        assert.fail('incomplete');
-    });
+        var post = (await db.getPosts())[0];
+        const draft = await db.getNewestDraft(post._id);
+
+        await testSetup.login();
+
+        const url = generateUrl(post, draft);
+        const previewPassword = 'boo!';
+
+        const result = await testSetup.server
+            .post(url)
+            .send(`previewPassword=${previewPassword}&setPassword=true`)
+            .expect(302)
+            .expect('Location', url);
+
+        assert.isNotNull(result.text);
+
+        post = await db.getPost(post._id);
+        assert.equal(post.previewPassword, previewPassword);
+    }
 
     it ('Set password via preview', async () => {
-        assert.fail('incomplete');
+        await testSetPassword((post, _) => `/preview/${post._id}`);
     });
 
     it ('Set password via draft', async () => {
-        assert.fail('incomplete');
+        await testSetPassword((post, draft) => `/preview/${post._id}/${draft._id}`);
     });
 });
