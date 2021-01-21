@@ -61,7 +61,7 @@ async function renderDraft(draft, req, res) {
 }
 
 async function handlePassword(req, res) {
-    const previewPassword = req.body.previewPassword;
+    const previewPassword = req.body.previewPW;
 
     if (z3.isLoggedIn(req)) {
         // Update the password

@@ -63,7 +63,7 @@ describe('Preview post', () => {
     async function testLoginViaPassword(url, password) {
         const result = await testSetup.server
             .post(url)
-            .send(`previewPassword=${password}`)
+            .send(`previewPW=${password}`)
             .expect(302)
             .expect('Location', url);
 
@@ -220,7 +220,7 @@ describe('Preview post', () => {
 
         const result = await testSetup.server
             .post(url)
-            .send(`previewPassword=bad`)
+            .send(`previewPW=bad`)
             .expect(401);
 
         assert.isNotNull(result.text);
@@ -251,7 +251,7 @@ describe('Preview post', () => {
 
         const result = await testSetup.server
             .post(url)
-            .send(`previewPassword=${previewPassword}&setPassword=true`)
+            .send(`previewPW=${previewPassword}&setPassword=true`)
             .expect(302)
             .expect('Location', url);
 
