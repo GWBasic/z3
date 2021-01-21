@@ -17,6 +17,9 @@
 			{{/if}}
 			{{#if isLoggedIn}}
 				<form method="POST">
+					<!-- Prevent Chrome from auto-filling previewPW -->
+					<input id="username" style="display:none" type="text" name="fakeusernameremembered">
+					<input id="password" style="display:none" type="password" name="fakepasswordremembered">
 					<label>Preview password:
 						<input
 							type="password"
