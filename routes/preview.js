@@ -4,9 +4,6 @@ const router = require('express-promise-router')();
 const db = require('../db');
 const z3 = require('../z3');
 
-// All calls on the edit route must be authenticated
-//router.all('/*', z3.checkIsAuthenticated);
-
 router.param('postId', async (req, res, next, postId) => {
 
     const post = await db.getPost(postId);
@@ -14,9 +11,9 @@ router.param('postId', async (req, res, next, postId) => {
 
     if (!z3.isLoggedIn(req)) {
         if (post.previewPassword === null) {
-            next(createError(401));
+            next(createError(404));
         } else if (post.previewPassword.length == 0) {
-            next(createError(401));
+            next(createError(404));
         }
     }
 
@@ -69,7 +66,11 @@ async function handlePassword(req, res) {
         if (req.body.setPassword) {
             if (req.body.setPassword == 'true') {
                 await db.setPostPreviewPassword(req.post._id, previewPassword);
+            } else {
+                throw createError(400, 'Unknown value for setPassword')
             }
+        } else {
+            throw createError(400, 'Currently logged-in')
         }
     } else {
         // Compare the password and authorize
@@ -109,17 +110,6 @@ router.get('/:postId', async (req, res) => {
 
 router.post('/:postId', async (req, res) => {
     await handlePassword(req, res);
-    /*// TODO: Avoid copy & paste
-
-    const previewPassword = req.body.previewPassword;
-
-    if (z3.isLoggedIn(req)) {
-        // TODO: Check for setPassword == true
-        await db.setPostPreviewPassword(req.post._id, previewPassword);
-        res.redirect(`/preview/${req.post._id}`);
-    } else {
-        // TODO: Compare password and render
-    }*/
 });
 
 router.get('/:postId/:draftId', async (req, res) => {
@@ -133,16 +123,6 @@ router.get('/:postId/:draftId', async (req, res) => {
 
 router.post('/:postId/:draftId', async (req, res) => {
     await handlePassword(req, res);
-
-/*    // TODO: Eliminate copy & paste
-    const previewPassword = req.body.previewPassword;
-
-    if (z3.isLoggedIn(req)) {
-        await db.setPostPreviewPassword(req.post._id, previewPassword);
-        res.redirect(`/preview/${req.post._id}/${req.draft._id}`);
-    } else {
-        // TODO: Compare password and render
-    }*/
 });
 
 router.get('/image/:postId/:imageFilename', async (req, res) => {
