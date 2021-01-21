@@ -155,7 +155,8 @@ CREATE TABLE public.posts (
     static_order real,
     content text,
     static_group character varying,
-    draft_id integer
+    draft_id integer,
+    preview_password character varying
 );
 
 

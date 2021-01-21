@@ -95,6 +95,7 @@ function constructPostFromRow(row) {
         updatedAt: row.updated_at,
         workingTitle: row.working_title,
         suggestedLocation: row.suggested_location,
+        previewPassword: row.preview_password,
     };
 
     // Only set published values when the post is published
@@ -419,6 +420,16 @@ async function unPublishPost(client, postId) {
         [postId]);
 }
 
+async function setPostPreviewPassword(client, postId, previewPassword) {
+    const updateResult = await client.query(
+        "UPDATE posts SET preview_password=$2 WHERE id=$1",
+        [postId, previewPassword]);
+
+    if (updateResult.rowCount == 0) {
+        throw new PostNotFoundError(`No posts with id ${postId}`);
+    }
+}
+
 async function deletePost(client, postId) {
 
     await client.query(
@@ -680,6 +691,8 @@ module.exports = {
         await runOnTransaction(async client => await publishPost(client, postId, draftId, publishedAt, republishedAt, title, content, url, summary, imageIdsToPublish, staticGroup, afterPageId)),
 
     unPublishPost: async postId => await runOnTransaction(async client => await unPublishPost(client, postId)),
+
+    setPostPreviewPassword: async (postId, previewPassword) => await useClient(async client => await setPostPreviewPassword(client, postId, previewPassword)),
     
     deletePost: async postId => await runOnTransaction(client => deletePost(client, postId)),
 

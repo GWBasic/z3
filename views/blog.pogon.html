@@ -15,6 +15,26 @@
 			{{else}}
 				<em>Old version edited at: <z3-date>{{updated}}</z3-date></em>
 			{{/if}}
+			{{#if isLoggedIn}}
+				<form method="POST">
+					<!-- Prevent Chrome from auto-filling previewPW -->
+					<input id="username" style="display:none" type="text" name="fakeusernameremembered">
+					<input id="password" style="display:none" type="password" name="fakepasswordremembered">
+					<label>Preview password:
+						<input
+							type="password"
+							id="previewPW"
+							name="previewPW"
+							value="{{previewPassword}}"
+							class="showHidePasswordInput"
+							autocomplete="new-password">
+					</label>
+					<input type="hidden" name="setPassword" value="true">
+					<input type="submit">
+					(<a class="showHidePasswordLink">Show / Hide Password</a>)
+				</form>
+				<script src="/javascripts/showHidePassword.js"></script>
+			{{/if}}
 		{{else}}
 			{{#if isBlogPost}}
 				<em>
