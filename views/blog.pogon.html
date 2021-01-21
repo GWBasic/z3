@@ -18,7 +18,13 @@
 			{{#if isLoggedIn}}
 				<form method="POST">
 					<label>Preview password:
-						<input type="password" id="previewPassword" name="previewPassword" value="{{previewPassword}}" class="showHidePasswordInput">
+						<input
+							type="password"
+							id="previewPassword"
+							name="previewPassword"
+							value="{{previewPassword}}"
+							class="showHidePasswordInput"
+							autocomplete="off">
 					</label>
 					<input type="hidden" name="setPassword" value="true">
 					<input type="submit">
