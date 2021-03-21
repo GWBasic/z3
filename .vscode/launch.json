@@ -36,7 +36,8 @@
                 "<node_internals>/**"
             ],
             "env": {
-                "DATABASE_URL": "postgresql://localhost:5432/z3_test"
+                "DATABASE_URL": "postgresql://localhost:5432/z3_test",
+                "DISABLE_SSL": "true"
             }
         },
     ]
