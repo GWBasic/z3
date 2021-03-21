@@ -1,0 +1,7 @@
+{
+    "mochaExplorer.debuggerConfig": "Mocha Tests",
+    "mochaExplorer.fullTrace": true,
+    "mochaExplorer.env": {
+        "DISABLE_SSL": "true"
+    }
+}
