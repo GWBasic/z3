@@ -34,7 +34,7 @@ module.exports = {
     },
 
     listen: async (channel, callback, done) => {
-        var client = new Client(connectionString);
+        var client = new Client(connectionArguments);
         await client.connect();
         await client.query(`LISTEN ${format.ident(channel)}`);
 
