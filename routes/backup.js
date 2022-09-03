@@ -35,6 +35,11 @@ router.get('/articles', async (req, res) => {
     }
 
     res.status(200);
+
+    let filename = drafts ? 'blogbackupwithdrafts.json' : 'blogbackup.json';
+
+    res.setHeader('Content-disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-type', 'application/json');
     res.json(allPosts);
 });
 
