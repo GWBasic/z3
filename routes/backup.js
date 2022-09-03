@@ -11,7 +11,17 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/articles', async (req, res) => {
+    let drafts = req.query.drafts === 'true';
+
     let allPosts = await db.getPosts(0);
+
+    if (drafts) {
+        for (var postCtr = 0; postCtr < allPosts.length; postCtr++) {
+            let postAndDrafts = await db.getPostAndDrafts(allPosts[postCtr]._id);
+            allPosts[postCtr] = postAndDrafts.post;
+            allPosts[postCtr].drafts = postAndDrafts.drafts;
+        }
+    }
 
     for (var post of allPosts) {
         let images = await db.getImagesForPost(post._id);
