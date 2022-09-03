@@ -13,9 +13,8 @@
             ],
             "program": "${workspaceFolder}/www.js",
             "env": {
-                "DATABASE_URL": "postgresql://localhost:5432/andrewrondeau",
-                "DEFAULT_PASSWORD": "ch@ng3mE!",
-                "DISABLE_SSL": "true"
+                "DATABASE_URL": "postgresql://localhost:5432/z3",
+                "DEFAULT_PASSWORD": "ch@ng3mE!"
             }
         },
 
