@@ -16,6 +16,7 @@ const runtimeOptions = require('./runtimeOptions');
 const setExpressOptions = require('./setExpressOptions');
 
 const avatarRouter = require('./routes/avatar');
+const backupRouter = require('./routes/backup');
 const blogRouter = require('./routes/blog');
 const changePasswordRouter = require('./routes/changePassword');
 const configRouter = require('./routes/config');
@@ -129,6 +130,7 @@ async function startApp() {
 	app.use('/edit/', editRouter);
 	app.use('/login/', loginRouter);
 	app.use('/publish/', publishRouter);
+	app.use('/backup/', backupRouter);
 
 	// Globally-readable pages use domain forcing
 	app.use('/', redirectsRouter);
