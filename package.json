@@ -10,7 +10,7 @@
     "client-sessions": "^0.8.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "express": "~4.16.1",
+    "express": "~4.17.3",
     "express-promise-router": "^3.0.3",
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.6",
